@@ -36,32 +36,34 @@ public class Condition {
 				String preGoTo = condition.split("->")[0];
 				questionSkip = condition.split("->")[1];
 				skip = true;
-				if(condition.contains("<")){
+				if(preGoTo.contains("<")){
 					newCondition = preGoTo.replaceAll("[^\\d.]", "");
 					sup = Integer.parseInt(newCondition);
 					type=0;
-				}else if(condition.contains(">")){
+				}else if(preGoTo.contains(">")){
 					newCondition = preGoTo.replaceAll("[^\\d.]", "");
 					inf = Integer.parseInt(newCondition);
 					type=1;
-				}else if(condition.contains("==")){
+				}else if(preGoTo.contains("==")){
 					type = 2;
 					newCondition = preGoTo.replaceAll("[^\\d.]", "");
 					newCondition = newCondition.replaceAll("==","");
 					eq = Double.valueOf(newCondition);
-				} else if(condition.contains("=/=")){
+				} else if(preGoTo.contains("=/=")){
 					type = 3;
 					newCondition = preGoTo.replaceAll("[^\\d.]", "");
 					newCondition = newCondition.replaceAll("=/=","");
 					neq = Double.valueOf(newCondition);
-				} else if(condition.contains(",")){
+				} else if(preGoTo.contains(",")){
 					type = 4;
 					String [] possibility = preGoTo.split(",");
 					checkbox = new int[possibility.length];
 					for(int i = 0 ; i < possibility.length; i++){
+						possibility[i] = possibility[i].replaceAll(" ", "");
+						possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
 						checkbox[i] = Integer.valueOf(possibility[i]);					
 					}
-				}else if(condition.contains("date")){
+				}else if(preGoTo.contains("date")){
 					type = 6;
 					newCondition = preGoTo.replaceAll("date","");
 					newCondition = newCondition.replaceAll("MIN","");
@@ -72,7 +74,7 @@ public class Condition {
 					newCondition = newCondition.replaceAll("[^\\d.]", "");
 					max = Integer.parseInt(newCondition);
 					tag = "date";
-				}else if(condition.contains("MIN") && !condition.contains("date")){
+				}else if(preGoTo.contains("MIN") && !condition.contains("date")){
 					type = 5;
 					newCondition = preGoTo.replaceAll("MIN","");
 					newCondition= newCondition.replaceAll("MAX","");
