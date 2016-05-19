@@ -8,14 +8,21 @@ public class TraitementEntrer {
 	private String numEntrer;
 	private boolean disqualif;
 	private String questionDisqualif;
-	
+	private List<String> notToBeAnswer;
 	public TraitementEntrer(){
 		disqualif = false;
 		numEntrer ="";
 		reponses = new ArrayList<Reponse>();
+		notToBeAnswer = new ArrayList<String>();
 		
 	}
+	public void addNotToBe(String quest){
+		notToBeAnswer.add(quest);
+	}
 
+	public List<String> getNotToBeAnswer(){
+		return notToBeAnswer;
+	}
 	public List<Reponse> getReponses() {
 		return reponses;
 	}

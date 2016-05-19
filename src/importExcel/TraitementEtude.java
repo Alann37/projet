@@ -63,16 +63,19 @@ public class TraitementEtude {
 				}
 			}
 			QuestionReturn skipTo= new QuestionReturn(true,false,"",-1) ;
-			QuestionReturn previousSkipTo;
 			for(int t = 0 ; t < questions.size(); t++){
 				//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
-			//	QuestionReturn returnQuest = questions.get(t).applyCondition(skipTo);
-				if(!questions.get(t).applyCondition()){
+				QuestionReturn returnQuest = questions.get(t).applyCondition(skipTo);
+				if(!returnQuest.validate){
 					temp.setDisqualif(true);
 					//numberFail++;
 					temp.setQuestionDisqualif(questions.get(t).name);
-					t =questions.size();
-				} 
+					
+				}
+				skipTo = returnQuest;
+				if (!questions.get(t).shouldBeAnswer && questions.get(t).isAnswer) {
+					temp.addNotToBe(questions.get(t).name);
+				}
 			
 			}
 			for(int o = 0 ; o <questions.size() ; o ++){
