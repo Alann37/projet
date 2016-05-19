@@ -45,7 +45,8 @@ public class Question {
 	}
 	
 	public QuestionReturn applyCondition(QuestionReturn option){
-		boolean bRet = true;
+		boolean isConstSum = false;
+		double sum=0;
 		QuestionReturn qRet = new QuestionReturn(true);
 		shouldBeAnswer= true;
 		if(option.gotSkipTo){ // futur param
@@ -105,7 +106,7 @@ public class Question {
 								if(conditions.get(j).type==4){
 									for(int h = 0 ; i < conditions.get(j).checkbox.length;h++){
 										if(reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
-											bRet = false;	
+											qRet.validate = false;	
 											reponses.get(i).disqualif=true;
 										}
 									}if(conditions.get(j).skip && shouldBeAnswer){
@@ -134,6 +135,12 @@ public class Question {
 											qRet.questionSkip = conditions.get(j).questionSkip;
 											qRet.setQuestionNumber();
 										}
+									}
+								}
+								if(conditions.get(j).type==7){
+									isConstSum=true;
+									if(reponses.get(i).reponseNumeric != -1){
+										sum+=reponses.get(i).reponseNumeric;
 									}
 								}
 							}
@@ -182,7 +189,7 @@ public class Question {
 							
 								for(int h = 0 ; h < conditions.get(j).checkbox.length;h++){
 									if(reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h] && !conditions.get(j).skip){
-										bRet = false;	
+										qRet.validate = false;	
 										reponses.get(i).disqualif=true;
 										break;
 									}
@@ -215,7 +222,23 @@ public class Question {
 									qRet.setQuestionNumber();
 								}
 							}
+							if(conditions.get(j).type==7){
+								isConstSum=true;
+								if(reponses.get(i).reponseNumeric != -1){
+									sum+=reponses.get(i).reponseNumeric;
+								}
+							}
 						
+						}
+					}
+				}
+				if(isConstSum){
+					for(int h=0; h<conditions.size(); h++){
+						if(conditions.get(h).type==7){
+							if(sum!= conditions.get(h).constSumRes){
+								qRet.validate = false;
+								reponses.get(h).disqualif=true;
+							}
 						}
 					}
 				}
