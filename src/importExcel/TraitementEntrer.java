@@ -8,19 +8,19 @@ public class TraitementEntrer {
 	private String numEntrer;
 	private boolean disqualif;
 	private String questionDisqualif;
-	private List<skipCondition> notToBeAnswer;
+	private List<String> notToBeAnswer;
 	public TraitementEntrer(){
 		disqualif = false;
 		numEntrer ="";
 		reponses = new ArrayList<Reponse>();
-		notToBeAnswer = new ArrayList<skipCondition>();
+		notToBeAnswer = new ArrayList<String>();
 		
 	}
-	public void addNotToBe(skipCondition quest){
+	public void addNotToBe(String quest){
 		notToBeAnswer.add(quest);
 	}
 
-	public List<skipCondition> getNotToBeAnswer(){
+	public List<String> getNotToBeAnswer(){
 		return notToBeAnswer; 
 	}
 	public List<Reponse> getReponses() {
