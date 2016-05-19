@@ -182,7 +182,20 @@ public class ReadExcel {
 								style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 								cell.setCellStyle(style);
 								
-							} 					
+							}
+							int size = list.get(row.getRowNum()-1).getNotToBeAnswer().size();
+							for(int i = 0 ; i <size ;i++){
+								if(sh.getRow(0).getCell(cell.getColumnIndex()).getStringCellValue().contains(list.get(row.getRowNum()-1).getNotToBeAnswer().get(i)) ){
+									CellStyle style = books.createCellStyle();
+									style.cloneStyleFrom(cell.getCellStyle());
+									style.setFillBackgroundColor(IndexedColors.PINK.getIndex());
+									style.setFillForegroundColor(IndexedColors.PINK.getIndex());
+									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+									cell.setCellStyle(style);
+									list.get(row.getRowNum()-1).getNotToBeAnswer().remove(i);
+									i=size;
+								}
+							}
 						}
 					}
 
@@ -191,7 +204,7 @@ public class ReadExcel {
 			}
 		}
 		
-		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll("BRUTE", "DISQU"));
+		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
 		books.close();
 	}

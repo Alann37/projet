@@ -5,6 +5,7 @@ public class QuestionReturn {
 	boolean gotSkipTo;
 	String questionSkip;
 	int questionNumber;
+	boolean isAnswer;
 	public QuestionReturn(){
 		validate = false;
 		gotSkipTo= false;
@@ -15,9 +16,7 @@ public class QuestionReturn {
 		gotSkipTo=gotSkip;
 		if(gotSkipTo){
 			questionSkip=q;
-			
 		}
-		
 	}
 	public QuestionReturn (boolean val){
 		validate = val;
