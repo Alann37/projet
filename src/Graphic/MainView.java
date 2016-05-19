@@ -10,15 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.GroupLayout;
@@ -54,9 +49,7 @@ public class MainView {
 	 * Initialize the contents of the frame.
 	 * @throws PropertyVetoException 
 	 */
-	private void setPath(){
-		
-	}
+
 	private void initialize() throws PropertyVetoException {
 		frame = new JFrame();
 		frame.setResizable(false);
@@ -174,9 +167,7 @@ public class MainView {
 			        String sPath = excels[0].getAbsolutePath();
 			        sPath = sPath.replace(excels[0].getName(),"");
 			        sPath+="Bases\\01. Extractions brutes\\";
-			       
-		
-					DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			  
 			       
 			 	   //get current date time with Date()
 			
