@@ -9,14 +9,14 @@ public class QuestionReturn {
 	String questionSkip;
 	int questionNumber;
 	boolean isAnswer;
-	List<String> loopPart;
+	List<skipCondition> loopPart;
 	List<String> questionTagSkip;
 	public QuestionReturn(){
 		validate = false;
 		gotSkipTo= false;
 		questionSkip = "";
 		questionTagSkip= new ArrayList<String>();
-		loopPart = new ArrayList<String>();
+		loopPart = new ArrayList<skipCondition>();
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum){
 		validate = val;
@@ -25,14 +25,14 @@ public class QuestionReturn {
 			questionSkip=q;
 		} 
 		questionTagSkip= new ArrayList<String>();
-		loopPart = new ArrayList<String>();
+		loopPart = new ArrayList<skipCondition>();
 	}
 	public QuestionReturn (boolean val){
 		validate = val;
 		gotSkipTo=false;
 		questionNumber=-1;
 		questionSkip="";
-		loopPart = new ArrayList<String>();
+		loopPart = new ArrayList<skipCondition>();
 	}
 	public void setQuestionNumber(){
 		String temp = questionSkip.split("@")[0];
