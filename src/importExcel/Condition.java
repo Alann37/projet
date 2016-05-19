@@ -1,7 +1,7 @@
 package importExcel;
 
 public class Condition {
-	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 checkbox 5 minmax 6 date 7 constantSum
+	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 checkbox 5 minmax 6 date 
 	int type;
 	boolean skip;
 	boolean isCheckBox;
@@ -12,7 +12,6 @@ public class Condition {
 	double sup;
 	double eq;
 	double neq;
-	double constSumRes;
 	int[] checkbox;
 	String tag;
 	
@@ -131,10 +130,6 @@ public class Condition {
 					newCondition = newCondition.split("-")[1];
 					newCondition = newCondition.replaceAll("[^\\d.]", "");
 					max = Integer.parseInt(newCondition);
-				}else if(condition.contains("SUM")){
-					type=7;
-					newCondition = condition.replaceAll("[^\\d.]", "");
-					constSumRes = Double.valueOf(newCondition);
 				}
 				
 			}	
