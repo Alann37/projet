@@ -118,6 +118,7 @@ public class Question {
 										if(!conditions.get(j).skip && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
 											bRet = false;	
 >>>>>>> origin/master
+											qRet.validate = false;	
 											reponses.get(i).disqualif=true;
 										}
 										if(conditions.get(j).skip && shouldBeAnswer && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
@@ -156,6 +157,7 @@ public class Question {
 									isConstSum=true;
 									if(reponses.get(i).reponseNumeric != -1){
 										sum+=reponses.get(i).reponseNumeric;
+									sum+=reponses.get(i).reponseNumeric;
 									}
 								}
 							}
@@ -214,6 +216,7 @@ public class Question {
 									if(!conditions.get(j).skip && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h] && !conditions.get(j).skip){
 										bRet = false;	
 >>>>>>> origin/master
+										qRet.validate = false;	
 										reponses.get(i).disqualif=true;
 										break;
 									}
@@ -253,9 +256,11 @@ public class Question {
 								isConstSum=true;
 								if(reponses.get(i).reponseNumeric != -1){
 									sum+=reponses.get(i).reponseNumeric;
+								sum+=reponses.get(i).reponseNumeric;
 								}
 							}
 						
+							}		
 						}
 					}
 				}
