@@ -31,7 +31,7 @@ public class Condition {
 			}else{
 				tag = null;
 			}
-			newCondition = "";
+			newCondition = ""; 
 			if(condition.contains("->")){
 				String preGoTo = condition.split("->")[0];
 				questionSkip = condition.split("->")[1];
