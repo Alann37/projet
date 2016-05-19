@@ -49,6 +49,7 @@ public class Question {
 		double sum=0;
 		QuestionReturn qRet = new QuestionReturn(true);
 		shouldBeAnswer= true;
+		String loopNumber="";
 		
 		if(!reponses.isEmpty()){
 			if(option.gotSkipTo){ // futur param
@@ -170,9 +171,26 @@ public class Question {
 									}
 								}
 								if(conditions.get(j).type==7){
-									isConstSum=true;
-									if(reponses.get(i).reponseNumeric != -1){
-									sum+=reponses.get(i).reponseNumeric;
+									if(reponses.get(i).questionTag.contains(".")){
+										if(loopNumber.equals(reponses.get(i).questionTag.split("\\.")[1])){
+											if(reponses.get(i).reponseNumeric != -1){
+												sum+= reponses.get(i).reponseNumeric;
+											}
+										} else {
+											if(loopNumber==""){
+												loopNumber=reponses.get(i).questionTag.split("\\.")[1];
+												if(reponses.get(i).reponseNumeric != -1){
+													sum+=reponses.get(i).reponseNumeric;
+												}
+											} else {
+												if(sum!= conditions.get(i).constSumRes){
+													qRet.validate = false;
+													reponses.get(i).disqualif=true;
+												}												
+												sum=0;
+												
+											}
+										}
 									}
 								}
 							}
@@ -283,20 +301,27 @@ public class Question {
 								}
 							}
 							if(conditions.get(j).type==7){
-								isConstSum=true;
-								if(reponses.get(i).reponseNumeric != -1){
-								sum+=reponses.get(i).reponseNumeric;
+								if(reponses.get(i).questionTag.contains(".")){
+									if(loopNumber.equals(reponses.get(i).questionTag.split("\\.")[1])){
+										if(reponses.get(i).reponseNumeric != -1){
+											sum+= reponses.get(i).reponseNumeric;
+										}
+									} else {
+										if(loopNumber==""){
+											loopNumber=reponses.get(i).questionTag.split("\\.")[1];
+											if(reponses.get(i).reponseNumeric != -1){
+												sum+=reponses.get(i).reponseNumeric;
+											}
+										} else {
+											if(sum!= conditions.get(i).constSumRes){
+												qRet.validate = false;
+												reponses.get(i).disqualif=true;
+											}												
+											sum=0;
+											
+										}
+									}
 								}
-							}
-						}
-					}
-				}
-				if(isConstSum){
-					for(int h=0; h<conditions.size(); h++){
-						if(conditions.get(h).type==7){
-							if(sum!= conditions.get(h).constSumRes){
-								qRet.validate = false;
-								reponses.get(h).disqualif=true;
 							}
 						}
 					}
