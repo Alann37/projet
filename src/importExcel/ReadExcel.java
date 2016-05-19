@@ -187,8 +187,8 @@ public class ReadExcel {
 									
 							}
 							int size = list.get(row.getRowNum()-1).getNotToBeAnswer().size();
-							String temp = sh.getRow(0).getCell(cell.getColumnIndex()).getStringCellValue();
-							for(int i = 0 ; i <size ;i++){							
+							for(int i = 0 ; i <size ;i++){
+								String temp = sh.getRow(0).getCell(cell.getColumnIndex()).getStringCellValue();
 								if(temp.equals(list.get(row.getRowNum()-1).getNotToBeAnswer().get(i)) ){
 									CellStyle style = books.createCellStyle();
 									style.cloneStyleFrom(cell.getCellStyle());
@@ -196,8 +196,7 @@ public class ReadExcel {
 									style.setFillForegroundColor(IndexedColors.PINK.getIndex());
 									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 									cell.setCellStyle(style);
-									list.get(row.getRowNum()-1).getNotToBeAnswer().remove(i);
-									i=size;
+									
 								} 
 							}
 						}
