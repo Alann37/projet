@@ -79,11 +79,6 @@ public class TraitementEtude {
 			for(int o = 0 ; o <questions.size() ; o ++){
 				questions.get(o).reponses.clear();
 			}
-			for(int p = 0 ; p<temp.getReponses().size();p++){
-				if( temp.getReponses().get(p).shouldBeEmpty){
-					temp.addNotToBe(temp.getReponses().get(p).questionTag);
-				}
-			}
 			this.etudes.set(i, temp);
 		}
 	/*	for(int i = 0; i<etudes.size();i++){
