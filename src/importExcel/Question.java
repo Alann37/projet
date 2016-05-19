@@ -49,14 +49,15 @@ public class Question {
 		double sum=0;
 		QuestionReturn qRet = new QuestionReturn(true);
 		shouldBeAnswer= true;
-		if(option.gotSkipTo){ // futur param
-			if(option.questionNumber>this.questionNumber ){
-				this.shouldBeAnswer= false;
-
-			}
-			
-		}
+		
 		if(!reponses.isEmpty()){
+			if(option.gotSkipTo){ // futur param
+				if(option.questionNumber>this.questionNumber ){
+					this.shouldBeAnswer= false;
+
+				}
+				
+			}
 			this.isAnswer=true;
 			qRet.isAnswer=true;
 			if(shouldBeAnswer){
@@ -74,6 +75,7 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										qRet.loopPart = reponses.get(i).questionTag.split("\\.")[1];
 									}
 								}
 								if(conditions.get(j).type==1){
