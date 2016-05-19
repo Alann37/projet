@@ -321,7 +321,23 @@ public class Question {
 											
 										}
 									}
+								} else {
+									isConstSum=true;
+									if(reponses.get(i).reponseNumeric != -1){
+										sum+=reponses.get(i).reponseNumeric;
+									}
+																	
 								}
+							}
+						}
+					}
+				}
+				if(isConstSum){
+					for(int h=0; h<conditions.size(); h++){
+						if(conditions.get(h).type==7){
+							if(sum!= conditions.get(h).constSumRes){
+								qRet.validate = false;
+								reponses.get(h).disqualif=true;
 							}
 						}
 					}
