@@ -9,6 +9,7 @@ public class QuestionReturn {
 	String questionSkip;
 	int questionNumber;
 	boolean isAnswer;
+	String loopPart;
 	List<String> questionTagSkip;
 	public QuestionReturn(){
 		validate = false;
