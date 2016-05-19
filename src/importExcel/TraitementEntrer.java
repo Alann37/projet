@@ -85,7 +85,7 @@ public class TraitementEntrer {
 				String s = questions.get(j).name;
 				s = s.replaceAll("\\s+", "");
 				if(reponses.get(i).questionTag.contains(s) ){
-					reponses.get(i).questionName=questions.get(j).name;	
+					reponses.get(i).questionName=questions.get(j).name;
 				}
 			}
 		}

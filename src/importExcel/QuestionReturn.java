@@ -1,15 +1,20 @@
 package importExcel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class QuestionReturn {
 	boolean validate;
 	boolean gotSkipTo;
 	String questionSkip;
 	int questionNumber;
 	boolean isAnswer;
+	List<String> questionTagSkip;
 	public QuestionReturn(){
 		validate = false;
 		gotSkipTo= false;
 		questionSkip = "";
+		questionTagSkip= new ArrayList<String>();
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum){
 		validate = val;
@@ -17,6 +22,7 @@ public class QuestionReturn {
 		if(gotSkipTo){
 			questionSkip=q;
 		} 
+		questionTagSkip= new ArrayList<String>();
 	}
 	public QuestionReturn (boolean val){
 		validate = val;
@@ -30,10 +36,14 @@ public class QuestionReturn {
 		if(!temp.isEmpty()){
 			questionNumber = Integer.valueOf(temp);
 		}
-		System.out.println("NUMBER "+questionNumber);
+		questionTagSkip= new ArrayList<String>();
 	}
 	public boolean isValidate() {
 		return validate;
+	}
+	public void addToTag(String tag)
+	{
+		questionTagSkip.add(tag);
 	}
 	public void setValidate(boolean validate) {
 		this.validate = validate;

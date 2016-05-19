@@ -185,15 +185,15 @@ public class ReadExcel {
 							}
 							int size = list.get(row.getRowNum()-1).getNotToBeAnswer().size();
 							for(int i = 0 ; i <size ;i++){
-								if(sh.getRow(0).getCell(cell.getColumnIndex()).getStringCellValue().contains(list.get(row.getRowNum()-1).getNotToBeAnswer().get(i)) ){
+								String temp = sh.getRow(0).getCell(cell.getColumnIndex()).getStringCellValue();
+								if(temp.equals(list.get(row.getRowNum()-1).getNotToBeAnswer().get(i)) ){
 									CellStyle style = books.createCellStyle();
 									style.cloneStyleFrom(cell.getCellStyle());
 									style.setFillBackgroundColor(IndexedColors.PINK.getIndex());
 									style.setFillForegroundColor(IndexedColors.PINK.getIndex());
 									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 									cell.setCellStyle(style);
-									list.get(row.getRowNum()-1).getNotToBeAnswer().remove(i);
-									i=size;
+									
 								} 
 							}
 						}
