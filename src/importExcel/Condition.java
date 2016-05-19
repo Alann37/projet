@@ -138,13 +138,13 @@ public class Condition {
 	public String toString() {
 		String sRet = "";
 		if(type == 0){
-			sRet = sup +" < ";
+			sRet = " >"+ sup;
 			if(tag !=null){
 				sRet += " " + tag;
 			}
 		}
 		if(type == 1){
-			sRet = inf + " >";
+			sRet = " < " + inf ;
 			if(tag !=null){
 				sRet += " " + tag;
 			}
