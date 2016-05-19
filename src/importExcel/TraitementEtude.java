@@ -77,7 +77,7 @@ public class TraitementEtude {
 					temp.addNotToBe(questions.get(t).name);
 				}
 			
-			}
+			} 
 			for(int o = 0 ; o <questions.size() ; o ++){
 				questions.get(o).reponses.clear();
 			}

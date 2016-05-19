@@ -194,7 +194,7 @@ public class ReadExcel {
 									cell.setCellStyle(style);
 									list.get(row.getRowNum()-1).getNotToBeAnswer().remove(i);
 									i=size;
-								}
+								} 
 							}
 						}
 					}
