@@ -74,7 +74,11 @@ public class TraitementEtude {
 				}
 				skipTo = returnQuest;
 				if (!questions.get(t).shouldBeAnswer && questions.get(t).isAnswer) {
-					temp.addNotToBe(questions.get(t).name);
+					
+					for(int p = 0 ; p < returnQuest.questionTagSkip.size();p++){
+						temp.addNotToBe(returnQuest.questionTagSkip.get(p));
+					}
+					
 				}
 			
 			} 
