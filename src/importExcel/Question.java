@@ -45,7 +45,8 @@ public class Question {
 	}
 	
 	public QuestionReturn applyCondition(QuestionReturn option){
-		boolean bRet = true;
+		boolean isConstSum = false;
+		double sum=0;
 		QuestionReturn qRet = new QuestionReturn(true);
 		shouldBeAnswer= true;
 		if(option.gotSkipTo){ // futur param
@@ -110,8 +111,13 @@ public class Question {
 								}
 								if(conditions.get(j).type==4){
 									for(int h = 0 ; i < conditions.get(j).checkbox.length;h++){
+<<<<<<< HEAD
+										if(reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
+											qRet.validate = false;	
+=======
 										if(!conditions.get(j).skip && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
 											bRet = false;	
+>>>>>>> origin/master
 											reponses.get(i).disqualif=true;
 										}
 										if(conditions.get(j).skip && shouldBeAnswer && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h]){
@@ -144,6 +150,12 @@ public class Question {
 											qRet.setQuestionNumber();
 											qRet.setValidate(true);
 										}
+									}
+								}
+								if(conditions.get(j).type==7){
+									isConstSum=true;
+									if(reponses.get(i).reponseNumeric != -1){
+										sum+=reponses.get(i).reponseNumeric;
 									}
 								}
 							}
@@ -195,8 +207,13 @@ public class Question {
 							if(conditions.get(j).type==4){
 							
 								for(int h = 0 ; h < conditions.get(j).checkbox.length;h++){
+<<<<<<< HEAD
+									if(reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h] && !conditions.get(j).skip){
+										qRet.validate = false;	
+=======
 									if(!conditions.get(j).skip && reponses.get(i).reponseNumeric == conditions.get(j).checkbox[h] && !conditions.get(j).skip){
 										bRet = false;	
+>>>>>>> origin/master
 										reponses.get(i).disqualif=true;
 										break;
 									}
@@ -232,7 +249,23 @@ public class Question {
 									qRet.setValidate(true);
 								}
 							}
+							if(conditions.get(j).type==7){
+								isConstSum=true;
+								if(reponses.get(i).reponseNumeric != -1){
+									sum+=reponses.get(i).reponseNumeric;
+								}
+							}
 						
+						}
+					}
+				}
+				if(isConstSum){
+					for(int h=0; h<conditions.size(); h++){
+						if(conditions.get(h).type==7){
+							if(sum!= conditions.get(h).constSumRes){
+								qRet.validate = false;
+								reponses.get(h).disqualif=true;
+							}
 						}
 					}
 				}
