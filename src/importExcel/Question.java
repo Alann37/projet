@@ -75,7 +75,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
-										qRet.loopPart = reponses.get(i).questionTag.split("\\.")[1];
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 									}
 								}
 								if(conditions.get(j).type==1){
@@ -87,6 +89,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 									}
 								}
 								if(conditions.get(j).type==2){
@@ -98,6 +103,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 									}
 								}
 								if(!conditions.get(j).skip && conditions.get(j).type==3){
@@ -109,6 +117,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 									}
 								}
 								if(conditions.get(j).type==4){
@@ -122,6 +133,9 @@ public class Question {
 											qRet.questionSkip = conditions.get(j).questionSkip;
 											qRet.setQuestionNumber();
 											qRet.setValidate(true);
+											if(reponses.get(i).questionTag.contains(".")){
+												qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+											}
 										}
 									}
 								}
@@ -134,6 +148,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 									}
 								}
 								if(conditions.get(j).type==6){
@@ -146,6 +163,9 @@ public class Question {
 											qRet.questionSkip = conditions.get(j).questionSkip;
 											qRet.setQuestionNumber();
 											qRet.setValidate(true);
+											if(reponses.get(i).questionTag.contains(".")){
+												qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+											}
 										}
 									}
 								}
@@ -166,6 +186,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==1){
@@ -177,6 +200,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==2){
@@ -188,6 +214,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==3){
@@ -199,6 +228,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==4){
@@ -214,6 +246,9 @@ public class Question {
 										qRet.questionSkip = conditions.get(j).questionSkip;
 										qRet.setQuestionNumber();
 										qRet.setValidate(true);
+										if(reponses.get(i).questionTag.contains(".")){
+											qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+										}
 										break;
 									}
 									
@@ -228,6 +263,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==6){
@@ -239,6 +277,9 @@ public class Question {
 									qRet.questionSkip = conditions.get(j).questionSkip;
 									qRet.setQuestionNumber();
 									qRet.setValidate(true);
+									if(reponses.get(i).questionTag.contains(".")){
+										qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+									}
 								}
 							}
 							if(conditions.get(j).type==7){
