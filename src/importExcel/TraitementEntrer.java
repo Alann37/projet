@@ -7,13 +7,14 @@ public class TraitementEntrer {
 	private List<Reponse> reponses;
 	private String numEntrer;
 	private boolean disqualif;
-	private String questionDisqualif;
+	private List<String> questionDisqualif;
 	private List<skipCondition> notToBeAnswer;
 	public TraitementEntrer(){
 		disqualif = false;
 		numEntrer ="";
 		reponses = new ArrayList<Reponse>();
 		notToBeAnswer = new ArrayList<skipCondition>();
+		questionDisqualif = new ArrayList<String>();
 		
 	}
 	public void addNotToBe(skipCondition quest){
@@ -35,13 +36,13 @@ public class TraitementEntrer {
 		return numEntrer;
 	}
 	
-	public int getDisqualifCell(){
-		int iRet = -1;
-		if(disqualif){
+	public int[] getDisqualifCell(){
+		int[] iRet = new int[questionDisqualif.size()];
+		int j = 0;
+		if(questionDisqualif.size()>0){
 			for(int i =0 ; i < reponses.size();i++){
 				if(reponses.get(i).disqualif){
-					iRet = reponses.get(i).cellPosition;
-					i=reponses.size();
+					iRet[j] = reponses.get(i).cellPosition; 
 				}
 			}
 		}
@@ -60,13 +61,13 @@ public class TraitementEntrer {
 		this.disqualif = disqualif;
 	}
 
-	public String getQuestionDisqualif() {
+	public List<String> getQuestionDisqualif() {
 		return questionDisqualif;
 	}
 
 	public void setQuestionDisqualif(String questionDisqualif) {
 	
-		this.questionDisqualif = questionDisqualif;
+		this.questionDisqualif.add(questionDisqualif);
 	}
 
 	@Override

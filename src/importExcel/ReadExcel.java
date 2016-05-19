@@ -174,14 +174,17 @@ public class ReadExcel {
 					while (cells.hasNext()) {
 						cell = (XSSFCell) cells.next();
 						if(list.get(row.getRowNum()-1)!=null){
-							if(cell.getColumnIndex()==list.get(row.getRowNum()-1).getDisqualifCell()){
-								CellStyle style = books.createCellStyle();
-								style.cloneStyleFrom(cell.getCellStyle());
-								style.setFillBackgroundColor(IndexedColors.RED.getIndex());
-								style.setFillForegroundColor(IndexedColors.RED.getIndex());
-								style.setFillPattern(CellStyle.SOLID_FOREGROUND);
-								cell.setCellStyle(style);
-								
+							for(int i = 0 ; i < list.get(row.getRowNum()-1).getQuestionDisqualif().size(); i++){
+								String temp = list.get(row.getRowNum()-1).getQuestionDisqualif().get(i);
+								if((sh.getRow(0).getCell(cell.getColumnIndex() ).getStringCellValue() ).contains(temp) ){
+									CellStyle style = books.createCellStyle();
+									style.cloneStyleFrom(cell.getCellStyle());
+									style.setFillBackgroundColor(IndexedColors.RED.getIndex());
+									style.setFillForegroundColor(IndexedColors.RED.getIndex());
+									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+									cell.setCellStyle(style);
+								}
+									
 							}
 							int size = list.get(row.getRowNum()-1).getNotToBeAnswer().size();
 							for(int i = 0 ; i <size ;i++){
