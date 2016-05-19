@@ -21,7 +21,7 @@ public class TraitementEntrer {
 	}
 
 	public List<String> getNotToBeAnswer(){
-		return notToBeAnswer;
+		return notToBeAnswer; 
 	}
 	public List<Reponse> getReponses() {
 		return reponses;

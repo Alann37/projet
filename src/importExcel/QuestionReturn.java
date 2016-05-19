@@ -16,7 +16,7 @@ public class QuestionReturn {
 		gotSkipTo=gotSkip;
 		if(gotSkipTo){
 			questionSkip=q;
-		}
+		} 
 	}
 	public QuestionReturn (boolean val){
 		validate = val;

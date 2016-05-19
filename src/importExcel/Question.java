@@ -51,7 +51,7 @@ public class Question {
 		if(option.gotSkipTo){ // futur param
 			if(option.questionNumber>this.questionNumber ){
 				this.shouldBeAnswer= false;
-			}
+			} 
 		}
 		if(!reponses.isEmpty()){
 			this.isAnswer=true;
