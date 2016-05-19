@@ -228,14 +228,11 @@ public class Question {
 						}
 					}
 				}
-			}
+			}	
 		} else {
 			this.isAnswer=false;
 			qRet=option;
 			
-		}
-		if(!qRet.isValidate()){
-			System.out.println("toto");
 		}
 		return qRet;
 	}
