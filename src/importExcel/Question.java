@@ -306,6 +306,9 @@ public class Question {
 				qRet = option;
 				for(int i = 0 ; i <reponses.size();i++){
 					qRet.addToTag(reponses.get(i).questionTag);
+					if(reponses.get(i).questionTag.contains(".")){
+						qRet.loopPart.add(reponses.get(i).questionTag.split("\\.")[1]);
+					}
 				}
 			}
 		} else {
