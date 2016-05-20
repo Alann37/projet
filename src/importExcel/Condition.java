@@ -2,7 +2,7 @@ package importExcel;
 
 public class Condition {
 	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 checkbox 5 minmax 6 date 7 constantSum
-	int type;
+	int[] type;
 	boolean skip;
 	boolean isCheckBox;
 	String questionSkip;
@@ -16,7 +16,6 @@ public class Condition {
 	int[] checkbox;
 	String tag;
 	String multi;
-	int[] typeMulti;
 	
 	public Condition(String condition){
 		
@@ -25,18 +24,20 @@ public class Condition {
 		{
 			if(condition.split("&").length!=0)
 			{
+				type=new int [condition.split("&").length];
 				for(int lg=0; lg!= condition.split("&").length; lg++)
 				{
 					newConditionMulti=condition.split("&")[lg];
-					traitement(newConditionMulti);
+					traitement(newConditionMulti, lg);
 				}
 			}
 		}else{
-			traitement(condition);
+			type=new int [1];
+			traitement(condition, 0);
 		}
 	}
 	
-	public void traitement(String condition){
+	public void traitement(String condition,int indice){
 		String newCondition = "";
 		if(condition.contains("_")){
 			if(condition.split("_").length==2){
@@ -60,23 +61,23 @@ public class Condition {
 			if(preGoTo.contains("<")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
-				type=0;
+				type[indice]=0;				
 			}else if(preGoTo.contains(">")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
-				type=1;
+				type[indice]=1;
 			}else if(preGoTo.contains("==")){
-				type = 2;
+				type[indice] = 2;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
 			} else if(preGoTo.contains("=/=")){
-				type = 3;
+				type[indice] = 3;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
 			} else if(preGoTo.contains(",")){
-				type = 4;
+				type[indice] = 4;
 				String [] possibility = preGoTo.split(",");
 				checkbox = new int[possibility.length];
 				for(int i = 0 ; i < possibility.length; i++){
@@ -85,7 +86,7 @@ public class Condition {
 					checkbox[i] = Integer.valueOf(possibility[i]);					
 				}
 			}else if(preGoTo.contains("date")){
-				type = 6;
+				type[indice] = 6;
 				newCondition = preGoTo.replaceAll("date","");
 				newCondition = newCondition.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
@@ -96,7 +97,7 @@ public class Condition {
 				max = Integer.parseInt(newCondition);
 				tag = "date";
 			}else if(preGoTo.contains("MIN") && !condition.contains("date")){
-				type = 5;
+				type[indice] = 5;
 				newCondition = preGoTo.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
 				newCondition = newCondition.replaceAll(" ","");
@@ -109,30 +110,30 @@ public class Condition {
 			if(condition.contains("<")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
-				type=0;
+				type[indice]=0;
 			}else if(condition.contains(">")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
-				type=1;
+				type[indice]=1;
 			}else if(condition.contains("==")){
-				type = 2;
+				type[indice] = 2;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
 			} else if(condition.contains("=/=")){
-				type = 3;
+				type[indice] = 3;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
 			} else if(condition.contains(",")){
-				type = 4;
+				type[indice] = 4;
 				String [] possibility = condition.split(",");
 				checkbox = new int[possibility.length];
 				for(int i = 0 ; i < possibility.length; i++){
 					checkbox[i] = Integer.valueOf(possibility[i]);					
 				}
 			}else if(condition.contains("date")){
-				type = 6;
+				type[indice] = 6;
 				newCondition = condition.replaceAll("date","");
 				newCondition = newCondition.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
@@ -143,7 +144,7 @@ public class Condition {
 				max = Integer.parseInt(newCondition);
 				tag = "date";
 			}else if(condition.contains("MIN") && !condition.contains("date")){
-				type = 5;
+				type[indice] = 5;
 				newCondition = condition.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
 				newCondition = newCondition.replaceAll(" ","");
@@ -152,14 +153,17 @@ public class Condition {
 				newCondition = newCondition.replaceAll("[^\\d.]", "");
 				max = Integer.parseInt(newCondition);
 			}else if(condition.contains("SUM")){
-				type=7;
+				type[indice]=7;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				constSumRes = Double.valueOf(newCondition);
 			}
 			
 		}
 	}
-	@Override
+}
+	
+	
+	/*@Override
 	public String toString() {
 		String sRet = "";
 		if(type == 0){
@@ -199,4 +203,4 @@ public class Condition {
 		
 	}
 
-}
+}*/
