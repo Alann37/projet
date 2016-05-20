@@ -65,9 +65,10 @@ public class TraitementEntrer {
 		return questionDisqualif;
 	}
 
-	public void setQuestionDisqualif(String questionDisqualif) {
-	
-		this.questionDisqualif.add(questionDisqualif);
+	public void setQuestionDisqualif(List<String> questionDisqualif) {
+		for(int i = 0 ; i < questionDisqualif.size();i++){
+			this.questionDisqualif.add(questionDisqualif.get(i));
+		}
 	}
 
 	@Override

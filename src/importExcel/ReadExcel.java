@@ -169,6 +169,7 @@ public class ReadExcel {
 			
 			row = (XSSFRow) rows.next();
 			Iterator cells = row.cellIterator();
+			System.out.println("rowNum = "+row.getRowNum());
 			if(row.getRowNum()>0){
 
 					while (cells.hasNext()) {
@@ -176,7 +177,7 @@ public class ReadExcel {
 						if(list.get(row.getRowNum()-1)!=null){
 							for(int i = 0 ; i < list.get(row.getRowNum()-1).getQuestionDisqualif().size(); i++){
 								String temp = list.get(row.getRowNum()-1).getQuestionDisqualif().get(i);
-								if((sh.getRow(0).getCell(cell.getColumnIndex() ).getStringCellValue() ).contains(temp) ){
+								if((sh.getRow(0).getCell(cell.getColumnIndex() ).getStringCellValue() ).equals(temp) ){
 									CellStyle style = books.createCellStyle();
 									style.cloneStyleFrom(cell.getCellStyle());
 									style.setFillBackgroundColor(IndexedColors.RED.getIndex());
@@ -207,10 +208,11 @@ public class ReadExcel {
 
 			}
 		}
-		
+		System.out.println("FINIII!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
 		books.close();
+		System.out.println("close done");
 	}
 	
 }
