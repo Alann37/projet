@@ -127,7 +127,7 @@ public class Question {
 													sum+=reponses.get(i).reponseNumeric;
 												}
 											} else {
-												if(sum!= conditions.get(i).constSumRes){
+												if(sum!= conditions.get(i).constSumRes && !reponses.get(i).questionTag.contains("NA")){
 													qRet.validate = false;
 													reponses.get(i).disqualif=true;
 												}												
@@ -170,8 +170,7 @@ public class Question {
 										qRet.validate = false;	
 										reponses.get(i).disqualif=true;
 										break;
-									}
-									
+									}							
 								}
 							}
 							if(conditions.get(j).type==5){
