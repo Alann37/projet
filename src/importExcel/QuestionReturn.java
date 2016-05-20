@@ -7,6 +7,7 @@ public class QuestionReturn {
 	boolean validate;
 	boolean gotSkipTo;
 	String questionSkip;
+	List<String> questionDisqualifs;
 	int questionNumber;
 	boolean isAnswer;
 	List<skipCondition> loopPart;
@@ -16,6 +17,7 @@ public class QuestionReturn {
 		gotSkipTo= false;
 		questionSkip = "";
 		questionTagSkip= new ArrayList<String>();
+		questionDisqualifs =new ArrayList<String>();
 		loopPart = new ArrayList<skipCondition>();
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum){
@@ -26,6 +28,7 @@ public class QuestionReturn {
 		} 
 		questionTagSkip= new ArrayList<String>();
 		loopPart = new ArrayList<skipCondition>();
+		questionDisqualifs =new ArrayList<String>();
 	}
 	public QuestionReturn (boolean val){
 		validate = val;
@@ -33,6 +36,7 @@ public class QuestionReturn {
 		questionNumber=-1;
 		questionSkip="";
 		loopPart = new ArrayList<skipCondition>();
+		questionDisqualifs =new ArrayList<String>();
 	}
 	public void setQuestionNumber(){
 		String temp = questionSkip.split("@")[0];

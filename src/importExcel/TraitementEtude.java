@@ -69,7 +69,7 @@ public class TraitementEtude {
 				if(!returnQuest.validate){
 					temp.setDisqualif(true);
 					//numberFail++;
-					temp.setQuestionDisqualif(questions.get(t).name);
+					temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
 					
 				}
 				skipTo = returnQuest;
