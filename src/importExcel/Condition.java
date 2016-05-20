@@ -36,6 +36,7 @@ public class Condition {
 			traitement(condition, 0);
 		}
 	}
+	 
 	
 	public void traitement(String condition,int indice){
 		String newCondition = "";
