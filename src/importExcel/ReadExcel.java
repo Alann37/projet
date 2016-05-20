@@ -95,11 +95,11 @@ public class ReadExcel {
 		for (int i = 0; i < questions.size(); i++) {
 			questions.get(i).makeCondition();
 		}
-		exportControlToExcel(questions, file.toString().replace(".docx", ""));
+		//exportControlToExcel(questions, file.toString().replace(".docx", ""));
 		return questions;
 	}
 
-	private static void exportControlToExcel(List<Question> list, String name) throws IOException {
+/*	private static void exportControlToExcel(List<Question> list, String name) throws IOException {
 		try {
 			// name.replace("\\E0", "\\Condition\\E0");
 			FileOutputStream fileOut = new FileOutputStream(name + "Condition.xls");
