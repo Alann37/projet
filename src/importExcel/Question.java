@@ -86,6 +86,7 @@ public class Question {
 											}
 										}else {
 											qRet.validate = false;
+											qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 											reponses.get(i).disqualif=true;
 										}
 									}									
@@ -101,6 +102,7 @@ public class Question {
 										}
 									}else {
 										qRet.validate = false;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 										reponses.get(i).disqualif=true;
 									}
 									
@@ -119,6 +121,7 @@ public class Question {
 										}
 									}else {
 										qRet.validate = false;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 										reponses.get(i).disqualif=true;
 									}
 									
@@ -134,11 +137,12 @@ public class Question {
 												if(reponses.get(i).partOfLoop){
 													qRet.loopPart.add(new skipCondition(reponses.get(i).questionName,reponses.get(i).questionTag.split("\\.")[1]));
 												}
-												break;
+												
 											}else {
 												qRet.validate = false;
+												qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 												reponses.get(i).disqualif=true;
-												break;
+												
 											}
 										}
 									}
@@ -155,7 +159,9 @@ public class Question {
 											}
 										}else {
 											qRet.validate = false;
+											qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 											reponses.get(i).disqualif=true;
+											
 										}
 									}
 								}
@@ -172,6 +178,7 @@ public class Question {
 										}else {
 											qRet.validate = false;
 											reponses.get(i).disqualif=true;
+											qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 										}
 										
 									}
@@ -192,6 +199,8 @@ public class Question {
 												if(sum!= conditions.get(i).constSumRes){
 													qRet.validate = false;
 													reponses.get(i).disqualif=true;
+
+													qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 												}												
 												sum=0;
 												
@@ -214,6 +223,7 @@ public class Question {
 									}else {
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}
 								}
 								
@@ -231,6 +241,7 @@ public class Question {
 									}else {
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}
 								}
 								
@@ -248,6 +259,7 @@ public class Question {
 									}else {
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}
 								}
 								
@@ -265,6 +277,7 @@ public class Question {
 									}else {
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}
 								}
 								
@@ -285,6 +298,7 @@ public class Question {
 										}else {
 											qRet.validate = false;
 											reponses.get(i).disqualif=true;
+											qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 											break;
 										}
 									}
@@ -305,6 +319,7 @@ public class Question {
 									}else {
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
+										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}
 								}
 								
@@ -322,6 +337,7 @@ public class Question {
 										}else {
 											qRet.validate = false;
 											reponses.get(i).disqualif=true;
+											qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 										}
 								}
 								 
