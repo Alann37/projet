@@ -12,6 +12,8 @@ public class QuestionReturn {
 	boolean isAnswer;
 	List<skipCondition> loopPart;
 	List<String> questionTagSkip;
+	double sum;
+	boolean isConstSum;
 	public QuestionReturn(){
 		validate = false;
 		gotSkipTo= false;

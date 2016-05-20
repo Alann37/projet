@@ -166,22 +166,22 @@ public class Question {
 						if(reponses.get(i).questionTag.contains(".")){
 							if(loopNumber.equals(reponses.get(i).questionTag.split("\\.")[1])){
 								if(reponses.get(i).reponseNumeric != -1){
-									sum+= reponses.get(i).reponseNumeric;
+									qRet.sum+= reponses.get(i).reponseNumeric;
 								}
 							} else {
 								if(loopNumber==""){
 									loopNumber=reponses.get(i).questionTag.split("\\.")[1];
 									if(reponses.get(i).reponseNumeric != -1){
-										sum+=reponses.get(i).reponseNumeric;
+										qRet.sum+=reponses.get(i).reponseNumeric;
 									}
 								} else {
-									if(sum!= conditions.get(i).constSumRes){
+									if(qRet.sum!= conditions.get(i).constSumRes){
 										qRet.validate = false;
 										reponses.get(i).disqualif=true;
 
 										qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 									}												
-									sum=0;
+									qRet.sum=0;
 									
 								}
 							}
@@ -326,27 +326,27 @@ public class Question {
 					if(reponses.get(i).questionTag.contains(".")){
 						if(loopNumber.equals(reponses.get(i).questionTag.split("\\.")[1])){
 							if(reponses.get(i).reponseNumeric != -1){
-								sum+= reponses.get(i).reponseNumeric;
+								qRet.sum+= reponses.get(i).reponseNumeric;
 							}
 						} else {
 							if(loopNumber==""){
 								loopNumber=reponses.get(i).questionTag.split("\\.")[1];
 								if(reponses.get(i).reponseNumeric != -1){
-									sum+=reponses.get(i).reponseNumeric;
+									qRet.sum+=reponses.get(i).reponseNumeric;
 								}
 							} else {
-								if(sum!= conditions.get(i).constSumRes){
+								if(qRet.sum!= conditions.get(i).constSumRes){
 									qRet.validate = false;
 									reponses.get(i).disqualif=true;
 								}												
-								sum=0;
+								qRet.sum=0;
 								
 							}
 						}
 					} else {
-						isConstSum=true;
+						qRet.isConstSum=true;
 						if(reponses.get(i).reponseNumeric != -1){
-							sum+=reponses.get(i).reponseNumeric;
+							qRet.sum+=reponses.get(i).reponseNumeric;
 						}
 														
 					}
@@ -385,13 +385,13 @@ public class Question {
 				for(int i = 0 ; i < reponses.size(); i ++){
 					qRet = aziz(i, qRet, "", sum, isConstSum);
 				}
-				if(isConstSum){
+				if(qRet.isConstSum){
 					for(int h=0; h<conditions.size(); h++){
 						for(int j=0; j!=conditions.get(h).type.length;j++){
 							if(conditions.get(h).type[j]==7){
-								if(sum!= conditions.get(h).constSumRes){
+								if(qRet.sum!= conditions.get(h).constSumRes){
 									qRet.validate = false;
-									reponses.get(h).disqualif=true;
+									//erreur a faire
 								}
 							}
 						}
