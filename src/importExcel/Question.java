@@ -44,7 +44,7 @@ public class Question {
 		// REVOIR COMMENT SPLIT NAME  pour le moment @
 		this.name = name.split("@")[0];
 	}
-	private QuestionReturn aziz(int i,QuestionReturn option, String loopNumber, double sum, boolean isConstSum)
+	private QuestionReturn tryCondition(int i,QuestionReturn option, String loopNumber, double sum, boolean isConstSum)
 	{
 		QuestionReturn qRet=new QuestionReturn();
 		qRet=option;
@@ -551,7 +551,7 @@ public class Question {
 			qRet.isAnswer=true;
 			if(shouldBeAnswer){
 				for(int i = 0 ; i < reponses.size(); i ++){
-					qRet = aziz(i, qRet, "", sum, isConstSum);
+					qRet = tryCondition(i, qRet, "", sum, isConstSum);
 				}
 				if(qRet.isConstSum){
 					for(int h=0; h<conditions.size(); h++){
