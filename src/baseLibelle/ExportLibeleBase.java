@@ -33,6 +33,18 @@ public class ExportLibeleBase {
 								} else {
 									if(firstRow.getCell(j).getStringCellValue().split("_")[0].equals(list.get(h).questionName)&& list.get(h).isUsed()){
 										int temp =(int) sh.getRow(i).getCell(j).getNumericCellValue();
+										if(temp==1){
+											if(sh.getRow(0).getCell(j).getStringCellValue().split("_").length>=1){
+												String sTemp = sh.getRow(0).getCell(j).getStringCellValue().split("_")[sh.getRow(0).getCell(j).getStringCellValue().split("_").length-1];
+												if(sTemp.contains(".")){
+													sTemp = sTemp.split("\\.")[0];
+												}
+												sTemp=sTemp.replaceAll("[^\\d.]", "");
+												if(!sTemp.isEmpty()){
+													temp=Integer.valueOf(sTemp);
+												}
+											}
+										}
 										if(temp<=list.get(h).listItem.size()&& temp>=1){
 											sh.getRow(i).getCell(j).setCellValue(list.get(h).listItem.get(temp-1));
 											h=list.size();
