@@ -253,13 +253,13 @@ public class Question {
 					}
 					if(c.type[h]==7){
 						if(answer.questionTag.contains(".")){
-							if(loopNumber.equals(answer.questionTag.split("\\.")[1])){
+							if(qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
 								if(answer.reponseNumeric != -1){
 									qRet.sum+= answer.reponseNumeric;
 								}
 							} else {
-								if(loopNumber==""){
-									loopNumber=answer.questionTag.split("\\.")[1];
+								if(qRet.loopNumber==""){
+									qRet.loopNumber=answer.questionTag.split("\\.")[1];
 									if(answer.reponseNumeric != -1){
 										qRet.sum+=answer.reponseNumeric;
 									}
@@ -534,13 +534,14 @@ public class Question {
 				
 				if(c.type[h]==7){
 					if(answer.questionTag.contains(".")){
-						if(loopNumber.equals(answer.questionTag.split("\\.")[1])){
+						qRet.isLoop=true;
+						if(qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
 							if(answer.reponseNumeric != -1){
 								qRet.sum+= answer.reponseNumeric;
 							}
 						} else {
-							if(loopNumber==""){
-								loopNumber=answer.questionTag.split("\\.")[1];
+							if(qRet.loopNumber==""){
+								qRet.loopNumber=answer.questionTag.split("\\.")[1];
 								if(answer.reponseNumeric != -1){
 									qRet.sum+=answer.reponseNumeric;
 								}
@@ -628,7 +629,22 @@ public class Question {
 						for(int j=0; j!=conditions.get(h).type.length;j++){
 							if(conditions.get(h).type[j]==7){
 								if(qRet.sum!= conditions.get(h).constSumRes){
+									if(qRet.isLoop==false)
+									{
+										for(int k=0;k!=reponses.size();k++)
+										{
+											if(!reponses.get(k).questionTag.contains("NA"))		
+											{
+												reponses.get(k).disqualif=true;
+												qRet.questionDisqualifs.add(reponses.get(k).questionTag);
+											}
+										}
+									}
+									else{
+										;
+									}
 									qRet.validate = false;
+									
 									//erreur a faire
 								}
 							}
