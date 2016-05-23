@@ -10,17 +10,23 @@ public class QuestionReturn {
 	List<String> questionDisqualifs;
 	int questionNumber;
 	boolean isAnswer;
-	List<skipCondition> loopPart;
+	List<SkipCondition> loopPart;
 	List<String> questionTagSkip;
 	double sum;
 	boolean isConstSum;
+	
+	//mise en place doubleSkip
+	boolean doubleSkip;
+	String beginSkip;
+	String endSkip;
+	
 	public QuestionReturn(){
 		validate = false;
 		gotSkipTo= false;
 		questionSkip = "";
 		questionTagSkip= new ArrayList<String>();
 		questionDisqualifs =new ArrayList<String>();
-		loopPart = new ArrayList<skipCondition>();
+		loopPart = new ArrayList<SkipCondition>();
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum){
 		validate = val;
@@ -29,7 +35,7 @@ public class QuestionReturn {
 			questionSkip=q;
 		} 
 		questionTagSkip= new ArrayList<String>();
-		loopPart = new ArrayList<skipCondition>();
+		loopPart = new ArrayList<SkipCondition>();
 		questionDisqualifs =new ArrayList<String>();
 	}
 	public QuestionReturn (boolean val){
@@ -37,7 +43,7 @@ public class QuestionReturn {
 		gotSkipTo=false;
 		questionNumber=-1;
 		questionSkip="";
-		loopPart = new ArrayList<skipCondition>();
+		loopPart = new ArrayList<SkipCondition>();
 		questionDisqualifs =new ArrayList<String>();
 	}
 	public void setQuestionNumber(){

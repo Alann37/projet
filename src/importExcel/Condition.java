@@ -16,6 +16,8 @@ public class Condition {
 	int[] checkbox;
 	String tag;
 	String multi;
+	String questionSkipTo;	
+	boolean doubleSkip;
 	
 	public Condition(String condition){
 		
@@ -57,7 +59,15 @@ public class Condition {
 		newCondition = ""; 
 		if(condition.contains("->")){
 			String preGoTo = condition.split("->")[0];
-			questionSkip = condition.split("->")[1];
+			if(condition.split("->")[1].contains("to")){
+				questionSkip = condition.split("->")[1].split("to")[0];
+				questionSkipTo = condition.split("->")[1].split("to")[1];
+				questionSkip = questionSkip.replaceAll(" ", "");
+				questionSkipTo = questionSkipTo.replaceAll(" ", "");
+				doubleSkip = true;
+			} else {
+				questionSkip = condition.split("->")[1];
+			}
 			skip = true;
 			if(preGoTo.contains("<")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
