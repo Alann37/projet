@@ -575,6 +575,9 @@ public class Question {
 			qRet.beginSkip = option.beginSkip;
 			qRet.endSkip = option.endSkip;
 			qRet.gotSkipTo=true;
+			for(int i = 0 ; i < option.loopPart.size();i++){
+				qRet.loopPart.add(option.loopPart.get(i));
+			}
 		}
 		return qRet;
 	}
