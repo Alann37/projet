@@ -603,13 +603,15 @@ public class Question {
 			if(option.conditions.size()>0){
 				for(int i = 0 ; i < option.conditions.size();i++ ){
 					for(int j = 0; j < reponses.size();j++){
-						if(reponses.get(j).partOfLoop){
-							if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName) && reponses.get(j).questionTag.split("\\.")[1].equals(option.conditions.get(i).partOfLoop)){
-								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
-							}
-						}else {
-							if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName)){
-								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
+						if(!reponses.get(j).questionTag.contains("other") && !reponses.get(j).questionTag.contains("NA")){
+							if(reponses.get(j).partOfLoop){
+								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName) && reponses.get(j).questionTag.split("\\.")[1].equals(option.conditions.get(i).partOfLoop)){
+									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
+								}
+							}else {
+								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName)){
+									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
+								}
 							}
 						}
 					}
@@ -620,7 +622,7 @@ public class Question {
 			if(shouldBeAnswer){
 				for(int i = 0 ; i < reponses.size(); i ++){
 					for(int j = 0 ; j < conditions.size(); j ++){
-						if(!reponses.get(i).questionTag.contains("other")){
+						if(!reponses.get(i).questionTag.contains("other") && ! reponses.get(i).questionTag.contains("NA")){
 							qRet = tryCondition(conditions.get(j),reponses.get(i), qRet, "", sum, isConstSum);
 						}
 					}
