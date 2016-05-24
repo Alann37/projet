@@ -17,6 +17,7 @@ public class QuestionReturn {
 	boolean isConstSum;
 	boolean isLoop;
 	String loopNumber;
+	String etudename;
 	
 	
 	//mise en place doubleSkip
@@ -25,7 +26,7 @@ public class QuestionReturn {
 	String endSkip;
 	
 	public QuestionReturn(){
-		validate = false;
+		validate = true;
 		gotSkipTo= false;
 		questionSkip = "";
 		questionTagSkip= new ArrayList<String>();
@@ -34,7 +35,7 @@ public class QuestionReturn {
 		conditions = new ArrayList<MultipleCondition>();
 		loopNumber="";
 	}
-	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum){
+	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum,String etudename){
 		validate = val;
 		gotSkipTo=gotSkip;
 		if(gotSkipTo){
@@ -44,9 +45,10 @@ public class QuestionReturn {
 		loopPart = new ArrayList<SkipCondition>();
 		questionDisqualifs =new ArrayList<String>();
 		conditions = new ArrayList<MultipleCondition>();
+		this.etudename = etudename;
 		loopNumber="";
 	}
-	public QuestionReturn (boolean val){
+	public QuestionReturn (boolean val,String etudename){
 		validate = val;
 		gotSkipTo=false;
 		questionNumber=-1;
@@ -54,6 +56,7 @@ public class QuestionReturn {
 		loopPart = new ArrayList<SkipCondition>();
 		questionDisqualifs =new ArrayList<String>();
 		conditions = new ArrayList<MultipleCondition>();
+		this.etudename = etudename;
 		loopNumber="";
 	}
 	public void setQuestionNumber(){

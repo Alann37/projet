@@ -20,6 +20,7 @@ public class Condition {
 	boolean doubleSkip;
 	boolean multiple;
 	boolean questionValue;
+	String countryTag;
 	public Condition(String condition){
 		
 		String newConditionMulti="";
@@ -45,6 +46,12 @@ public class Condition {
 		String newCondition = "";
 		multiple = false;
 		questionValue = false;
+		countryTag = "";
+		if(condition.contains(":")){
+			countryTag=condition.split(":")[0];
+			condition = condition.substring(countryTag.length()+1);
+			countryTag=countryTag.replaceAll(" ","");
+		}
 		if(condition.contains("_")){
 			if(condition.split("_").length==2){
 				tag = "_"+condition.split("_")[1];
@@ -61,7 +68,7 @@ public class Condition {
 		}
 		newCondition = ""; 
 		if(condition.contains("#")){
-			questionValue=true;
+			questionValue=true;	
 			questionSkip = condition.replaceAll("#","");
 			type[indice]=-1;
 		}else if(condition.contains("then")){
