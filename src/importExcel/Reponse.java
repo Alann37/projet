@@ -87,8 +87,7 @@ public class Reponse {
 		    	partOfLoop=true;
 		    }
 			isEmpty=true;
-		}
-	    
+		}    
 	}
 
 	@Override

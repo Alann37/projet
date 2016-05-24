@@ -427,7 +427,16 @@ public class Question {
 				if(c.type[h]==4){
 				
 					for(int k = 0 ; k < c.checkbox.length;k++){
-						if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty ){
+						int testNum=-1;
+						if(answer.reponseNumeric == 1){
+						String temp = answer.questionTag;
+						temp = temp.split("_")[temp.split("_").length-1];
+						if(temp.contains(".")){
+							temp = temp.split("\\.")[0];
+						}
+						 testNum = Integer.valueOf(temp);
+						}
+						if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty ){
 							if(c.skip && !c.doubleSkip && !c.multiple){
 								qRet.gotSkipTo=true;
 								qRet.questionSkip = c.questionSkip;
