@@ -19,6 +19,7 @@ public class Condition {
 	String questionSkipTo;	
 	boolean doubleSkip;
 	boolean multiple;
+	boolean questionValue;
 	public Condition(String condition){
 		
 		String newConditionMulti="";
@@ -43,6 +44,7 @@ public class Condition {
 	public void traitement(String condition,int indice){
 		String newCondition = "";
 		multiple = false;
+		questionValue = false;
 		if(condition.contains("_")){
 			if(condition.split("_").length==2){
 				tag = "_"+condition.split("_")[1];
@@ -58,7 +60,11 @@ public class Condition {
 			tag = null;
 		}
 		newCondition = ""; 
-		if(condition.contains("then")){
+		if(condition.contains("#")){
+			questionValue=true;
+			questionSkip = condition.replaceAll("#","");
+			type[indice]=-1;
+		}else if(condition.contains("then")){
 			String preThen = condition.split("then")[0];
 			questionSkip = condition.split("then")[1];
 			multiple = true;

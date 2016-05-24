@@ -48,7 +48,9 @@ public class Question {
 	{
 		QuestionReturn qRet=new QuestionReturn();
 		qRet=option;
-		
+		if(c.questionValue){
+			qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.reponseNumeric, answer.reponseTexte));
+		}
 			for(int h=0; h!=c.type.length; h++)
 			{
 			if(c.tag!=null){
@@ -618,7 +620,9 @@ public class Question {
 			if(shouldBeAnswer){
 				for(int i = 0 ; i < reponses.size(); i ++){
 					for(int j = 0 ; j < conditions.size(); j ++){
-					qRet = tryCondition(conditions.get(j),reponses.get(i), qRet, "", sum, isConstSum);
+						if(!reponses.get(i).questionTag.contains("other")){
+							qRet = tryCondition(conditions.get(j),reponses.get(i), qRet, "", sum, isConstSum);
+						}
 					}
 				}
 				if(qRet.isConstSum){
