@@ -16,6 +16,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -165,12 +166,16 @@ public class ReadExcel {
 		XSSFSheet sh = books.getSheetAt(0);
 		XSSFCell cell;
 		Iterator rows = sh.rowIterator();
-		
+		List<XSSFRow> listRow = new ArrayList<XSSFRow>();
+		int[]rowDisqualif = new int [sh.getLastRowNum()+1];
+		listRow.add(sh.getRow(0));
 		while (rows.hasNext()) {
-			
+			boolean gotDisq = false;
 			row = (XSSFRow) rows.next();
 			Iterator cells = row.cellIterator();
+			
 			System.out.println("rowNum = "+row.getRowNum());
+			
 			if(row.getRowNum()>0){
 
 					while (cells.hasNext()) {
@@ -180,6 +185,7 @@ public class ReadExcel {
 								String temp = list.get(row.getRowNum()-1).getQuestionDisqualif().get(i);
 								if((sh.getRow(0).getCell(cell.getColumnIndex() ).getStringCellValue() ).equals(temp) ){
 									CellStyle style = books.createCellStyle();
+									gotDisq=true;
 									style.cloneStyleFrom(cell.getCellStyle());
 									style.setFillBackgroundColor(IndexedColors.RED.getIndex());
 									style.setFillForegroundColor(IndexedColors.RED.getIndex());
@@ -208,7 +214,20 @@ public class ReadExcel {
 					
 
 			}
+			if(gotDisq)
+			{
+				listRow.add(row);
+				System.out.println("row num disq = " + row.getRowNum());
+			}
 		}
+		XSSFSheet disqu = books.createSheet("Disqualifier");
+		for(int i = 0; i < rowDisqualif.length;i++){
+			disqu.createRow(i);
+		}
+		
+		CellCopyPolicy policy = new CellCopyPolicy();
+
+		disqu.copyRows(listRow,1,policy);
 		System.out.println("FINIII!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
