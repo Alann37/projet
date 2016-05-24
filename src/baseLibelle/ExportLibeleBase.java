@@ -34,7 +34,7 @@ public class ExportLibeleBase {
 									if(firstRow.getCell(j).getStringCellValue().split("_")[0].equals(list.get(h).questionName)&& list.get(h).isUsed()){
 										int temp =(int) sh.getRow(i).getCell(j).getNumericCellValue();
 										if(temp==1){
-											if(sh.getRow(0).getCell(j).getStringCellValue().split("_").length>=1){
+											if(sh.getRow(0).getCell(j).getStringCellValue().contains("_")){
 												String sTemp = sh.getRow(0).getCell(j).getStringCellValue().split("_")[sh.getRow(0).getCell(j).getStringCellValue().split("_").length-1];
 												if(sTemp.contains(".")){
 													sTemp = sTemp.split("\\.")[0];
