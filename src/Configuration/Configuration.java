@@ -16,7 +16,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Configuration {
 	public static List<String> importConfig() throws IOException{
 		File config = new File("C:\\Users\\dbinet.APLUSA\\Desktop\\Projet\\TraitementBDD\\config.xlsx");
-		System.out.println();
 		List<String> configs = new ArrayList<String>();
 		InputStream reader = new FileInputStream(config);
 		XSSFWorkbook books = new XSSFWorkbook(reader);

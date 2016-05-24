@@ -148,13 +148,6 @@ public class ImportTxt {
 					constructed = false;
 				}
 		}
-		for(int j = 0 ; j < allList.size() ; j ++){
-			if(allList.get(j).isUsed()){
-				System.out.println("List name : " + allList.get(j).listName + " question name : " + allList.get(j).questionName + "isUsed  " + allList.get(j).isUsed());
-				System.out.println("number of item :  "+allList.get(j).listItem.size()+"   " +allList.get(j).listItem.toString());
-			}
-		}
-		System.out.println("name of txt file "+file.getName() );
 		return allList;
 	}
 }
