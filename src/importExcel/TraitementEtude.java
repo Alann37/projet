@@ -59,6 +59,7 @@ public class TraitementEtude {
 							questions.get(h).reponses.add(rTemp);
 							//h=questions.size();
 						}
+						questions.get(h).setNa();
 					}
 				}
 			}

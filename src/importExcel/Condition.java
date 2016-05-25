@@ -21,23 +21,37 @@ public class Condition {
 	boolean multiple;
 	boolean questionValue;
 	String countryTag;
+	boolean isNa;
+	
 	public Condition(String condition){
-		
+		isNa=false;
+		if(condition.contains("NA")){
+			condition= condition.replaceAll(" ","");
+			condition = condition.replaceAll("NA", "");
+			eq = Double.parseDouble(condition);
+			isNa = true;
+			multi="";
+			tag ="";
+			countryTag="";
+			questionSkipTo="";
+			type = new int[0];
+		}else {
 		String newConditionMulti="";
-		if(condition.contains("&"))
-		{
-			if(condition.split("&").length!=0)
+			if(condition.contains("&"))
 			{
-				type=new int [condition.split("&").length];
-				for(int lg=0; lg!= condition.split("&").length; lg++)
+				if(condition.split("&").length!=0)
 				{
-					newConditionMulti=condition.split("&")[lg];
-					traitement(newConditionMulti, lg);
+					type=new int [condition.split("&").length];
+					for(int lg=0; lg!= condition.split("&").length; lg++)
+					{
+						newConditionMulti=condition.split("&")[lg];
+						traitement(newConditionMulti, lg);
+					}
 				}
+			}else{
+				type=new int [1];
+				traitement(condition, 0);
 			}
-		}else{
-			type=new int [1];
-			traitement(condition, 0);
 		}
 	}
 	 

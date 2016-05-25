@@ -22,9 +22,6 @@ public class ImportTxt {
 					fillList=false;
 					itemNumber=-1;
 				}
-				if(line.contains("List Name: Q27ListConst")){
-					System.out.println("toto");
-				}
 				if(line.contains("-----------")){
 					fillList=false;
 					itemNumber=-1;
@@ -79,9 +76,6 @@ public class ImportTxt {
 					} else {
 						i++;
 					}
-				}
-				if(line.contains("Question Name: Q8")){
-					System.out.println("z");
 				}
 				if(constructed && line.contains("Parent List:")){
 					allList.add(new SawtoothList(line.replaceAll("Parent List: ", ""), questionName,isRadioButton));
@@ -162,12 +156,7 @@ public class ImportTxt {
 				allList.get(h).isGridList= true;
 			}
 		}
-		for(int p = 0 ; p <allList.size();p++){
-			if(allList.get(p).listItem.size()>0){
-				System.out.println(allList.get(p).questionName + "  " + allList.get(p).listName + "  " + allList.get(p).isUsed() + " is grid list : "+allList.get(p).isGridList +" row "+allList.get(p).isRowList + " col " + allList.get(p).isColList+ " rButton "+ allList.get(p).isRadioButton);
-				System.out.println(allList.get(p).listItem.toString());
-			}
-		}
+
 		return allList;
 	}
 }

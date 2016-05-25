@@ -35,9 +35,6 @@ public class ExportLibeleBase {
 		while(rows.hasNext()){
 			row = (XSSFRow)rows.next();
 			Iterator cells = row.cellIterator();
-			if(row.getRowNum()==10){
-				System.out.println("e");
-			}
 			while(cells.hasNext()){
 				cell=(XSSFCell) cells.next();
 				for(int h = 0 ; h < list.size();h++){

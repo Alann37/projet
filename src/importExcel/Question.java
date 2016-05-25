@@ -11,6 +11,7 @@ public class Question {
 	public List<Reponse> reponses;
 	int questionNumber;
 	boolean shouldBeAnswer;
+	double naValue;
 	boolean isAnswer;
 	public String getName() {
 		return name;
@@ -25,6 +26,13 @@ public class Question {
 	public void setCondition(List<Condition> condition) {
 		this.conditions = condition;
 	}
+	public void setNa(){
+		for(int i = 0 ; i < conditions.size(); i ++){
+			if(conditions.get(i).isNa){
+				naValue = conditions.get(i).eq;
+			}
+		}
+	}
 	public Question(String name) {
 		this.type=null;
 		this.name = name;
@@ -38,6 +46,7 @@ public class Question {
 				questionNumber = Integer.valueOf(temp);
 			}
 			this.name = name.split("@")[0];
+			naValue = -999999;
 		}
 	}
 
@@ -46,7 +55,7 @@ public class Question {
 		qRet=option;
 		for(int h = 0 ; h < c.type.length;h++){
 		if(c.type[h]==0){
-			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=-1 && !answer.shouldBeEmpty  ){
+			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
@@ -82,7 +91,7 @@ public class Question {
 			
 		}
 		if(c.type[h]==1){
-			if( answer.reponseNumeric<(double)c.inf && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty   ){
+			if( answer.reponseNumeric<(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
@@ -114,7 +123,7 @@ public class Question {
 					qRet.questionDisqualifs.add(answer.questionTag);
 				}
 			}
-			if(answer.reponseNumeric>(double)c.inf && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty && c.multiple){
+			if(answer.reponseNumeric>(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && c.multiple){
 				if(answer.questionTag.contains(".")){
 					qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
 				}else {
@@ -124,12 +133,12 @@ public class Question {
 			
 		}
 		if(c.type[h]==2){
-			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 					qRet.validate = false;
 					answer.disqualif=true;
 					qRet.questionDisqualifs.add(answer.questionTag);
 				
-			}else if (answer.reponseNumeric == c.eq &&answer.reponseNumeric !=-1 && !answer.shouldBeEmpty){
+			}else if (answer.reponseNumeric == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
@@ -160,14 +169,14 @@ public class Question {
 			
 		}
 		if(c.type[h]==3){
-			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 			
 					qRet.validate = false;
 					answer.disqualif=true;
 					qRet.questionDisqualifs.add(answer.questionTag);
 				
 				
-			} else if (answer.reponseNumeric!=(double)c.neq && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty ){
+			} else if (answer.reponseNumeric!=(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
@@ -242,7 +251,7 @@ public class Question {
 			}
 		}
 		if(c.type[h]==5){
-			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=-1 && !answer.shouldBeEmpty  ){
+			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty  ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
