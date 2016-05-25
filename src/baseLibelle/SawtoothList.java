@@ -8,11 +8,19 @@ public class SawtoothList {
 	List<String> listItem;
 	String questionName;
 	boolean isUse;
-	public SawtoothList(String name,String question){
+	boolean isRowList;
+	boolean isColList;
+	boolean isGridList;
+	boolean isRadioButton;
+	public SawtoothList(String name,String question,boolean rButton){
 		this.listName=name;
 		questionName = question;
 		this.listItem = new ArrayList<String>();
 		isUse=true;
+		isRowList=false;
+		isColList=false;
+		isRadioButton=rButton;
+		isGridList = false;
 	}
 	public boolean isUsed(){
 		return isUse;

@@ -94,9 +94,7 @@ public class ReadExcel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int i = 0; i < questions.size(); i++) {
-			questions.get(i).makeCondition();
-		}
+		
 		//exportControlToExcel(questions, file.toString().replace(".docx", ""));
 		return questions;
 	}
@@ -147,13 +145,20 @@ public class ReadExcel {
 		XSSFSheet sh = books.getSheetAt(0);
 		XSSFCell cell;
 		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
-		for(int j = 1; j <= sh.getLastRowNum();j++){
-			listeEntrer.add(new TraitementEntrer());
-			for(int i = 0 ; i < sh.getRow(j).getPhysicalNumberOfCells(); i++) {
-				cell = sh.getRow(j).getCell(i);
-				listeEntrer.get(j-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(i)));			
-			}
-		}
+		Iterator rows = sh.rowIterator();
+	    XSSFRow row;
+		while(rows.hasNext()){
+		   row = (XSSFRow)rows.next();
+		   listeEntrer.add(new TraitementEntrer());
+		   Iterator cells = row.cellIterator();
+		   if(row.getRowNum()>0){
+			   while(cells.hasNext()){
+				   cell=(XSSFCell) cells.next();
+				   listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex()))); 
+			   }
+		    
+		   	}
+		  }
 		books.close();
 		return listeEntrer;
 	}
@@ -217,6 +222,12 @@ public class ReadExcel {
 			}
 			if(gotDisq)
 			{
+				CellStyle style = books.createCellStyle();
+				style.cloneStyleFrom(row.getCell(0).getCellStyle());
+				style.setFillBackgroundColor(IndexedColors.RED.getIndex());
+				style.setFillForegroundColor(IndexedColors.RED.getIndex());
+				style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				row.getCell(0).setCellStyle(style);
 				listRow.add(row);
 			}
 			else {
@@ -239,7 +250,7 @@ public class ReadExcel {
 			}
 			
 		}
-		System.out.println("FINIII!");
+		System.out.println("FINI!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
 		books.close();

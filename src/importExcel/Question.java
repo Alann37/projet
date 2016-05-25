@@ -37,12 +37,10 @@ public class Question {
 			if(!temp.isEmpty()){
 				questionNumber = Integer.valueOf(temp);
 			}
+			this.name = name.split("@")[0];
 		}
 	}
-	public void makeCondition(){
-		// REVOIR COMMENT SPLIT NAME  pour le moment @
-		this.name = name.split("@")[0];
-	}
+
 	private QuestionReturn gestionTypeCondition(QuestionReturn option,Condition c,Reponse answer){
 		QuestionReturn qRet = new QuestionReturn();
 		qRet=option;
@@ -53,6 +51,7 @@ public class Question {
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
 					qRet.validate=true;
+					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 					qRet.setQuestionNumber();
 					if(answer.partOfLoop){
 						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
@@ -89,6 +88,7 @@ public class Question {
 					qRet.questionSkip = c.questionSkip;
 					qRet.validate=true;
 					qRet.setQuestionNumber();
+					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 					if(answer.partOfLoop){
 						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
 					}
@@ -134,6 +134,7 @@ public class Question {
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
 					qRet.validate=true;
+					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 					qRet.setQuestionNumber();
 					if(answer.partOfLoop){
 						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
@@ -169,6 +170,7 @@ public class Question {
 			} else if (answer.reponseNumeric!=(double)c.neq && answer.reponseNumeric !=-1 && !answer.shouldBeEmpty ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
+					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 					qRet.questionSkip = c.questionSkip;
 					qRet.validate=true;
 					qRet.setQuestionNumber();
@@ -208,6 +210,7 @@ public class Question {
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
 						qRet.validate=true;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 						qRet.setQuestionNumber();
 						if(answer.partOfLoop){
 							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
@@ -244,6 +247,7 @@ public class Question {
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
 					qRet.validate=true;
+					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 					qRet.setQuestionNumber();
 					if(answer.partOfLoop){
 						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
@@ -275,6 +279,7 @@ public class Question {
 				 if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
 						qRet.validate=true;
 						qRet.setQuestionNumber();
 						if(answer.partOfLoop){
@@ -378,7 +383,6 @@ public class Question {
 		qRet.etudename = option.etudename;
 		shouldBeAnswer= true;
 		boolean alreadyDoubleSkip=false;
-		
 		if(!reponses.isEmpty()){
 			if(option.gotSkipTo){ // futur par am
 				if(option.doubleSkip){
@@ -390,7 +394,7 @@ public class Question {
 					option.doubleSkip=false;
 					alreadyDoubleSkip=false;
 				}
-				if(option.questionNumber>this.questionNumber&& !option.doubleSkip ){
+				if(!option.questionSkip.equals(this.name) && !option.doubleSkip ){
 					for(int i = 0 ; i < reponses.size(); i ++){
 						if(reponses.get(i).partOfLoop){
 							for(int j = 0 ; j < option.loopPart.size();j++){
@@ -403,27 +407,36 @@ public class Question {
 						}
 					}
 					qRet = option;
+				} else {
+					option.gotSkipTo = false;
+					option.questionSkip="";
 				}
 				
 			}
 			if(option.conditions.size()>0){
 				for(int i = 0 ; i < option.conditions.size();i++ ){
+					boolean passage=false;
 					for(int j = 0; j < reponses.size();j++){
 						if(!reponses.get(j).questionTag.contains("other") && !reponses.get(j).questionTag.contains("NA")){
 							if(reponses.get(j).partOfLoop){
 								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName) && reponses.get(j).questionTag.split("\\.")[1].equals(option.conditions.get(i).partOfLoop)){
 									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
+								passage=true;
 								}
 							}else {
 								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName)){
 									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
+								passage = true;
 								}
 							}
 						}
 					}
+					if(passage){
+						option.conditions.remove(i);
+					}
 				}
 			}
-			this.isAnswer=true;
+
 			qRet.isAnswer=true;
 			if(shouldBeAnswer){
 				for(int i = 0 ; i < reponses.size(); i ++){
@@ -431,6 +444,7 @@ public class Question {
 						if(!reponses.get(i).questionTag.contains("other") && ! reponses.get(i).questionTag.contains("NA")){
 							
 							qRet = tryCondition(conditions.get(j),reponses.get(i), qRet);
+				
 						}
 					}
 				}
@@ -478,6 +492,7 @@ public class Question {
 		if(option.conditions.size()>0){
 			qRet.conditions.addAll(option.conditions);
 		}
+	
 		return qRet;
 	}
 	
