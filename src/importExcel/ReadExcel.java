@@ -168,6 +168,7 @@ public class ReadExcel {
 		Iterator rows = sh.rowIterator();
 		List<XSSFRow> listRow = new ArrayList<XSSFRow>();
 		int[]rowDisqualif = new int [sh.getLastRowNum()+1];
+		int test = 0;
 		listRow.add(sh.getRow(0));
 		while (rows.hasNext()) {
 			boolean gotDisq = false;
@@ -217,17 +218,27 @@ public class ReadExcel {
 			if(gotDisq)
 			{
 				listRow.add(row);
-				System.out.println("row num disq = " + row.getRowNum());
+			}
+			else {
+				rowDisqualif[test] = row.getRowNum();
 			}
 		}
 		XSSFSheet disqu = books.createSheet("Disqualifier");
-		for(int i = 0; i < rowDisqualif.length;i++){
+		for(int i = 0 ; i < listRow.size();i++){
 			disqu.createRow(i);
+			Iterator cells = listRow.get(i).cellIterator();
+			while(cells.hasNext()){
+				cell = (XSSFCell)cells.next();
+				disqu.getRow(i).createCell(cell.getColumnIndex());
+				if(cell.getCellType() == XSSFCell.CELL_TYPE_STRING){
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getStringCellValue());
+				}else{
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getNumericCellValue());
+				}
+				
+			}
+			
 		}
-		
-		CellCopyPolicy policy = new CellCopyPolicy();
-
-		disqu.copyRows(listRow,1,policy);
 		System.out.println("FINIII!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);

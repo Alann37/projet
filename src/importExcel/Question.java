@@ -36,7 +36,6 @@ public class Question {
 			temp=temp.replaceAll("[^\\d.]", "");
 			if(!temp.isEmpty()){
 				questionNumber = Integer.valueOf(temp);
-				System.out.println("NUMBER "+ questionNumber);
 			}
 		}
 	}
