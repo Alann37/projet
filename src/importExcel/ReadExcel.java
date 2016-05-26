@@ -180,7 +180,7 @@ public class ReadExcel {
 			row = (XSSFRow) rows.next();
 			Iterator cells = row.cellIterator();
 			
-			System.out.println("rowNum = "+row.getRowNum());
+			//System.out.println("rowNum = "+row.getRowNum());
 			
 			if(row.getRowNum()>0){
 
@@ -243,18 +243,20 @@ public class ReadExcel {
 				disqu.getRow(i).createCell(cell.getColumnIndex());
 				if(cell.getCellType() == XSSFCell.CELL_TYPE_STRING){
 					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getStringCellValue());
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellStyle(cell.getCellStyle());
 				}else{
 					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getNumericCellValue());
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellStyle(cell.getCellStyle());
 				}
 				
 			}
 			
 		}
-		System.out.println("FINI!");
+		//System.out.println("FINI!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
 		books.close();
-		System.out.println("close done");
+		//System.out.println("close done");
 	}
 	
 }

@@ -212,9 +212,10 @@ public class Question {
 				if(temp.contains(".")){
 					temp = temp.split("\\.")[0];
 				}
+				 temp = temp.replaceAll("[^\\d.]", "");
 				 testNum = Integer.valueOf(temp);
 				}
-				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty ){
+				if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty ){
 					if(c.skip && !c.doubleSkip && !c.multiple){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
@@ -349,6 +350,55 @@ public class Question {
 					qRet.sum+=answer.reponseNumeric;
 				}
 												
+			}
+		}
+		if(c.type[h]==8){
+			
+			for(int k = 0 ; k < c.checkbox.length;k++){
+				int testNum=-1;
+				if(answer.reponseNumeric == 1){
+				String temp = answer.questionTag;
+				temp = temp.split("_")[temp.split("_").length-1];
+				if(temp.contains(".")){
+					temp = temp.split("\\.")[0];
+				}
+				 temp = temp.replaceAll("[^\\d.]", "");
+				 testNum = Integer.valueOf(temp);
+				}
+				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty ){
+					if(c.skip && !c.doubleSkip && !c.multiple){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = c.questionSkip;
+						qRet.validate=true;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						qRet.setQuestionNumber();
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+						break;
+					}else if(c.skip && c.doubleSkip && !c.multiple) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					}else if(c.multiple) {
+						if(answer.questionTag.contains(".")){
+							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+						}else {
+							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+						}							
+					}else {
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+						break;
+					}
+				}
 			}
 		}
 		}

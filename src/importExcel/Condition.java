@@ -1,7 +1,7 @@
 package importExcel;
 
 public class Condition {
-	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 checkbox 5 minmax 6 date 7 constantSum
+	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox
 	int[] type;
 	boolean skip;
 	boolean isCheckBox;
@@ -14,6 +14,7 @@ public class Condition {
 	double neq;
 	double constSumRes;
 	int[] checkbox;
+	
 	String tag;
 	String multi;
 	String questionSkipTo;	
@@ -60,6 +61,7 @@ public class Condition {
 		String newCondition = "";
 		multiple = false;
 		questionValue = false;
+		isCheckBox=false;
 		countryTag = "";
 		if(condition.contains(":")){
 			countryTag=condition.split(":")[0];
@@ -81,9 +83,9 @@ public class Condition {
 			tag = null;
 		}
 		newCondition = ""; 
-		if(condition.contains("#")){
+		if(condition.contains("VALUE")){
 			questionValue=true;	
-			questionSkip = condition.replaceAll("#","");
+			questionSkip = condition.replaceAll("VALUE","");
 			type[indice]=-1;
 		}else if(condition.contains("then")){
 			String preThen = condition.split("then")[0];
@@ -107,6 +109,16 @@ public class Condition {
 				newCondition = preThen.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
+			}else if(preThen.contains("#")) {
+				type[indice] = 8;
+				preThen = preThen.replaceAll("#", "");
+				String [] possibility = preThen.split(",");
+				checkbox = new int[possibility.length];
+				for(int i = 0 ; i < possibility.length; i++){
+					possibility[i] = possibility[i].replaceAll(" ", "");
+					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+					checkbox[i] = Integer.valueOf(possibility[i]);					
+				}
 			} else if(preThen.contains(",")){
 				type[indice] = 4;
 				String [] possibility = preThen.split(",");
@@ -174,7 +186,9 @@ public class Condition {
 				for(int i = 0 ; i < possibility.length; i++){
 					possibility[i] = possibility[i].replaceAll(" ", "");
 					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					checkbox[i] = Integer.valueOf(possibility[i]);					
+					if(!possibility[i].isEmpty()){
+						checkbox[i] = Integer.valueOf(possibility[i]);		
+					}
 				}
 			}else if(preGoTo.contains("date")){
 				type[indice] = 6;
@@ -221,6 +235,8 @@ public class Condition {
 				String [] possibility = condition.split(",");
 				checkbox = new int[possibility.length];
 				for(int i = 0 ; i < possibility.length; i++){
+					possibility[i] = possibility[i].replaceAll(" ", "");
+					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
 					checkbox[i] = Integer.valueOf(possibility[i]);					
 				}
 			}else if(condition.contains("date")){
