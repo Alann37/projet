@@ -328,7 +328,7 @@ public class Question {
 						if(qRet.loopNumber==""){
 							qRet.loopNumber=answer.questionTag.split("\\.")[1];
 							qRet.sum=0;
-							if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
+							if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
 								qRet.sum+=answer.reponseNumeric;
 							}
 							if(!answer.questionTag.contains("NA"))
@@ -336,7 +336,7 @@ public class Question {
 							qRet.questionTagSum.add(answer.questionTag);
 							}
 						} else if (qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
-							if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
+							if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
 								qRet.sum+= answer.reponseNumeric;
 							}
 							if(!answer.questionTag.contains("NA"))
@@ -353,12 +353,12 @@ public class Question {
 							qRet.questionTagSum.clear();
 							qRet.sum=0;
 							qRet.loopNumber = answer.questionTag.split("\\.")[1];
-							if(answer.reponseNumeric != -1){
+							if(answer.reponseNumeric != naValue){
 								qRet.sum+=answer.reponseNumeric;
 							}
 						}
 					} else {
-						if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
+						if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
 							qRet.sum+=answer.reponseNumeric;
 						}
 			}
