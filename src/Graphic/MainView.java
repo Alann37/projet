@@ -68,20 +68,21 @@ public class MainView {
 		btnBaseLibele.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				basesQualif();
+				basesLibeler();
 			}
 			
 		});
 		JButton btnQualificationetudes = new JButton("Qualification Etudes");
 		btnQualificationetudes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				basesQualif();
 			}
 		});
 		btnQualificationetudes.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		btnQualificationetudes.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-		    
+				basesQualif();
 			}
 		});
 			
