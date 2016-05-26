@@ -19,23 +19,39 @@ public class Condition {
 	String questionSkipTo;	
 	boolean doubleSkip;
 	boolean multiple;
+	boolean questionValue;
+	String countryTag;
+	boolean isNa;
+	
 	public Condition(String condition){
-		
+		isNa=false;
+		if(condition.contains("NA")){
+			condition= condition.replaceAll(" ","");
+			condition = condition.replaceAll("NA", "");
+			eq = Double.parseDouble(condition);
+			isNa = true;
+			multi="";
+			tag ="";
+			countryTag="";
+			questionSkipTo="";
+			type = new int[0];
+		}else {
 		String newConditionMulti="";
-		if(condition.contains("&"))
-		{
-			if(condition.split("&").length!=0)
+			if(condition.contains("&"))
 			{
-				type=new int [condition.split("&").length];
-				for(int lg=0; lg!= condition.split("&").length; lg++)
+				if(condition.split("&").length!=0)
 				{
-					newConditionMulti=condition.split("&")[lg];
-					traitement(newConditionMulti, lg);
+					type=new int [condition.split("&").length];
+					for(int lg=0; lg!= condition.split("&").length; lg++)
+					{
+						newConditionMulti=condition.split("&")[lg];
+						traitement(newConditionMulti, lg);
+					}
 				}
+			}else{
+				type=new int [1];
+				traitement(condition, 0);
 			}
-		}else{
-			type=new int [1];
-			traitement(condition, 0);
 		}
 	}
 	 
@@ -43,6 +59,13 @@ public class Condition {
 	public void traitement(String condition,int indice){
 		String newCondition = "";
 		multiple = false;
+		questionValue = false;
+		countryTag = "";
+		if(condition.contains(":")){
+			countryTag=condition.split(":")[0];
+			condition = condition.substring(countryTag.length()+1);
+			countryTag=countryTag.replaceAll(" ","");
+		}
 		if(condition.contains("_")){
 			if(condition.split("_").length==2){
 				tag = "_"+condition.split("_")[1];
@@ -58,7 +81,11 @@ public class Condition {
 			tag = null;
 		}
 		newCondition = ""; 
-		if(condition.contains("then")){
+		if(condition.contains("#")){
+			questionValue=true;	
+			questionSkip = condition.replaceAll("#","");
+			type[indice]=-1;
+		}else if(condition.contains("then")){
 			String preThen = condition.split("then")[0];
 			questionSkip = condition.split("then")[1];
 			multiple = true;

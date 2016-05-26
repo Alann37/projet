@@ -16,6 +16,7 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -93,9 +94,7 @@ public class ReadExcel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int i = 0; i < questions.size(); i++) {
-			questions.get(i).makeCondition();
-		}
+		
 		//exportControlToExcel(questions, file.toString().replace(".docx", ""));
 		return questions;
 	}
@@ -147,26 +146,19 @@ public class ReadExcel {
 		XSSFCell cell;
 		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
 		Iterator rows = sh.rowIterator();
-		XSSFRow row;
+	    XSSFRow row;
 		while(rows.hasNext()){
-			row = (XSSFRow)rows.next();
-			listeEntrer.add(new TraitementEntrer());
-			Iterator cells = row.cellIterator();
-			if(row.getRowNum()>0){
-				while(cells.hasNext()){
-					cell=(XSSFCell) cells.next();
-					listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex())));	
-				}
-				
-			}
-		}
-		/*for(int j = 1; j <= sh.getLastRowNum();j++){
-			listeEntrer.add(new TraitementEntrer());
-			for(int i = 0 ; i < sh.getRow(j).getPhysicalNumberOfCells(); i++) {
-				cell = sh.getRow(j).getCell(i);
-				listeEntrer.get(j-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(i)));			
-			}
-		}*/
+		   row = (XSSFRow)rows.next();
+		   listeEntrer.add(new TraitementEntrer());
+		   Iterator cells = row.cellIterator();
+		   if(row.getRowNum()>0){
+			   while(cells.hasNext()){
+				   cell=(XSSFCell) cells.next();
+				   listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex()))); 
+			   }
+		    
+		   	}
+		  }
 		books.close();
 		return listeEntrer;
 	}
@@ -179,12 +171,17 @@ public class ReadExcel {
 		XSSFSheet sh = books.getSheetAt(0);
 		XSSFCell cell;
 		Iterator rows = sh.rowIterator();
-		
+		List<XSSFRow> listRow = new ArrayList<XSSFRow>();
+		int[]rowDisqualif = new int [sh.getLastRowNum()+1];
+		int test = 0;
+		listRow.add(sh.getRow(0));
 		while (rows.hasNext()) {
-			
+			boolean gotDisq = false;
 			row = (XSSFRow) rows.next();
 			Iterator cells = row.cellIterator();
+			
 			System.out.println("rowNum = "+row.getRowNum());
+			
 			if(row.getRowNum()>0){
 
 					while (cells.hasNext()) {
@@ -194,6 +191,7 @@ public class ReadExcel {
 								String temp = list.get(row.getRowNum()-1).getQuestionDisqualif().get(i);
 								if((sh.getRow(0).getCell(cell.getColumnIndex() ).getStringCellValue() ).equals(temp) ){
 									CellStyle style = books.createCellStyle();
+									gotDisq=true;
 									style.cloneStyleFrom(cell.getCellStyle());
 									style.setFillBackgroundColor(IndexedColors.RED.getIndex());
 									style.setFillForegroundColor(IndexedColors.RED.getIndex());
@@ -222,8 +220,37 @@ public class ReadExcel {
 					
 
 			}
+			if(gotDisq)
+			{
+				CellStyle style = books.createCellStyle();
+				style.cloneStyleFrom(row.getCell(0).getCellStyle());
+				style.setFillBackgroundColor(IndexedColors.RED.getIndex());
+				style.setFillForegroundColor(IndexedColors.RED.getIndex());
+				style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				row.getCell(0).setCellStyle(style);
+				listRow.add(row);
+			}
+			else {
+				rowDisqualif[test] = row.getRowNum();
+			}
 		}
-		System.out.println("FINIII!");
+		XSSFSheet disqu = books.createSheet("Disqualifier");
+		for(int i = 0 ; i < listRow.size();i++){
+			disqu.createRow(i);
+			Iterator cells = listRow.get(i).cellIterator();
+			while(cells.hasNext()){
+				cell = (XSSFCell)cells.next();
+				disqu.getRow(i).createCell(cell.getColumnIndex());
+				if(cell.getCellType() == XSSFCell.CELL_TYPE_STRING){
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getStringCellValue());
+				}else{
+					disqu.getRow(i).getCell(cell.getColumnIndex()).setCellValue(cell.getNumericCellValue());
+				}
+				
+			}
+			
+		}
+		System.out.println("FINI!");
 		OutputStream writer = new FileOutputStream(Configuration.importConfig().get(1)+"\\"+file.getName().replaceAll(" Base brute", " Base qualif"));
 		books.write(writer);
 		books.close();

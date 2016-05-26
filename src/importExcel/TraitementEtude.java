@@ -59,13 +59,15 @@ public class TraitementEtude {
 							questions.get(h).reponses.add(rTemp);
 							//h=questions.size();
 						}
+						questions.get(h).setNa();
 					}
 				}
 			}
-			QuestionReturn skipTo= new QuestionReturn(true,false,"",-1) ;
+			QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
 			for(int t = 0 ; t < questions.size(); t++){
+				skipTo.validate=true;
 				//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
-				QuestionReturn returnQuest = questions.get(t).applyCondition(skipTo);
+				QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
 				if(!returnQuest.validate){
 					temp.setDisqualif(true);
 					//numberFail++;

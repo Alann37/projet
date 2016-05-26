@@ -129,11 +129,12 @@ public class MainView {
 		    		boolean canPass =false;
 		    		int posExcel=0;
 		    		listEtude.add(new TraitementEtude());
-		    		listEtude.get(listEtude.size()-1).setEtudeName(masters[i].getName().split("-")[0]);;
+		    		listEtude.get(listEtude.size()-1).setEtudeName(masters[i].getName().split("-")[0]);
 		    		listEtude.get(listEtude.size()-1).setQuestion(ReadExcel.importConditionFromWord(masters[i]));
 		    		for(int j = 0 ; j < excels.length ; j++){
 		    			if(excels[j].getName().split("-")[0].contains(masters[i].getName().split("-")[0])){
 		    				try {
+		    					listEtude.get(listEtude.size()-1).setEtudeName(excels[j].getName().split("-")[0]);
 								listEtude.get(listEtude.size()-1).setEtudes(ReadExcel.readExcelDocument(excels[j]));
 								canPass = true;
 								posExcel = j;

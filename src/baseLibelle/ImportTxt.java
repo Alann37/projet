@@ -10,17 +10,22 @@ public class ImportTxt {
 	public static List<SawtoothList> test(File file) throws IOException{
 		boolean fillList = false;
 		boolean constructed = false;
-		boolean gridRow=false;
-		boolean gridColumn=false;
 		int itemNumber = 1;
 		List<SawtoothList> allList = new ArrayList<SawtoothList>();
 		int i =0;
 		int emptyLine=0;
 		String questionName= "";
+		boolean isRadioButton = false;
+		String tempp="";
 		for(String line : Files.readAllLines(file.toPath())){
 				if(i>=2){
 					fillList=false;
 					itemNumber=-1;
+				}
+				if(line.contains("-----------")){
+					fillList=false;
+					itemNumber=-1;
+					constructed=false;
 				}
 				if(allList.size()>=1){
 					if(line.contains("Numeric") && questionName == allList.get(allList.size()-1).questionName){
@@ -30,7 +35,7 @@ public class ImportTxt {
 				if(line.contains("Number of Items")){
 					break;
 				}
-				if(emptyLine>2){
+				if(emptyLine>1){
 					fillList=false;
 					itemNumber =-1;
 				}
@@ -73,7 +78,7 @@ public class ImportTxt {
 					}
 				}
 				if(constructed && line.contains("Parent List:")){
-					allList.add(new SawtoothList(line.replaceAll("Parent List: ", ""), questionName));
+					allList.add(new SawtoothList(line.replaceAll("Parent List: ", ""), questionName,isRadioButton));
 					fillList =true;
 					itemNumber =1;
 					i=0;
@@ -92,50 +97,38 @@ public class ImportTxt {
 				}
 				if(line.contains("Question Name: ")){
 					questionName = line.replaceAll("Question Name: ", "");
-					gridRow=false;
-					gridColumn=false;
+					isRadioButton=false;
+
 				}
-				if(line.contains("Question Direction: Rows")){
-					gridRow=true;
-					gridColumn=false;
+
+				if(line.contains("Type: Select (Radio Button)")&&tempp.contains("Row") ||line.contains("Type: Select (Radio Button)")&&tempp.contains("Column") ){
+					allList.get(allList.size()-1).isRadioButton=true;
+					allList.get(allList.size()-2).isRadioButton=true;
+					isRadioButton=false;
+				}else if(line.contains("Type: Select (Radio Button)")){
+					isRadioButton=true;
 				}
-				if(line.contains("Question Direction: Columns")){
-					gridRow=false;
-					gridColumn=true;
-				}
-				if(gridRow && line.contains("Numeric")){
+				if((tempp.contains("Column") && line.contains("Numeric"))|| (tempp.contains("Row") && line.contains("Numeric"))){
 					allList.get(allList.size()-1).setUse(false);
 					allList.get(allList.size()-2).setUse(false);
 				}
-				if(gridColumn && line.contains("Numeric")){
+				
+				if((tempp.contains("Column") && line.contains("Constant Sum"))|| (tempp.contains("Row") && line.contains("Constant Sum"))){
+					allList.get(allList.size()-1).setUse(false);
+				}
+				if((tempp.contains("Ranking") && line.contains("Numeric"))|| (tempp.contains("Row") && line.contains("Ranking"))){
 					allList.get(allList.size()-1).setUse(false);
 					allList.get(allList.size()-2).setUse(false);
 				}
-				if(gridRow && line.contains("Constant Sum")){
+				if(line.contains("[Scale Point Values]:")){
 					allList.get(allList.size()-1).setUse(false);
 					allList.get(allList.size()-2).setUse(false);
 				}
-				if(gridColumn && line.contains("Constant Sum")){
-					allList.get(allList.size()-1).setUse(false);
-					allList.get(allList.size()-2).setUse(false);
-				}
-				if(gridRow && line.contains("Ranking")){
-					allList.get(allList.size()-1).setUse(false);
-					allList.get(allList.size()-2).setUse(false);
-				}
-				if(gridColumn && line.contains("Ranking")){
-					allList.get(allList.size()-1).setUse(false);
-					allList.get(allList.size()-2).setUse(false);
-				}
-				if(gridRow && line.contains("Select")){
-					allList.get(allList.size()-2).setUse(false);
-				}
-				if(gridColumn && line.contains("Select")){
-					allList.get(allList.size()-1).setUse(false);
-				}
+				
 				if(line.contains("List Name: ") && !line.contains("Const")){
-					allList.add(new SawtoothList(line.replaceAll("List Name: ", ""), questionName));
+					allList.add(new SawtoothList(line.replaceAll("List Name: ", ""), questionName,isRadioButton));
 					fillList = true;
+					
 					itemNumber=1;
 					i=0;
 				}
@@ -144,10 +137,26 @@ public class ImportTxt {
 				} else {
 					emptyLine=0;
 				}
-				if(emptyLine == 2){
+				if(emptyLine == 3){
 					constructed = false;
 				}
+				if(line.contains("LIST SECTION") && !line.contains("*")){
+					break;
+				}
+				tempp = line;
 		}
+		
+		for(int h = 0 ; h < allList.size();h++){
+			if(allList.get(h).listName.contains("Row")){
+				allList.get(h).isRowList=true;
+				allList.get(h).isGridList= true;
+			}
+			if(allList.get(h).listName.contains("Col")){
+				allList.get(h).isColList=true;
+				allList.get(h).isGridList= true;
+			}
+		}
+
 		return allList;
 	}
 }
