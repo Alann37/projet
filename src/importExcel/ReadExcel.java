@@ -146,13 +146,27 @@ public class ReadExcel {
 		XSSFSheet sh = books.getSheetAt(0);
 		XSSFCell cell;
 		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
-		for(int j = 1; j <= sh.getLastRowNum();j++){
+		Iterator rows = sh.rowIterator();
+		XSSFRow row;
+		while(rows.hasNext()){
+			row = (XSSFRow)rows.next();
+			listeEntrer.add(new TraitementEntrer());
+			Iterator cells = row.cellIterator();
+			if(row.getRowNum()>0){
+				while(cells.hasNext()){
+					cell=(XSSFCell) cells.next();
+					listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex())));	
+				}
+				
+			}
+		}
+		/*for(int j = 1; j <= sh.getLastRowNum();j++){
 			listeEntrer.add(new TraitementEntrer());
 			for(int i = 0 ; i < sh.getRow(j).getPhysicalNumberOfCells(); i++) {
 				cell = sh.getRow(j).getCell(i);
 				listeEntrer.get(j-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(i)));			
 			}
-		}
+		}*/
 		books.close();
 		return listeEntrer;
 	}

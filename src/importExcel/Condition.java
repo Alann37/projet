@@ -222,7 +222,7 @@ public class Condition {
 				constSumRes = Double.valueOf(newCondition);
 			}
 			
-		}
+		} 
 	}
 }
 	

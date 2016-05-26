@@ -44,7 +44,7 @@ public class Question {
 		// REVOIR COMMENT SPLIT NAME  pour le moment @
 		this.name = name.split("@")[0];
 	}
-	private QuestionReturn tryCondition(Condition c ,Reponse answer,QuestionReturn option, String loopNumber, double sum, boolean isConstSum)
+	private QuestionReturn tryCondition(Condition c ,Reponse answer,QuestionReturn option)
 	{
 		QuestionReturn qRet=new QuestionReturn();
 		qRet=option;
@@ -530,33 +530,45 @@ public class Question {
 				}
 				
 				if(c.type[h]==7){
+					qRet.isConstSum=true;
 					if(answer.questionTag.contains(".")){
 						qRet.isLoop=true;
-						if(qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
-							if(answer.reponseNumeric != -1){
+						if(qRet.loopNumber==""){
+							qRet.loopNumber=answer.questionTag.split("\\.")[1];
+							qRet.sum=0;
+							if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
+								qRet.sum+=answer.reponseNumeric;
+							}
+							if(!answer.questionTag.contains("NA"))
+							{
+							qRet.questionTagSum.add(answer.questionTag);
+							}
+						} else if (qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
+							if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
 								qRet.sum+= answer.reponseNumeric;
 							}
+							if(!answer.questionTag.contains("NA"))
+							{
+							qRet.questionTagSum.add(answer.questionTag);
+							}
 						} else {
-							if(qRet.loopNumber==""){
-								qRet.loopNumber=answer.questionTag.split("\\.")[1];
-								if(answer.reponseNumeric != -1){
-									qRet.sum+=answer.reponseNumeric;
-								}
-							} else {
-								if(qRet.sum!= c.constSumRes){
-									qRet.validate = false;
-									answer.disqualif=true;
-								}												
-								qRet.sum=0;
+							if(qRet.sum!= c.constSumRes){
+								qRet.validate = false;
+								answer.disqualif=true;
+								qRet.questionDisqualifs.addAll(qRet.questionTagSum);
 								
+							}	
+							qRet.questionTagSum.clear();
+							qRet.sum=0;
+							qRet.loopNumber = answer.questionTag.split("\\.")[1];
+							if(answer.reponseNumeric != -1){
+								qRet.sum+=answer.reponseNumeric;
 							}
 						}
 					} else {
-						qRet.isConstSum=true;
-						if(answer.reponseNumeric != -1){
+						if(answer.reponseNumeric != -1 && !answer.questionTag.contains("NA")){
 							qRet.sum+=answer.reponseNumeric;
 						}
-														
 					}
 				}
 			}
@@ -565,8 +577,7 @@ public class Question {
 		return qRet;
 }
 	public QuestionReturn applyCondition(QuestionReturn option){
-		boolean isConstSum = false;
-		double sum=0;
+		
 		QuestionReturn qRet = new QuestionReturn(true);
 		shouldBeAnswer= true;
 		boolean alreadyDoubleSkip=false;
@@ -603,11 +614,11 @@ public class Question {
 					for(int j = 0; j < reponses.size();j++){
 						if(reponses.get(j).partOfLoop){
 							if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName) && reponses.get(j).questionTag.split("\\.")[1].equals(option.conditions.get(i).partOfLoop)){
-								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
+								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
 							}
 						}else {
 							if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName)){
-								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet,"",sum,isConstSum);
+								qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
 							}
 						}
 					}
@@ -618,17 +629,17 @@ public class Question {
 			if(shouldBeAnswer){
 				for(int i = 0 ; i < reponses.size(); i ++){
 					for(int j = 0 ; j < conditions.size(); j ++){
-					qRet = tryCondition(conditions.get(j),reponses.get(i), qRet, "", sum, isConstSum);
+					qRet = tryCondition(conditions.get(j),reponses.get(i), qRet);
 					}
 				}
-				if(qRet.isConstSum){
+				if(qRet.isConstSum && !qRet.isLoop){
 					for(int h=0; h<conditions.size(); h++){
 						for(int j=0; j!=conditions.get(h).type.length;j++){
 							if(conditions.get(h).type[j]==7){
 								if(qRet.sum!= conditions.get(h).constSumRes){
-									if(qRet.isLoop==false)
+									for(int k=0;k!=reponses.size();k++)
 									{
-										for(int k=0;k!=reponses.size();k++)
+										if(qRet.isLoop==false)
 										{
 											if(!reponses.get(k).questionTag.contains("NA"))		
 											{
@@ -636,10 +647,9 @@ public class Question {
 												qRet.questionDisqualifs.add(reponses.get(k).questionTag);
 											}
 										}
+										
 									}
-									else{
-										;
-									}
+								
 									qRet.validate = false;
 									
 									//erreur a faire
