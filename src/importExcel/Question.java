@@ -323,33 +323,45 @@ public class Question {
 		}
 		
 		if(c.type[h]==7){
+					qRet.isConstSum=true;
 			if(answer.questionTag.contains(".")){
 				qRet.isLoop=true;
-				if(qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
-					if(answer.reponseNumeric != -1){
-						qRet.sum+= answer.reponseNumeric;
-					}
-				} else {
-					if(qRet.loopNumber==""){
-						qRet.loopNumber=answer.questionTag.split("\\.")[1];
-						if(answer.reponseNumeric != -1){
-							qRet.sum+=answer.reponseNumeric;
+						if(qRet.loopNumber==""){
+							qRet.loopNumber=answer.questionTag.split("\\.")[1];
+							qRet.sum=0;
+							if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
+								qRet.sum+=answer.reponseNumeric;
+							}
+							if(!answer.questionTag.contains("NA"))
+							{
+							qRet.questionTagSum.add(answer.questionTag);
+							}
+						} else if (qRet.loopNumber.equals(answer.questionTag.split("\\.")[1])){
+							if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
+								qRet.sum+= answer.reponseNumeric;
+							}
+							if(!answer.questionTag.contains("NA"))
+							{
+							qRet.questionTagSum.add(answer.questionTag);
+							}
+						} else {
+							if(qRet.sum!= c.constSumRes){
+								qRet.validate = false;
+								answer.disqualif=true;
+								qRet.questionDisqualifs.addAll(qRet.questionTagSum);
+								
+							}	
+							qRet.questionTagSum.clear();
+							qRet.sum=0;
+							qRet.loopNumber = answer.questionTag.split("\\.")[1];
+							if(answer.reponseNumeric != naValue){
+								qRet.sum+=answer.reponseNumeric;
+							}
 						}
 					} else {
-						if(qRet.sum!= c.constSumRes){
-							qRet.validate = false;
-							answer.disqualif=true;
-						}												
-						qRet.sum=0;
-						
-					}
-				}
-			} else {
-				qRet.isConstSum=true;
-				if(answer.reponseNumeric != -1){
-					qRet.sum+=answer.reponseNumeric;
-				}
-												
+						if(answer.reponseNumeric != naValue && !answer.questionTag.contains("NA")){
+							qRet.sum+=answer.reponseNumeric;
+						}
 			}
 		}
 		if(c.type[h]==8){
@@ -507,14 +519,14 @@ public class Question {
 						}
 					}
 				}
-				if(qRet.isConstSum){
+				if(qRet.isConstSum && !qRet.isLoop){
 					for(int h=0; h<conditions.size(); h++){
 						for(int j=0; j!=conditions.get(h).type.length;j++){
 							if(conditions.get(h).type[j]==7){
 								if(qRet.sum!= conditions.get(h).constSumRes){
-									if(qRet.isLoop==false)
+									for(int k=0;k!=reponses.size();k++)
 									{
-										for(int k=0;k!=reponses.size();k++)
+										if(qRet.isLoop==false)
 										{
 											if(!reponses.get(k).questionTag.contains("NA"))		
 											{
@@ -522,10 +534,9 @@ public class Question {
 												qRet.questionDisqualifs.add(reponses.get(k).questionTag);
 											}
 										}
+										
 									}
-									else{
-										;
-									}
+								
 									qRet.validate = false;
 									
 									//erreur a faire
