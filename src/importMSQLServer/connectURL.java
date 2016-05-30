@@ -14,8 +14,8 @@ import Configuration.Configuration;
 import importExcel.Reponse;
 import importExcel.TraitementEntrer;
 
-public class connectURL {
-	public connectURL(){
+public class ConnectURL {
+	public ConnectURL(){
 		
 	}
 	private int count = 0;

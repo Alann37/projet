@@ -36,7 +36,7 @@ import importExcel.Filter;
 import importExcel.ReadExcel;
 import importExcel.TraitementEtude;
 import importMSQLServer.InformationBDD;
-import importMSQLServer.connectURL;
+import importMSQLServer.ConnectURL;
 
 public class MainView {
 	static long chrono = 0 ; 
@@ -237,7 +237,7 @@ public class MainView {
 		int toThrowCount=0;
 		for(int i = 0 ; i < listBdd.size();i++){
 			for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
-				connectURL connectionWithDB = new connectURL();
+				ConnectURL connectionWithDB = new ConnectURL();
 				//System.out.println("passage pour : " + list.get(listIndice).getEtudeName());
 				list.get(listIndice).setEtudes(connectionWithDB.test(listBdd.get(i).getBase(), listBdd.get(i).getLangues().get(j)));
 				if(threadCount<2){

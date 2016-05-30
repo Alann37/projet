@@ -17,7 +17,7 @@ import importExcel.ReadExcel;
 import importExcel.TraitementEntrer;
 import importExcel.TraitementEtude;
 import importMSQLServer.InformationBDD;
-import importMSQLServer.connectURL;
+import importMSQLServer.ConnectURL;
 
 public class Main {
 	static long chrono = 0 ;

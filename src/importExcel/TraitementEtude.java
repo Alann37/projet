@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import importMSQLServer.connectURL;
+import importMSQLServer.ConnectURL;
 
 public class TraitementEtude extends Thread {
 	private String etudeName;
