@@ -4,18 +4,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Semaphore;
+
+import javax.xml.bind.Marshaller.Listener;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -32,9 +38,22 @@ import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 
 import Configuration.Configuration;
+import importMSQLServer.InformationBDD;
 
 public class ReadExcel {
-
+	static long chrono;
+	static void Go_Chrono() { 
+		chrono = java.lang.System.currentTimeMillis() ; 
+		System.out.println(chrono);
+		} 
+	static long Stop_Chrono() { 
+		long chrono2 = java.lang.System.currentTimeMillis() ;
+		
+		long temps = chrono2 - chrono ; 
+		System.out.println("Temps ecoule = " + temps + " ms") ; 
+		return temps;
+		} 
+	static Semaphore sem = new Semaphore(1,true);
 	/**
 	 * 
 	 * @param file
@@ -78,7 +97,7 @@ public class ReadExcel {
 							if (para.getStyle().equals("QuestionName")) {
 								j++;
 								questions.add(new Question(para.getText()));
-							} else {
+							} else if (!para.getText().isEmpty()) {
 								questions.get(j).conditions.add(new Condition(para.getText()));
 							}
 						}
@@ -159,10 +178,116 @@ public class ReadExcel {
 		    
 		   	}
 		  }
+	//	System.out.println(listeEntrer.get(0).getReponses().size());
 		books.close();
 		return listeEntrer;
 	}
+	
+	public static List<InformationBDD> importListBases() throws InvalidFormatException, IOException{
+	    List<InformationBDD> lRet = new ArrayList<InformationBDD>();
+		File file = new File("Base à importer.xlsx");
+		XSSFWorkbook books = new XSSFWorkbook(file);
+		XSSFSheet sh = books.getSheetAt(0);
+		Iterator rows = sh.rowIterator();
+	    XSSFRow row;
+	    XSSFCell cell;
 
+		while(rows.hasNext()){
+			   row = (XSSFRow)rows.next();
+			   if(row.getRowNum()>0){
+			   Iterator cells = row.cellIterator();
+			   int nbrLangue = 0;
+			   	while(cells.hasNext()){
+			   		cell = (XSSFCell)cells.next();
+			   		if(cell.getColumnIndex()==0){
+			   			lRet.add(new InformationBDD(cell.getStringCellValue()));
+			   		}else {
+			   			if(!cell.getStringCellValue().isEmpty()){
+			   				lRet.get(lRet.size()-1).getLangues().add(cell.getStringCellValue());
+			   			}
+			   		}
+			   	}
+			   }
+		}
+		
+		
+		
+		return lRet;
+	}
+	
+	
+	public static boolean test(File file,List<TraitementEntrer> list) throws IOException {
+		//System.out.println("test acquire for " + file.getName()  + " " +sem.tryAcquire());
+
+				
+			try {
+				sem.acquire();
+			//	System.out.println("sem acquire for "+ file.getName());
+				Go_Chrono();
+				XSSFWorkbook books = new XSSFWorkbook();
+				XSSFSheet sh = books.createSheet();
+				boolean disqu=false;
+			//	System.out.println("passage pour " + file.getName());
+				for(int i = 0 ; i < list.size();i++){
+					sh.createRow(i);
+					disqu= false;
+					for(int j = 0 ; j < list.get(i).getReponses().size();j++){
+						if(i == 0){
+							sh.getRow(i).createCell(j);
+							sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
+						} else {
+							if(!list.get(i).getReponses().get(j).isEmpty){
+								sh.getRow(i).createCell(j);
+								if(list.get(i).getReponses().get(j).reponseType==1){
+									sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).reponseNumeric);
+								} else {
+									sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).reponseTexte);
+								}
+								if(list.get(i).getReponses().get(j).disqualif){
+									disqu = true;
+									CellStyle style = books.createCellStyle();
+									style.cloneStyleFrom(sh.getRow(i).getCell(j).getCellStyle());
+									style.setFillBackgroundColor(IndexedColors.RED.getIndex());
+									style.setFillForegroundColor(IndexedColors.RED.getIndex());
+									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+									sh.getRow(i).getCell(j).setCellStyle(style);
+								}
+								if(list.get(i).getReponses().get(j).shouldBeEmpty){
+									CellStyle style = books.createCellStyle();
+									style.cloneStyleFrom(sh.getRow(i).getCell(j).getCellStyle());
+									style.setFillBackgroundColor(IndexedColors.PINK.getIndex());
+									style.setFillForegroundColor(IndexedColors.PINK.getIndex());
+									style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+									sh.getRow(i).getCell(j).setCellStyle(style);
+								}
+							}
+						}
+					}
+					if(disqu){
+						CellStyle style = books.createCellStyle();
+						style.cloneStyleFrom(sh.getRow(i).getCell(0).getCellStyle());
+						style.setFillBackgroundColor(IndexedColors.RED.getIndex());
+						style.setFillForegroundColor(IndexedColors.RED.getIndex());
+						style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+						sh.getRow(i).getCell(0).setCellStyle(style);
+					}
+					
+				}
+				OutputStream writer = new FileOutputStream(file);
+				books.write(writer);
+				books.close();
+
+				sem.release();
+				return true;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("passage catch ");
+				return false;
+			}
+		
+		
+	}
 	
 	public static void applyDisqualif(File file, List<TraitementEntrer> list) throws IOException{
 		InputStream reader = new FileInputStream(file);
@@ -258,5 +383,7 @@ public class ReadExcel {
 		books.close();
 		//System.out.println("close done");
 	}
+	
+	
 	
 }

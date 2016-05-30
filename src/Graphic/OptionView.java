@@ -19,7 +19,7 @@ import Configuration.Configuration;
 
 public class OptionView extends JDialog {
 	private JPanel buttonPane;
-	private JTextField tfConfig1;
+	public JTextField tfConfig1;
 	private JTextField tfConfig2;
 	private JTextField tfConfig3;
 	private JTextField tfConfig4;

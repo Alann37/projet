@@ -1,58 +1,118 @@
 package importMSQLServer;
 
+import java.io.IOException;
 import java.sql.*;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 
+import Configuration.Configuration;
+import importExcel.Reponse;
+import importExcel.TraitementEntrer;
+
 public class connectURL {
-	
-	public static void test(){
-		String connectionUrl = "jdbc:sqlserver://91.232.41.147;"
-					+"databaseName=ETestTraitementProjet";
-		String user = "alouischevrau";
-		String passwd="alo922";
-		Connection con=null;
-
-		Statement stmt = null;
+	public connectURL(){
 		
-        ResultSet rs = null;
+	}
+	private int count = 0;
+	private List<TraitementEntrer> test2(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list) throws ParseException{
+		boolean firstPassage= false;
+		if(list.size()==0){
+			firstPassage = true;
+		}
+           try {
+			stmt = con.createStatement();
+			  rs = stmt.executeQuery(query);
+	
+			  int i=0;
+			  while(rs.next()){
+				  	 if(firstPassage){
+				  		 list.add(new TraitementEntrer());
+				  		 i=1;
+				  	 }else {
+				  		 i=2;
+				  	 }
+				  	 
 
+	        	   for(int j; i <= rs.getMetaData().getColumnCount(); i++){
+	        		   //System.out.println(rs.getString(i));
+	        		   int type = -1;
+	        		   if(rs.getMetaData().getColumnTypeName(i).contains("int")){
+	        			   type = 1;
+	        		   }else {
+	        			   type = 2;
+	        		   }
+	        		   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
+	        		//   System.out.println( " test " + rs.getRow() + " nbRow  " + rs.getMetaData().getColumnCount());
+	        	   }
+	        	   
+	           }
+
+			//System.out.println(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+         return list;
+
+        }
+	
+	public  List<TraitementEntrer>  test(String database,String langue) throws IOException{
+		String connectionUrl = "jdbc:sqlserver://91.232.41.147;"
+					+"databaseName="+database;
+		String user = Configuration.getConf(4);
+		String passwd=Configuration.getConf(5);
+		Connection con=null;
+		List<TableImport> tablesImport = new ArrayList<TableImport>();
+		Statement stmt = null;
+		List<TraitementEntrer> listTraitement = new ArrayList<TraitementEntrer>();
+        ResultSet rs = null;
         try {
-            // Establish the connection.
-            Properties p = new Properties();
+
             con = DriverManager.getConnection(connectionUrl,user,passwd);            
-            // Create and execute an SQL statement that returns some data.
             DatabaseMetaData dbm = con.getMetaData();
-            ResultSet tables = dbm.getTables(null, null,"FR_%",null);
+            ResultSet tables = dbm.getTables(null, null,langue+"_data%",null);
+            //récupération des tables
+            while (tables.next()) {
+            	tablesImport.add(new TableImport(tables.getString(3)));
+            }
+            // tri des tables 
+            TableImport temp ;
+            for(int i = 0; i < tablesImport.size(); i ++){
+            	for(int j = i ; j < tablesImport.size();j++){
+            		if(tablesImport.get(i).number>tablesImport.get(j).number){
+            			temp = tablesImport.get(i);
+            			tablesImport.set(i, tablesImport.get(j));
+            			tablesImport.set(j, temp);
+            		}
+            	}
+            }
+            String query = "";
             
-            int toto ;
-            
-            // Iterate through the data in the result set and display it.
-            /*while (tables.next()) {
-            	toto=0;
-              // System.out.println(tables.getString(2) + " " + tables.getString(3) + " "+ tables.getString(4));
-              */ String SQL = "SELECT * FROM dbo.FR_data1";
-               stmt = con.createStatement();
-               toto=0;
-               rs = stmt.executeQuery(SQL);
-               while(rs.next()){
-            	   toto++;
-            	   System.out.println("row numero : " + rs.getRow());
-            	   for(int i = 1; i < rs.getMetaData().getColumnCount(); i++){
-            		   System.out.println(rs.getString(i));
-            	   }
-               }
-            //   System.out.println(toto);
-           // }
+            for(int i = 0 ; i < tablesImport.size(); i++){
+            	query = "SELECT * FROM "+ tablesImport.get(i).name;
+            	listTraitement=test2(stmt, rs, con, query,listTraitement);
+            	//System.out.println("nbr rqt + " + tablesImport.size() + " et i = " +i);
+            }
+           
          }
 
          // Handle any errors that may have occurred.
          catch (Exception e) {
             e.printStackTrace();
          }
+        
          finally {
             if (rs != null) try { rs.close(); } catch(Exception e) {}
             if (stmt != null) try { stmt.close(); } catch(Exception e) {}
             if (con != null) try { con.close(); } catch(Exception e) {}
+           
          }
+        return listTraitement;
 	}
 }

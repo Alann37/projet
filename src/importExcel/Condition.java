@@ -179,7 +179,7 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
-			} else if(preGoTo.contains(",")){
+			} else if(preGoTo.contains(",") && !preGoTo.contains("#")){
 				type[indice] = 4;
 				String [] possibility = preGoTo.split(",");
 				checkbox = new int[possibility.length];
@@ -190,7 +190,29 @@ public class Condition {
 						checkbox[i] = Integer.valueOf(possibility[i]);		
 					}
 				}
+			}else if (preGoTo.contains("#")){
+			 type[indice]=8;
+			 newCondition = preGoTo.replaceAll("#","");
+			 newCondition= newCondition.replaceAll(" ","");
+			 if(newCondition.contains(",")){
+				 String [] possibility = newCondition.split(",");
+					checkbox = new int[possibility.length];
+					for(int i = 0 ; i < possibility.length; i++){
+						possibility[i] = possibility[i].replaceAll(" ", "");
+						possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+						if(!possibility[i].isEmpty()){
+							checkbox[i] = Integer.valueOf(possibility[i]);		
+						}
+					}
+			 } else {
+				 newCondition = newCondition.replaceAll("[^\\d.]", "");
+				 if(!newCondition.isEmpty()) {
+					 checkbox = new int[1];
+					 checkbox[0] = Integer.valueOf(newCondition);	
+				 }
+			 }
 			}else if(preGoTo.contains("date")){
+				 
 				type[indice] = 6;
 				newCondition = preGoTo.replaceAll("date","");
 				newCondition = newCondition.replaceAll("MIN","");
@@ -230,7 +252,28 @@ public class Condition {
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
-			} else if(condition.contains(",")){
+			}else if (condition.contains("#")){
+				 type[indice]=8;
+				 newCondition = condition.replaceAll("#","");
+				 newCondition= newCondition.replaceAll(" ","");
+				 if(newCondition.contains(",")){
+					 String [] possibility = newCondition.split(",");
+						checkbox = new int[possibility.length];
+						for(int i = 0 ; i < possibility.length; i++){
+							possibility[i] = possibility[i].replaceAll(" ", "");
+							possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+							if(!possibility[i].isEmpty()){
+								checkbox[i] = Integer.valueOf(possibility[i]);		
+							}
+						}
+				 } else {
+					 newCondition = newCondition.replaceAll("[^\\d.]", "");
+					 if(!newCondition.isEmpty()) {
+						 checkbox = new int[1];
+						 checkbox[0] = Integer.valueOf(newCondition);	
+					 }
+				 }
+				} else if(condition.contains(",") && !condition.contains("#")){
 				type[indice] = 4;
 				String [] possibility = condition.split(",");
 				checkbox = new int[possibility.length];

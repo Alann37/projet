@@ -20,7 +20,7 @@ public class Reponse {
 	boolean disqualif;
 	boolean shouldBeEmpty;
 	boolean isEmpty;
-
+	int reponseType;
 	public Reponse (Reponse r){
 		reponseTexte = r.reponseTexte;
 		reponseNumeric= r.reponseNumeric;
@@ -42,7 +42,119 @@ public class Reponse {
 		reponseDate = null;
 		disqualif = false;
 	}
-	
+	public String getReponseTexte() {
+		return reponseTexte;
+	}
+	public void setReponseTexte(String reponseTexte) {
+		this.reponseTexte = reponseTexte;
+	}
+	public double getReponseNumeric() {
+		return reponseNumeric;
+	}
+	public void setReponseNumeric(double reponseNumeric) {
+		this.reponseNumeric = reponseNumeric;
+	}
+	public int getCellPosition() {
+		return cellPosition;
+	}
+	public void setCellPosition(int cellPosition) {
+		this.cellPosition = cellPosition;
+	}
+	public boolean isPartOfQuestion() {
+		return partOfQuestion;
+	}
+	public void setPartOfQuestion(boolean partOfQuestion) {
+		this.partOfQuestion = partOfQuestion;
+	}
+	public boolean isPartOfLoop() {
+		return partOfLoop;
+	}
+	public void setPartOfLoop(boolean partOfLoop) {
+		this.partOfLoop = partOfLoop;
+	}
+	public String getQuestionTag() {
+		return questionTag;
+	}
+	public void setQuestionTag(String questionTag) {
+		this.questionTag = questionTag;
+	}
+	public String getQuestionName() {
+		return questionName;
+	}
+	public void setQuestionName(String questionName) {
+		this.questionName = questionName;
+	}
+	public Calendar getReponseDate() {
+		return reponseDate;
+	}
+	public void setReponseDate(Calendar reponseDate) {
+		this.reponseDate = reponseDate;
+	}
+	public boolean isDisqualif() {
+		return disqualif;
+	}
+	public void setDisqualif(boolean disqualif) {
+		this.disqualif = disqualif;
+	}
+	public boolean isShouldBeEmpty() {
+		return shouldBeEmpty;
+	}
+	public void setShouldBeEmpty(boolean shouldBeEmpty) {
+		this.shouldBeEmpty = shouldBeEmpty;
+	}
+	public boolean isEmpty() {
+		return isEmpty;
+	}
+	public void setEmpty(boolean isEmpty) {
+		this.isEmpty = isEmpty;
+	}
+	public Reponse(String answer,int type , String questionLabel) throws ParseException{
+		disqualif = false;
+		questionTag= questionLabel;
+		reponseDate= null;
+		shouldBeEmpty= false;
+		if(answer != null){
+			reponseTexte=answer;
+			reponseType = type;
+			if(type == 1) {// cas int
+				
+				answer = answer.replaceAll("[^\\d.]", "");
+				reponseNumeric = Double.parseDouble(answer) ;
+				if (questionTag.contains("date") ){
+					reponseDate= Calendar.getInstance();
+					Date da = HSSFDateUtil.getJavaDate(reponseNumeric);
+					reponseDate.setTime(da);
+				}
+			} else {
+				reponseTexte = answer;
+				reponseNumeric=-1;
+				if (questionTag.contains("date") && !answer.contains("undef") && !answer.isEmpty() && answer.length()>4 ){
+					reponseDate= Calendar.getInstance();
+					DateFormat d = new SimpleDateFormat("dd/mm/yy");
+					Date da = d.parse(reponseTexte);
+					reponseDate.setTime(da);
+				}
+			}
+			if(questionLabel.contains("_")){
+		    	partOfQuestion=true;
+		    }
+		    if(questionLabel.contains(".")){
+		    	partOfLoop=true;
+		    }
+		    isEmpty =false;
+		}else {
+			reponseTexte="";
+			reponseNumeric = -1;
+			reponseDate = null;
+			if(questionLabel.contains("_")){
+		    	partOfQuestion=true;
+		    }
+		    if(questionLabel.contains(".")){
+		    	partOfLoop=true;
+		    }
+			isEmpty=true;
+		}   
+	}
 	public Reponse(XSSFCell cell,XSSFCell question) throws ParseException{
 		disqualif = false;
 		cellPosition = question.getColumnIndex();

@@ -24,6 +24,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
 import com.microsoft.sqlserver.jdbc.SQLServerConnection;
 
 import Configuration.Configuration;
@@ -33,6 +35,8 @@ import baseLibelle.SawtoothList;
 import importExcel.Filter;
 import importExcel.ReadExcel;
 import importExcel.TraitementEtude;
+import importMSQLServer.InformationBDD;
+import importMSQLServer.connectURL;
 
 public class MainView {
 	static long chrono = 0 ; 
@@ -75,25 +79,30 @@ public class MainView {
 		JButton btnQualificationetudes = new JButton("Qualification Etudes");
 		btnQualificationetudes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				basesQualif();
+				try {
+					Go_Chrono();
+					basesQualif();
+					Stop_Chrono();
+				} catch (InvalidFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		btnQualificationetudes.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-		btnQualificationetudes.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				basesQualif();
-			}
-		});
+
 			
 			JButton btnNewButton = new JButton("Import Bases Brutes");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					Go_Chrono();
-					importBases();
+					//importBases();
 					
-					basesLibeler();
-					basesQualif();
+					//basesLibeler();
+				//	basesQualif();
 					Stop_Chrono();
 				
 				}
@@ -140,80 +149,7 @@ public class MainView {
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 	}
-	private void importBases(){
-		Filter filtre = new Filter();
-		File [] excels = filtre.finder( System.getProperty("user.dir"), ".xlsm");
-		//File excelFile = new File("verif base ext + guide.xlsm");
-        ReadExcel.callExcelMacro(excels[0], "!md_selenium.Extract_Site");
-        
-        String sPath = excels[0].getAbsolutePath();
-        sPath = sPath.replace(excels[0].getName(),"");
-        sPath+="Bases\\01. Extractions brutes\\";
-  
-       
- 	   //get current date time with Date()
 
-	
- 	  Calendar cal = Calendar.getInstance();
- 	  int month = cal.get(Calendar.MONTH)+1;
- 	  String sDate = cal.get(Calendar.DAY_OF_MONTH) + "." + month +"."+cal.get(Calendar.YEAR);
-
- 	  // System.out.println(sDate);
- 	   
- 	   
- 	   
- 	   sPath+=sDate;
- 	  // System.out.println(sPath);
- 	  if(!Files.isDirectory(Paths.get(sPath),LinkOption.NOFOLLOW_LINKS)){
-        	File folder = new File (sPath);
-        	folder.mkdir();
-    
-        }
- 	  	try {
-			Configuration.setConfig(0, sPath);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
- 	 
-        
- 	  	
-        sPath=sPath.replace("Bases\\01. Extractions brutes\\"+sDate,"BasesQualif");
-      
-        if(!Files.isDirectory(Paths.get(sPath),LinkOption.NOFOLLOW_LINKS)){
-        	File folder = new File (sPath);
-        	folder.mkdir();
-        	try {
-				Configuration.setConfig(1, sPath);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        sPath = sPath.replace("BasesQualif","BasesLibelle");
-        if(!Files.isDirectory(Paths.get(sPath),LinkOption.NOFOLLOW_LINKS)){
-        	File folder = new File (sPath);
-        	folder.mkdir();
-        	try {
-				Configuration.setConfig(3, sPath);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-        sPath = sPath.replace("BasesLibelle","PrintStudy");
-        if(!Files.isDirectory(Paths.get(sPath),LinkOption.NOFOLLOW_LINKS)){
-        	File folder = new File (sPath);
-        	folder.mkdir();
-        	try {
-				Configuration.setConfig(2, sPath);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-	}
-	
 	private void basesLibeler(){
 		List<String> paths = new ArrayList<String>();
 		try {
@@ -260,78 +196,87 @@ public class MainView {
 		long temps = chrono2 - chrono ; 
 		System.out.println("Temps ecoule = " + temps + " ms") ; 
 		} 
-	private void basesQualif(){
-		Filter filterMaster = new Filter ();
-    	String conf =  "" ;
-    	try {
-			conf = Configuration.getConf(0);
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\MASTER",".docx");
-    	File[] excels  = filterMaster.finder(conf,".xlsx");
-    			
-    	List<TraitementEtude> listEtude = new ArrayList<TraitementEtude>();
-    	/*for(int i = 0 ; i < masters.length;i++){
-    		try {
-    		boolean canPass =false;
-    		int posExcel=0;
-    		listEtude.add(new TraitementEtude());
-    		listEtude.get(listEtude.size()-1).setEtudeName(masters[i].getName().split("-")[0]);
-    		listEtude.get(listEtude.size()-1).setQuestion(ReadExcel.importConditionFromWord(masters[i]));
-    		for(int j = 0 ; j < excels.length ; j++){
-    			if(excels[j].getName().split("-")[0].contains(masters[i].getName().split("-")[0])){
-    				try {
-    					listEtude.get(listEtude.size()-1).setEtudeName(excels[j].getName().split("-")[0]);
-						listEtude.get(listEtude.size()-1).setEtudes(ReadExcel.readExcelDocument(excels[j]));
-						canPass = true;
-						posExcel = j;
-    				} catch (ParseException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-	    		}
-    		}
-    		if(canPass){
-    			listEtude.get(listEtude.size()-1).checkEtude();
-    			ReadExcel.applyDisqualif(excels[posExcel], listEtude.get(listEtude.size()-1).getEtudes());
-    		}
+	private void basesQualif() throws IOException, InvalidFormatException{
+		List<TraitementEtude> list = new ArrayList<TraitementEtude>();
+    	List<InformationBDD> listBdd = new ArrayList<InformationBDD>();
+    	listBdd = ReadExcel.importListBases();
+    	int size = 0;
+    	System.out.println("début");
+    	for(int i = 0 ; i < listBdd.size();i++){
+    		size+=listBdd.get(i).getLangues().size();
+    	}
+    	for(int i = 0 ; i <size; i ++){
+    		list.add(new TraitementEtude());
     		
-    		}catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}*/
-    	for(int i = 0 ; i < excels.length;i++){
-    		boolean canPass =false;
-
-    		listEtude.add(new TraitementEtude());
-    		listEtude.get(listEtude.size()-1).setEtudeName(excels[i].getName().split("-")[0]);
+    	}
+    	int listIndice = 0;
+    	for(int i = 0 ; i < listBdd.size();i++){
+    		for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
+    			list.get(listIndice).setEtudeName(listBdd.get(i).getBase()+listBdd.get(i).getLangues().get(j));
+    			listIndice++;
+    		}
+    	}
+    	System.out.println("mise en place des masters");
+    	Filter filterMaster = new Filter ();
+    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\MASTER",".docx");
+    	for(int i = 0 ; i < list.size();i++){
     		for(int j = 0 ; j < masters.length;j++){
-    			if(excels[i].getName().split("-")[0].contains(masters[j].getName().split("-")[0])){
-    				try {
-						listEtude.get(listEtude.size()-1).setQuestion(ReadExcel.importConditionFromWord(masters[j]));
-						canPass = true;
-    				} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-    				
+    			if(masters[j].getName().contains("-")){
+	    			if(list.get(i).getEtudeName().contains(masters[j].getName().split("-")[0])){
+	    				list.get(i).setQuestion(ReadExcel.importConditionFromWord(masters[j]));
+	    				j=masters.length;
+	    			}
     			}
     		}
-    		if(canPass){
-    			try {
-					listEtude.get(listEtude.size()-1).setEtudes(ReadExcel.readExcelDocument(excels[i]));
-					listEtude.get(listEtude.size()-1).checkEtude();
-	    			ReadExcel.applyDisqualif(excels[i], listEtude.get(listEtude.size()-1).getEtudes());
-
-    			} catch (IOException | ParseException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+    	}
+    	System.out.println("début import bdd");
+		
+		listIndice=0;
+		int threadCount = 0;
+		int [] threadToThrow = new int [list.size()];
+		int toThrowCount=0;
+		for(int i = 0 ; i < listBdd.size();i++){
+			for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
+				connectURL connectionWithDB = new connectURL();
+				//System.out.println("passage pour : " + list.get(listIndice).getEtudeName());
+				list.get(listIndice).setEtudes(connectionWithDB.test(listBdd.get(i).getBase(), listBdd.get(i).getLangues().get(j)));
+				if(threadCount<2){
+					list.get(listIndice).start();
+					list.get(listIndice).setPriority(7);
+					threadCount++;
+				} else {
+					threadToThrow[toThrowCount] = listIndice;
+					toThrowCount++;
+				}
+				listIndice++;
+				
+				
+			}
+		}
+		System.out.println("test + " + toThrowCount);
+		for(int i = 0 ; i < list.size(); i ++){
+			System.out.println(i + "  " + list.get(i).getState());
+		}
+		listIndice = 0;
+		do{
+			threadCount = 0;
+			for(int i = 0 ; i < list.size(); i ++){
+			//	System.out.println(i + "  " + list.get(i).getState());
+				if(list.get(i).getState()==Thread.State.RUNNABLE){
+					threadCount ++;
+				}
+			}
+			for(int i = 0 ; i < toThrowCount;i++){
+			//	System.out.println(i + "  " + list.get(i).getState());
+				if(list.get(threadToThrow[i]).getState()==Thread.State.NEW && threadCount<2){
+					list.get(threadToThrow[i]).start();
+					threadCount++;
 				}
 				
-    		}
-			
-    	}
+			}
+		}while(threadCount!=0);
 	}
+	
+    
 }
+

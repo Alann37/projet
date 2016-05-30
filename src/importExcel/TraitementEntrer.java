@@ -20,7 +20,13 @@ public class TraitementEntrer {
 	public void addNotToBe(String quest){
 		notToBeAnswer.add(quest);
 	}
-
+	public void clearAnswer(){
+		for(int i = 0 ; i < reponses.size(); i ++){
+			if(reponses.get(i).isEmpty){
+				reponses.remove(i);
+			}
+		}
+	}
 	public List<String> getNotToBeAnswer(){
 		return notToBeAnswer; 
 	}

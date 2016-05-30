@@ -1,11 +1,18 @@
 package importExcel;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
-public class TraitementEtude {
+import importMSQLServer.connectURL;
+
+public class TraitementEtude extends Thread {
 	private String etudeName;
 	private List<Question> questions;
 	private List<TraitementEntrer> etudes;
+	private boolean isTreated;
+	private boolean onTreatment;
+	private boolean haveBeenWrite;
 	public String getEtudeName() {
 		return etudeName;
 	}
@@ -17,6 +24,28 @@ public class TraitementEtude {
 	}
 	public void setQuestion(List<Question> question) {
 		this.questions = question;
+	}
+	@Override
+	public void run(){
+		/*String temp = etudeName.substring(etudeName.length()-2);
+		connectURL t = new connectURL();
+		etudes = t.test(temp);*/
+		onTreatment=true;
+		System.out.println("début de "+etudeName);
+		checkEtude();
+		System.out.println("isTreated " + etudeName);
+		do{
+			File f2 = new File("C:\\Users\\dbinet.APLUSA\\Desktop\\Projet\\TraitementBDD\\BasesQualif\\"+this.getEtudeName()+" base qualif.xlsx");
+				try {
+					this.setHaveBeenWrite(ReadExcel.test(f2,this.getEtudes()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+		} while(!this.haveBeenWrite);
+		
+	
 	}
 	@Override
 	public String toString() {
@@ -42,12 +71,18 @@ public class TraitementEtude {
 	public void setEtudes(List<TraitementEntrer> etudes) {
 		this.etudes = etudes;
 	}
+	public void cleanAnswer(){
+
+	}
 	public void checkEtude(){
 		/*int[] success = new int[etudes.size()];
 		int numberFail = 0;
 		int unfail = 0;
 		*/
 		for(int i = 0 ; i < etudes.size(); i ++){
+			if(i%200==0){
+				System.out.println("passage pour i = " + i + " et études : "+ etudeName);
+			}
 			TraitementEntrer temp = etudes.get(i);
 			temp.setQuestionName(questions);
 			
@@ -100,8 +135,23 @@ public class TraitementEtude {
 		}*/
 		
 	}
+	public boolean isOnTreatment(){
+		return onTreatment;
+	}
+	public boolean isTreated(){
+		return isTreated;
+	}
 	public TraitementEtude(){
-		
+		super();
+		onTreatment=false;
+		haveBeenWrite=false;
+		isTreated=false;
+	}
+	public boolean isHaveBeenWrite() {
+		return haveBeenWrite;
+	}
+	public void setHaveBeenWrite(boolean haveBeenWrite) {
+		this.haveBeenWrite = haveBeenWrite;
 	}
 	
 }
