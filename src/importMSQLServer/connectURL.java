@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
-
 import Configuration.Configuration;
 import importExcel.Reponse;
 import importExcel.TraitementEntrer;
@@ -18,7 +13,6 @@ public class ConnectURL {
 	public ConnectURL(){
 		
 	}
-	private int count = 0;
 	private List<TraitementEntrer> test2(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list) throws ParseException{
 		boolean firstPassage= false;
 		if(list.size()==0){
@@ -101,8 +95,6 @@ public class ConnectURL {
             }
            
          }
-
-         // Handle any errors that may have occurred.
          catch (Exception e) {
             e.printStackTrace();
          }

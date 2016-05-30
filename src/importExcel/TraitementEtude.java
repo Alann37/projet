@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import importMSQLServer.ConnectURL;
-
+import Configuration.Configuration;
 public class TraitementEtude extends Thread {
 	private String etudeName;
 	private List<Question> questions;
@@ -35,9 +34,17 @@ public class TraitementEtude extends Thread {
 		checkEtude();
 		System.out.println("isTreated " + etudeName);
 		do{
-			File f2 = new File("C:\\Users\\dbinet.APLUSA\\Desktop\\Projet\\TraitementBDD\\BasesQualif\\"+this.getEtudeName()+" base qualif.xlsx");
+			File f2 = null;
+			try {
+				f2 = new File(Configuration.getConf(1)+this.getEtudeName()+" base qualif.xlsx");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 				try {
-					this.setHaveBeenWrite(ReadExcel.test(f2,this.getEtudes()));
+					if(f2!=null){
+						this.setHaveBeenWrite(ReadExcel.test(f2,this.getEtudes()));
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

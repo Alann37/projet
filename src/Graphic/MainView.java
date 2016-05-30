@@ -3,19 +3,11 @@ package Graphic;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -23,11 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-
-import com.microsoft.sqlserver.jdbc.SQLServerConnection;
-
 import Configuration.Configuration;
 import baseLibelle.ExportLibeleBase;
 import baseLibelle.ImportTxt;
@@ -68,13 +56,6 @@ public class MainView {
 			public void actionPerformed(ActionEvent e) {
 				basesLibeler();
 			}
-		});
-		btnBaseLibele.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				basesLibeler();
-			}
-			
 		});
 		JButton btnQualificationetudes = new JButton("Qualification Etudes");
 		btnQualificationetudes.addActionListener(new ActionListener() {
@@ -186,7 +167,9 @@ public class MainView {
 					e.printStackTrace();
 				}  
     		}
+    		System.out.println("passage pour i = " + i + " et size = " + bases.length);
     	}
+    	System.out.println("sortie de libeler");
 	}
 	static void Go_Chrono() { 
 		chrono = java.lang.System.currentTimeMillis() ; 
