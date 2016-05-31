@@ -21,6 +21,7 @@ public class Reponse {
 	boolean shouldBeEmpty;
 	boolean isEmpty;
 	int reponseType;
+	boolean isSetOnQuestion;
 	public Reponse (Reponse r){
 		reponseTexte = r.reponseTexte;
 		reponseNumeric= r.reponseNumeric;
@@ -32,6 +33,7 @@ public class Reponse {
 		reponseDate = r.reponseDate;
 		disqualif = r.disqualif;
 		shouldBeEmpty = r.shouldBeEmpty;
+		isSetOnQuestion= r.isSetOnQuestion;
 	}
 	public Reponse (){
 		shouldBeEmpty=false;
@@ -41,6 +43,7 @@ public class Reponse {
 		cellPosition = -2;
 		reponseDate = null;
 		disqualif = false;
+		isSetOnQuestion=false;
 	}
 	public String getReponseTexte() {
 		return reponseTexte;
@@ -112,6 +115,7 @@ public class Reponse {
 		disqualif = false;
 		questionTag= questionLabel;
 		reponseDate= null;
+		isSetOnQuestion=false;
 		shouldBeEmpty= false;
 		if(answer != null){
 			reponseTexte=answer;

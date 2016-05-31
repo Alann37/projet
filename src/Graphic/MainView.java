@@ -6,7 +6,11 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -16,6 +20,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.store.Path;
+
 import Configuration.Configuration;
 import baseLibelle.ExportLibeleBase;
 import baseLibelle.ImportTxt;
@@ -25,6 +32,11 @@ import importExcel.ReadExcel;
 import importExcel.TraitementEtude;
 import importMSQLServer.InformationBDD;
 import importMSQLServer.ConnectURL;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class MainView {
 	static long chrono = 0 ; 
@@ -46,7 +58,9 @@ public class MainView {
 
 	private void initialize() throws PropertyVetoException {
 		frame = new JFrame();
+		
 		frame.setResizable(false);
+		
 		frame.setBounds(100, 100, 571, 202);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 		JButton btnBaseLibele = new JButton("Faire bases libell\u00E9es");
@@ -58,58 +72,64 @@ public class MainView {
 			}
 		});
 		JButton btnQualificationetudes = new JButton("Qualification Etudes");
-		btnQualificationetudes.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					Go_Chrono();
-					basesQualif();
-					Stop_Chrono();
-				} catch (InvalidFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+	
 		btnQualificationetudes.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-
-			
-			JButton btnNewButton = new JButton("Import Bases Brutes");
-			btnNewButton.addActionListener(new ActionListener() {
+			btnQualificationetudes.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					Go_Chrono();
-					//importBases();
-					
-					//basesLibeler();
-				//	basesQualif();
-					Stop_Chrono();
-				
+					try {
+						Go_Chrono();
+						LoadingScreen m = new LoadingScreen();
+						
+						String sPath = "";
+						sPath = Configuration.getConf(0);
+						  Calendar cal = Calendar.getInstance();
+					 	  int month = cal.get(Calendar.MONTH)+1;
+					 	  String sDate = ""+cal.get(Calendar.DAY_OF_MONTH)+"." + month +"."+ cal.get(Calendar.YEAR);
+						sPath+="\\"+sDate+"\\";
+						if(!Files.isDirectory(Paths.get(sPath), LinkOption.NOFOLLOW_LINKS)){
+							File folder = new File(sPath);
+							folder.mkdir();
+							Configuration.setConfig(1,sPath);
+						}
+						try {
+							m.visibility(true);
+							basesQualif(m);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						m.setVisible(false);
+					} catch (InvalidFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-				
 			});
+			 
+			
+			// lProgress.setVisible(false);
+
 			GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 			groupLayout.setHorizontalGroup(
 				groupLayout.createParallelGroup(Alignment.LEADING)
 					.addGroup(groupLayout.createSequentialGroup()
-						.addGap(36)
-						.addComponent(btnNewButton)
-						.addGap(18)
-						.addComponent(btnBaseLibele)
-						.addGap(18)
+						.addGap(72)
 						.addComponent(btnQualificationetudes)
-						.addContainerGap(121, Short.MAX_VALUE))
+						.addGap(129)
+						.addComponent(btnBaseLibele)
+						.addContainerGap(110, Short.MAX_VALUE))
 			);
 			groupLayout.setVerticalGroup(
 				groupLayout.createParallelGroup(Alignment.LEADING)
 					.addGroup(groupLayout.createSequentialGroup()
-						.addGap(73)
+						.addGap(32)
 						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 							.addComponent(btnBaseLibele)
-							.addComponent(btnNewButton)
 							.addComponent(btnQualificationetudes))
-						.addContainerGap(72, Short.MAX_VALUE))
+						.addContainerGap(97, Short.MAX_VALUE))
 			);
 			frame.getContentPane().setLayout(groupLayout);
 		JMenuBar menuBar = new JMenuBar();
@@ -167,7 +187,6 @@ public class MainView {
 					e.printStackTrace();
 				}  
     		}
-    		System.out.println("passage pour i = " + i + " et size = " + bases.length);
     	}
     	System.out.println("sortie de libeler");
 	}
@@ -179,7 +198,8 @@ public class MainView {
 		long temps = chrono2 - chrono ; 
 		System.out.println("Temps ecoule = " + temps + " ms") ; 
 		} 
-	private void basesQualif() throws IOException, InvalidFormatException{
+	private void basesQualif(LoadingScreen m) throws IOException, InvalidFormatException, InterruptedException{
+		m.progressUpdate(0);
 		List<TraitementEtude> list = new ArrayList<TraitementEtude>();
     	List<InformationBDD> listBdd = new ArrayList<InformationBDD>();
     	listBdd = ReadExcel.importListBases();
@@ -215,51 +235,48 @@ public class MainView {
     	System.out.println("début import bdd");
 		
 		listIndice=0;
-		int threadCount = 0;
-		int [] threadToThrow = new int [list.size()];
-		int toThrowCount=0;
+	
 		for(int i = 0 ; i < listBdd.size();i++){
 			for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
 				ConnectURL connectionWithDB = new ConnectURL();
 				//System.out.println("passage pour : " + list.get(listIndice).getEtudeName());
 				list.get(listIndice).setEtudes(connectionWithDB.test(listBdd.get(i).getBase(), listBdd.get(i).getLangues().get(j)));
-				if(threadCount<2){
-					list.get(listIndice).start();
-					list.get(listIndice).setPriority(7);
-					threadCount++;
-				} else {
-					threadToThrow[toThrowCount] = listIndice;
-					toThrowCount++;
-				}
 				listIndice++;
-				
-				
 			}
 		}
-		System.out.println("test + " + toThrowCount);
-		for(int i = 0 ; i < list.size(); i ++){
-			System.out.println(i + "  " + list.get(i).getState());
-		}
-		listIndice = 0;
+		int threadCount = 0;
+		int endCount =0;
+		m.progressUpdate(endCount);
 		do{
+			endCount=0;
 			threadCount = 0;
 			for(int i = 0 ; i < list.size(); i ++){
 			//	System.out.println(i + "  " + list.get(i).getState());
+				if(list.get(i).getState()==Thread.State.TERMINATED){
+					endCount++;
+				}
 				if(list.get(i).getState()==Thread.State.RUNNABLE){
 					threadCount ++;
 				}
 			}
-			for(int i = 0 ; i < toThrowCount;i++){
+			endCount = (100/list.size())*endCount;
+			//lProgress.setText(endCount+"%");
+			if(endCount != m.getValue()){
+				m.progressUpdate(endCount);
+			}
+
+			for(int i = 0 ; i < list.size();i++){
 			//	System.out.println(i + "  " + list.get(i).getState());
-				if(list.get(threadToThrow[i]).getState()==Thread.State.NEW && threadCount<2){
-					list.get(threadToThrow[i]).start();
+				if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
 					threadCount++;
+					Thread.currentThread().sleep(5000);
+					System.out.println("throw new thread " + threadCount);
+					list.get(i).start();
+					
 				}
 				
 			}
 		}while(threadCount!=0);
 	}
-	
-    
 }
 

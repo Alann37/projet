@@ -49,6 +49,27 @@ public class Question {
 			naValue = -999999;
 		}
 	}
+	
+
+	private QuestionReturn gestionConditionNotEmpty(QuestionReturn option, Condition c){
+		QuestionReturn qRet = option;
+		if(c.conditionSens==0){
+			for(int i = 0 ; i < reponses.size(); i ++){
+				for(int j = i+1; j< reponses.size(); j ++){
+					if(reponses.get(i).questionTag.split("_").length>=3 && reponses.get(j).questionTag.split("_").length>=3){
+						if(reponses.get(i).questionTag.split("_")[1].equals(reponses.get(j).questionTag.split("_")[1])){
+							if(!reponses.get(i).isEmpty && reponses.get(j).isEmpty){
+								qRet.questionDisqualifs.add(reponses.get(i).questionTag);
+								qRet.questionDisqualifs.add(reponses.get(j).questionTag);
+								qRet.validate=false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return qRet;
+	}
 
 	private QuestionReturn gestionTypeCondition(QuestionReturn option,Condition c,Reponse answer){
 		QuestionReturn qRet = new QuestionReturn();
@@ -367,7 +388,7 @@ public class Question {
 		if(c.type[h]==8){
 			
 			for(int k = 0 ; k < c.checkbox.length;k++){
-				int testNum=-1;
+				int testNum=0;
 				if(answer.reponseNumeric == 1){
 				String temp = answer.questionTag;
 				temp = temp.split("_")[temp.split("_").length-1];
@@ -413,7 +434,7 @@ public class Question {
 				}
 			}
 		}
-		}
+	}
 	
 		return qRet;
 	}
@@ -428,23 +449,25 @@ public class Question {
 				qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.reponseNumeric, answer.reponseTexte,c.countryTag));
 			}
 		}
-		
-		if(c.tag!=null ){
-			if(!c.countryTag.isEmpty()){
-				if(answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)){
-						qRet = gestionTypeCondition(qRet,c,answer);
+		if(c.notEmptyCondition){
+			qRet = gestionConditionNotEmpty(qRet,c);
+		}else {
+			if(c.tag!=null ){
+				if(!c.countryTag.isEmpty()){
+					if(answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)){
+							qRet = gestionTypeCondition(qRet,c,answer);
+					}
+				} else if(answer.questionTag.contains(c.tag)){
+					qRet = gestionTypeCondition(qRet,c,answer);
 				}
-			} else if(answer.questionTag.contains(c.tag)){
-				qRet = gestionTypeCondition(qRet,c,answer);
+			} else {
+				if(c.countryTag.isEmpty()){
+					qRet = gestionTypeCondition(qRet,c,answer);
+				} else if(qRet.etudename.contains(c.countryTag)){
+					qRet = gestionTypeCondition(qRet,c,answer);
+				}
 			}
-		} else {
-			if(c.countryTag.isEmpty()){
-				qRet = gestionTypeCondition(qRet,c,answer);
-			} else if(qRet.etudename.contains(c.countryTag)){
-				qRet = gestionTypeCondition(qRet,c,answer);
-			}
-		}
-		
+		}	
 	
 		return qRet;
 }
@@ -491,13 +514,17 @@ public class Question {
 						if(!reponses.get(j).questionTag.contains("other") && !reponses.get(j).questionTag.contains("NA")){
 							if(reponses.get(j).partOfLoop){
 								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName) && reponses.get(j).questionTag.split("\\.")[1].equals(option.conditions.get(i).partOfLoop)){
-									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
-								passage=true;
+									if(option.conditions.get(i).secondCondition!=null){
+										qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
+										passage=true;
+									}
 								}
 							}else {
 								if(reponses.get(j).questionName.equals(option.conditions.get(i).questionName)){
-									qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
-								passage = true;
+									if(option.conditions.get(i).secondCondition!=null){
+										qRet = tryCondition(option.conditions.get(i).secondCondition,reponses.get(j),qRet);
+										passage = true;
+									}
 								}
 							}
 						}
@@ -513,8 +540,9 @@ public class Question {
 				for(int i = 0 ; i < reponses.size(); i ++){
 					for(int j = 0 ; j < conditions.size(); j ++){
 						if(!reponses.get(i).questionTag.contains("other") && ! reponses.get(i).questionTag.contains("NA")){
-							
-							qRet = tryCondition(conditions.get(j),reponses.get(i), qRet);
+							if(conditions.get(j)!=null){
+								qRet = tryCondition(conditions.get(j),reponses.get(i), qRet);
+							}
 				
 						}
 					}

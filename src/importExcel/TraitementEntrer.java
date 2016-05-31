@@ -92,8 +92,14 @@ public class TraitementEntrer {
 			for(int j = 0 ; j< questions.size();j++){
 				String s = questions.get(j).name;
 				s = s.replaceAll("\\s+", "");
-				if(reponses.get(i).questionTag.contains(s) ){
+				String temp = reponses.get(i).getQuestionTag();
+				if(temp.contains("_")){
+					temp = temp.split("_")[0];
+				}
+				if(temp.equals(s) && !reponses.get(i).isSetOnQuestion ){
 					reponses.get(i).questionName=questions.get(j).name;
+					//System.out.println("test questiontag " + reponses.get(i).questionTag + " et question name "+reponses.get(i).questionName);
+					reponses.get(i).isSetOnQuestion=true;
 				}
 			}
 		}
