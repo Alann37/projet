@@ -24,8 +24,12 @@ public class Condition {
 	String countryTag;
 	boolean isNa;
 	
+	boolean notEmptyCondition;
+	int conditionSens; // 0 colonne 1 row
+	
 	public Condition(String condition){
 		isNa=false;
+		notEmptyCondition=false;
 		if(condition.contains("NA")){
 			condition= condition.replaceAll(" ","");
 			condition = condition.replaceAll("NA", "");

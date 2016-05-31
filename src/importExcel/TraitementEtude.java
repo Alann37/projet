@@ -36,7 +36,7 @@ public class TraitementEtude extends Thread {
 		do{
 			File f2 = null;
 			try {
-				f2 = new File(Configuration.getConf(1)+this.getEtudeName()+" base qualif.xlsx");
+				f2 = new File(Configuration.getConf(1)+"\\"+this.getEtudeName()+" base qualif.xlsx");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

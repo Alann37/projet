@@ -109,7 +109,7 @@ public class ExportLibeleBase {
 				}
 			}
 		}
-		String pathTreated = Configuration.importConfig().get(3) +"\\"+ file.getName().replaceAll("- Base brute", "- Base libellé");
+		String pathTreated = Configuration.importConfig().get(3) +"\\"+ file.getName().replaceAll("base qualif", "base libellé");
 		OutputStream writer = new FileOutputStream(pathTreated);		
 		books.write(writer);
 		books.close();

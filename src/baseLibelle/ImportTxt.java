@@ -156,7 +156,9 @@ public class ImportTxt {
 				allList.get(h).isGridList= true;
 			}
 		}
-
+		for(int j = 0 ; j < allList.size();j++){
+			System.out.println(allList.get(j).questionName);
+		}
 		return allList;
 	}
 }

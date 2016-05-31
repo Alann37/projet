@@ -74,7 +74,7 @@ public class MultipleCondition {
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
 				secondCondition = new Condition(">"+s);
-			}else {
+			}else if ( i > 0) {
 				secondCondition = new Condition(">"+i);
 			}
 		}else if(secondPart.contains("==")){
