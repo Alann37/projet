@@ -2,6 +2,7 @@ package importExcel;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import Configuration.Configuration;
@@ -31,6 +32,7 @@ public class TraitementEtude extends Thread {
 		etudes = t.test(temp);*/
 		onTreatment=true;
 		System.out.println("début de "+etudeName);
+		
 		checkEtude();
 		System.out.println("isTreated " + etudeName);
 		do{
@@ -71,6 +73,8 @@ public class TraitementEtude extends Thread {
 	public TraitementEtude(String etudeName, List<Question> question) {
 		this.etudeName = etudeName;
 		this.questions = question;
+		etudes= new ArrayList<TraitementEntrer>();
+		
 	}
 	public List<TraitementEntrer> getEtudes() {
 		return etudes;
@@ -153,6 +157,9 @@ public class TraitementEtude extends Thread {
 		onTreatment=false;
 		haveBeenWrite=false;
 		isTreated=false;
+		questions= new ArrayList<Question>();
+		etudes= new ArrayList<TraitementEntrer>();
+		
 	}
 	public boolean isHaveBeenWrite() {
 		return haveBeenWrite;

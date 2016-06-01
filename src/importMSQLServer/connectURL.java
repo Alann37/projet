@@ -74,6 +74,7 @@ public class ConnectURL {
             //récupération des tables
             while (tables.next()) {
             	tablesImport.add(new TableImport(tables.getString(3)));
+            	System.out.println("TEST "+tables.getString(3));
             }
             // tri des tables 
             TableImport temp ;
@@ -105,6 +106,7 @@ public class ConnectURL {
             if (con != null) try { con.close(); } catch(Exception e) {}
            
          }
+
         return listTraitement;
 	}
 }
