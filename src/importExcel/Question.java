@@ -76,7 +76,7 @@ public class Question {
 		qRet=option;
 		for(int h = 0 ; h < c.type.length;h++){
 		if(c.type[h]==0){
-			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
+			if( answer.reponseNumeric>=(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
@@ -112,7 +112,7 @@ public class Question {
 			
 		}
 		if(c.type[h]==1){
-			if( answer.reponseNumeric<(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
+			if( answer.reponseNumeric<=(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
 				if(c.skip && !c.doubleSkip){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
