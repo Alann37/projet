@@ -94,6 +94,7 @@ public class MainView {
 						try {
 							m.visibility(true);
 							basesQualif(m);
+							Stop_Chrono();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -161,9 +162,10 @@ public class MainView {
 		}
 		Filter printStudyFilter = new Filter ();
     	File[] printStudys = printStudyFilter.finder(paths.get(2),".txt");
-    	File[] bases = printStudyFilter.finder(paths.get(0),".xlsx");
+    	File[] bases = printStudyFilter.finder(paths.get(1),".xlsx");
     	for(int i = 0 ; i < bases.length;i++){
-    		List<SawtoothList> toto = new ArrayList<SawtoothList>();
+    		List<SawtoothList> sawtoothList = new ArrayList<SawtoothList>();
+    		List<String> exportMaster = new ArrayList<String>();
     		boolean canPass = false;
     		int j=0;
     		for(j=0;j<printStudys.length;j++){
@@ -171,7 +173,8 @@ public class MainView {
     			temp = temp.replaceAll(".txt", "");
     			if(bases[i].getName().contains(temp)){
     				try {
-						toto =ImportTxt.test(printStudys[j]);
+    					sawtoothList =ImportTxt.getSawtoothList(printStudys[j]);
+						exportMaster= ImportTxt.getQuestionList(printStudys[j]);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -181,7 +184,8 @@ public class MainView {
     		}
     		if(canPass){
     			try {
-					ExportLibeleBase.exportBaseWithLibelle(toto,bases[i]);
+					ExportLibeleBase.exportBaseWithLibelle(sawtoothList,bases[i]);
+					ExportLibeleBase.setMasterWithPrintStudy(exportMaster,bases[i].getName().split("base")[0]);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -264,17 +268,19 @@ public class MainView {
 			if(endCount != m.getValue()){
 				m.progressUpdate(endCount);
 			}
-
-			for(int i = 0 ; i < list.size();i++){
-			//	System.out.println(i + "  " + list.get(i).getState());
-				if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
-					threadCount++;
-					Thread.currentThread().sleep(5000);
-					System.out.println("throw new thread " + threadCount);
-					list.get(i).start();
+			if(threadCount != 2 ){
+				for(int i = 0 ; i < list.size();i++){
+				//	System.out.println(i + "  " + list.get(i).getState());
+					if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
+						threadCount++;
+						Thread.currentThread();
+						Thread.sleep(5000);
+						System.out.println("throw new thread " + threadCount);
+						list.get(i).start();
+						
+					}
 					
 				}
-				
 			}
 		}while(threadCount!=0);
 	}

@@ -42,7 +42,8 @@ public class ConnectURL {
 	        		   }
 	        		   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
 	        		//   System.out.println( " test " + rs.getRow() + " nbRow  " + rs.getMetaData().getColumnCount());
-	        	   }
+	        		   
+	        	   	}
 	        	   
 	           }
 
@@ -74,7 +75,6 @@ public class ConnectURL {
             //récupération des tables
             while (tables.next()) {
             	tablesImport.add(new TableImport(tables.getString(3)));
-            	System.out.println("TEST "+tables.getString(3));
             }
             // tri des tables 
             TableImport temp ;

@@ -34,6 +34,7 @@ public class LoadingScreen extends JDialog {
 	 * Create the dialog.
 	 */
 	public LoadingScreen() {
+		setResizable(false);
 		setBounds(100, 100, 450, 160);
 		this.setTitle("Ongoing Treatment");
 		progressBar = new JProgressBar(0,100);

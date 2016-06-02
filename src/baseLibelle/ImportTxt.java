@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportTxt {
-	public static List<SawtoothList> test(File file) throws IOException{
+	public static List<SawtoothList> getSawtoothList(File file) throws IOException{
 		boolean fillList = false;
 		boolean constructed = false;
 		int itemNumber = 1;
@@ -157,8 +157,32 @@ public class ImportTxt {
 			}
 		}
 		for(int j = 0 ; j < allList.size();j++){
-			System.out.println(allList.get(j).questionName);
+			//System.out.println(allList.get(j).questionName);
 		}
 		return allList;
+	}
+
+	public static List<String> getQuestionList(File file) throws IOException {
+		List<String> lRet = new ArrayList<String>();
+		boolean onFill=false;;
+		
+		for(String line : Files.readAllLines(file.toPath())){
+			if(line.contains("Question List")){
+				onFill=true;
+			}
+			if(onFill && !line.isEmpty()){
+				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link")){
+					line = line.split("\\(")[0] ;
+					line = line.replaceAll(" ", "");
+					lRet.add(line);
+				}
+			}
+			if(line.contains("Data Field")){
+				onFill = false;
+				break;
+			}
+		}
+		System.out.println(lRet);
+		return lRet;
 	}
 }

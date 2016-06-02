@@ -146,9 +146,7 @@ public class ReadExcel {
 						styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
 						styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
 						styleDisqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
-						
-						
-						
+
 						styleSkip.cloneStyleFrom(sh.getRow(0).getCell(0).getCellStyle());
 						styleSkip.setFillBackgroundColor(IndexedColors.PINK.getIndex());
 						styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());

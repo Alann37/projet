@@ -57,11 +57,42 @@ public class Question {
 			for(int i = 0 ; i < reponses.size(); i ++){
 				for(int j = i+1; j< reponses.size(); j ++){
 					if(reponses.get(i).questionTag.split("_").length>=3 && reponses.get(j).questionTag.split("_").length>=3){
-						if(reponses.get(i).questionTag.split("_")[1].equals(reponses.get(j).questionTag.split("_")[1])){
-							if(!reponses.get(i).isEmpty && reponses.get(j).isEmpty){
+						if(reponses.get(i).questionTag.split("_")[1].equals(reponses.get(j).questionTag.split("_")[1]) && !reponses.get(i).questionTag.split("_")[2].equals(reponses.get(j).questionTag.split("_")[2]) ){
+							if(reponses.get(i).isEmpty && !reponses.get(j).isEmpty){
 								qRet.questionDisqualifs.add(reponses.get(i).questionTag);
 								qRet.questionDisqualifs.add(reponses.get(j).questionTag);
 								qRet.validate=false;
+								reponses.get(i).disqualif=true;
+								reponses.get(j).disqualif=true;
+							}
+							if(reponses.get(i).reponseNumeric == 0 &&( reponses.get(j).reponseNumeric!=0 && !reponses.get(j).isEmpty)){
+								qRet.questionDisqualifs.add(reponses.get(i).questionTag);
+								qRet.questionDisqualifs.add(reponses.get(j).questionTag);
+								qRet.validate=false;
+								reponses.get(i).disqualif=true;
+								reponses.get(j).disqualif=true;
+							}
+						}
+					}
+				}
+			}
+		} else {
+			for(int i = 0 ; i < reponses.size(); i ++){
+				for(int j = i+1; j< reponses.size(); j ++){
+					if(reponses.get(i).questionTag.split("_").length>=3 && reponses.get(j).questionTag.split("_").length>=3){
+						if(reponses.get(i).questionTag.split("_")[2].equals(reponses.get(j).questionTag.split("_")[2])){
+							if(reponses.get(i).isEmpty && !reponses.get(j).isEmpty){
+								qRet.questionDisqualifs.add(reponses.get(i).questionTag);
+								qRet.questionDisqualifs.add(reponses.get(j).questionTag);
+								qRet.validate=false;
+								reponses.get(i).disqualif=true;
+								reponses.get(j).disqualif=true;
+							}
+							if(reponses.get(i).reponseNumeric == 0 &&( reponses.get(j).reponseNumeric!=0 && !reponses.get(j).isEmpty)){	qRet.questionDisqualifs.add(reponses.get(i).questionTag);
+								qRet.questionDisqualifs.add(reponses.get(j).questionTag);
+								qRet.validate=false;
+								reponses.get(i).disqualif=true;
+								reponses.get(j).disqualif=true;
 							}
 						}
 					}
@@ -438,6 +469,205 @@ public class Question {
 	
 		return qRet;
 	}
+	
+	private QuestionReturn gestionTypeConditionDate(QuestionReturn option,Condition c,Reponse answer){
+		QuestionReturn qRet = new QuestionReturn();
+		qRet=option;
+		for(int h = 0 ; h < c.type.length;h++){
+		if(c.type[h]==0){
+			if(answer.reponseDate!=null){
+				if( answer.reponseDate.get(Calendar.YEAR)>=c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
+					if(c.skip && !c.doubleSkip){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = c.questionSkip;
+						qRet.validate=true;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						qRet.setQuestionNumber();
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+					}else if(c.skip && c.doubleSkip) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					} else if(c.multiple){
+						 if(answer.questionTag.contains(".")){
+								qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+							}else {
+								qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+							}
+					 }else {
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+					}
+				}
+			}
+			
+		}
+		if(c.type[h]==1){
+			if(answer.reponseDate!=null){
+				if( answer.reponseDate.get(Calendar.YEAR)<=c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
+					if(c.skip && !c.doubleSkip){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = c.questionSkip;
+						qRet.validate=true;
+						qRet.setQuestionNumber();
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+					}else if(c.skip && c.doubleSkip) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					} else if(c.multiple){
+						 if(answer.questionTag.contains(".")){
+								qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+							}else {
+								qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+							}
+					 }else {
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+					}
+				}
+				if(answer.reponseDate.get(Calendar.YEAR)>c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && c.multiple){
+					if(answer.questionTag.contains(".")){
+						qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+					}else {
+						qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+					}
+				}
+			}
+		}
+		if(c.type[h]==2){
+			if(answer.reponseDate!=null){
+				if( answer.reponseDate.get(Calendar.YEAR)!=c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+					
+				}else if (answer.reponseDate.get(Calendar.YEAR) == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty){
+					if(c.skip && !c.doubleSkip){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = c.questionSkip;
+						qRet.validate=true;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						qRet.setQuestionNumber();
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+					}else if(c.skip && c.doubleSkip) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					}else if(c.multiple){
+						if(answer.questionTag.contains(".")){
+							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+						}else {
+							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+						}
+					}
+				}
+			}
+		}
+		if(c.type[h]==3){
+			if(answer.reponseDate!=null){
+				if( answer.reponseDate.get(Calendar.YEAR)==c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+				
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+					
+					
+				} else if (answer.reponseDate.get(Calendar.YEAR)!=c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+					if(c.skip && !c.doubleSkip){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						qRet.questionSkip = c.questionSkip;
+						qRet.validate=true;
+						qRet.setQuestionNumber();
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+					}else if(c.skip && c.doubleSkip) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					}else if(c.multiple) {
+						qRet.conditions.add(new MultipleCondition(c.questionSkip));								
+					}
+				}
+			}
+		}
+		if(c.type[h]==5){
+			if(answer.reponseDate!=null){
+			 if( answer.reponseDate.get(Calendar.YEAR)>c.max ||answer.reponseDate.get(Calendar.YEAR)<c.min && !answer.shouldBeEmpty  ){
+				 if(c.skip && !c.doubleSkip){
+						qRet.gotSkipTo=true;
+						qRet.questionSkip = c.questionSkip;
+						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+						qRet.validate=true;
+						qRet.setQuestionNumber();
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+						}
+					}else if(c.skip && c.doubleSkip) {
+						qRet.doubleSkip = true;
+						qRet.beginSkip = c.questionSkip;
+						qRet.endSkip = c.questionSkipTo;
+						qRet.validate=true;
+						qRet.gotSkipTo=true;
+						if(answer.partOfLoop){
+							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+						
+						}
+					} else if(c.multiple){
+						 if(answer.questionTag.contains(".")){
+								qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+							}else {
+								qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+							}
+					 }else {
+						qRet.validate = false;
+						answer.disqualif=true;
+						qRet.questionDisqualifs.add(answer.questionTag);
+					}
+			 }
+			
+			}
+			 
+		}
+	}
+	
+		return qRet;
+	}
 	private QuestionReturn tryCondition(Condition c ,Reponse answer,QuestionReturn option)
 	{
 		QuestionReturn qRet=new QuestionReturn();
@@ -448,27 +678,46 @@ public class Question {
 			} else{
 				qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.reponseNumeric, answer.reponseTexte,c.countryTag));
 			}
-		}
-		if(c.notEmptyCondition){
-			qRet = gestionConditionNotEmpty(qRet,c);
 		}else {
-			if(c.tag!=null ){
-				if(!c.countryTag.isEmpty()){
-					if(answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)){
-							qRet = gestionTypeCondition(qRet,c,answer);
-					}
-				} else if(answer.questionTag.contains(c.tag)){
-					qRet = gestionTypeCondition(qRet,c,answer);
-				}
-			} else {
-				if(c.countryTag.isEmpty()){
-					qRet = gestionTypeCondition(qRet,c,answer);
-				} else if(qRet.etudename.contains(c.countryTag)){
-					qRet = gestionTypeCondition(qRet,c,answer);
-				}
-			}
-		}	
+			if(c.notEmptyCondition){
 	
+				qRet = gestionConditionNotEmpty(qRet,c);
+			}else {
+				if(c.isDate){
+					if(c.tag!=null ){
+						if(!c.countryTag.isEmpty()){
+							if(answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)){
+									qRet = gestionTypeConditionDate(qRet,c,answer);
+							}
+						} else if(answer.questionTag.contains(c.tag)){
+							qRet = gestionTypeConditionDate(qRet,c,answer);
+						}
+					}else {
+						if(c.countryTag.isEmpty()){
+							qRet = gestionTypeConditionDate(qRet,c,answer);
+						} else if(qRet.etudename.contains(c.countryTag)){
+							qRet = gestionTypeConditionDate(qRet,c,answer); 
+						}
+					}
+				} else {
+					if(c.tag!=null ){
+						if(!c.countryTag.isEmpty()){
+							if(answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)){
+									qRet = gestionTypeCondition(qRet,c,answer);
+							}
+						} else if(answer.questionTag.contains(c.tag)){
+							qRet = gestionTypeCondition(qRet,c,answer);
+						}
+					} else {
+						if(c.countryTag.isEmpty()){
+							qRet = gestionTypeCondition(qRet,c,answer);
+						} else if(qRet.etudename.contains(c.countryTag)){
+							qRet = gestionTypeCondition(qRet,c,answer);
+						}
+					}
+				}	
+			}
+		}
 		return qRet;
 }
 	public QuestionReturn questionTreatement(QuestionReturn option){
@@ -531,6 +780,7 @@ public class Question {
 					}
 					if(passage){
 						option.conditions.remove(i);
+						i--;
 					}
 				}
 			}
@@ -576,6 +826,12 @@ public class Question {
 			}	
 		} else {
 			this.isAnswer=false;
+			if(option.gotSkipTo){
+				if(option.questionSkip.equals(name) && !option.doubleSkip){
+					option.gotSkipTo=false;
+					option.questionSkip="";
+				}
+			}
 			qRet=option;	
 		}
 		if(alreadyDoubleSkip){

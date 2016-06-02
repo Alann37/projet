@@ -14,7 +14,7 @@ public class Condition {
 	double neq;
 	double constSumRes;
 	int[] checkbox;
-	
+	boolean isDate;
 	String tag;
 	String multi;
 	String questionSkipTo;	
@@ -30,6 +30,16 @@ public class Condition {
 	public Condition(String condition){
 		isNa=false;
 		notEmptyCondition=false;
+		if(condition.contains("answerC")){
+			conditionSens=0;
+			condition = condition.replace("answerC", "");
+			notEmptyCondition=true;
+		}
+		if(condition.contains("answerR")){
+			conditionSens=1;
+			notEmptyCondition=true;
+			condition = condition.replace("answerR", "");
+		}
 		if(condition.contains("NA")){
 			condition= condition.replaceAll(" ","");
 			condition = condition.replaceAll("NA", "");
@@ -63,10 +73,16 @@ public class Condition {
 	
 	public void traitement(String condition,int indice){
 		String newCondition = "";
+		boolean init=false;
 		multiple = false;
+		isDate=false;
 		questionValue = false;
 		isCheckBox=false;
 		countryTag = "";
+		if(condition.contains("date")){
+			isDate= true;
+			condition = condition.replaceAll("date","");
+		}
 		if(condition.contains(":")){
 			countryTag=condition.split(":")[0];
 			condition = condition.substring(countryTag.length()+1);
@@ -91,7 +107,9 @@ public class Condition {
 			questionValue=true;	
 			questionSkip = condition.replaceAll("VALUE","");
 			type[indice]=-1;
-		}else if(condition.contains("then")){
+		}
+		if(condition.contains("then")){
+			init=true;
 			String preThen = condition.split("then")[0];
 			questionSkip = condition.split("then")[1];
 			multiple = true;
@@ -132,17 +150,6 @@ public class Condition {
 					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
 					checkbox[i] = Integer.valueOf(possibility[i]);					
 				}
-			}else if(preThen.contains("date")){
-				type[indice] = 6;
-				newCondition = preThen.replaceAll("date","");
-				newCondition = newCondition.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
-				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
-				newCondition = newCondition.split("-")[1];
-				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
-				tag = "date";
 			}else if(preThen.contains("MIN") && !condition.contains("date")){
 				type[indice] = 5;
 				newCondition = preThen.replaceAll("MIN","");
@@ -153,16 +160,18 @@ public class Condition {
 				newCondition = newCondition.replaceAll("[^\\d.]", "");
 				max = Integer.parseInt(newCondition);
 			}
-		}else if(condition.contains("->")){
-			String preGoTo = condition.split("->")[0];
-			if(condition.split("->")[1].contains("to")){
-				questionSkip = condition.split("->")[1].split("to")[0];
-				questionSkipTo = condition.split("->")[1].split("to")[1];
+		}
+		if(condition.contains("SKIP") && !init ){
+			init=true;
+			String preGoTo = condition.split("SKIP")[0];
+			if(condition.split("SKIP")[1].contains("to")){
+				questionSkip = condition.split("SKIP")[1].split("to")[0];
+				questionSkipTo = condition.split("SKIP")[1].split("to")[1];
 				questionSkip = questionSkip.replaceAll(" ", "");
 				questionSkipTo = questionSkipTo.replaceAll(" ", "");
 				doubleSkip = true;
 			} else {
-				questionSkip = condition.split("->")[1];
+				questionSkip = condition.split("SKIP")[1];
 			}
 			skip = true;
 			if(preGoTo.contains("<")){
@@ -215,18 +224,6 @@ public class Condition {
 					 checkbox[0] = Integer.valueOf(newCondition);	
 				 }
 			 }
-			}else if(preGoTo.contains("date")){
-				 
-				type[indice] = 6;
-				newCondition = preGoTo.replaceAll("date","");
-				newCondition = newCondition.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
-				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
-				newCondition = newCondition.split("-")[1];
-				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
-				tag = "date";
 			}else if(preGoTo.contains("MIN") && !condition.contains("date")){
 				type[indice] = 5;
 				newCondition = preGoTo.replaceAll("MIN","");
@@ -237,7 +234,8 @@ public class Condition {
 				newCondition = newCondition.replaceAll("[^\\d.]", "");
 				max = Integer.parseInt(newCondition);
 			}
-		} else {
+		} 
+		if(!init){
 			if(condition.contains("<")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
@@ -286,17 +284,6 @@ public class Condition {
 					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
 					checkbox[i] = Integer.valueOf(possibility[i]);					
 				}
-			}else if(condition.contains("date")){
-				type[indice] = 6;
-				newCondition = condition.replaceAll("date","");
-				newCondition = newCondition.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
-				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
-				newCondition = newCondition.split("-")[1];
-				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
-				tag = "date";
 			}else if(condition.contains("MIN") && !condition.contains("date")){
 				type[indice] = 5;
 				newCondition = condition.replaceAll("MIN","");

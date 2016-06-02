@@ -2,7 +2,11 @@ package importExcel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import Configuration.Configuration;
@@ -38,7 +42,10 @@ public class TraitementEtude extends Thread {
 		do{
 			File f2 = null;
 			try {
-				f2 = new File(Configuration.getConf(1)+"\\"+this.getEtudeName()+" base qualif.xlsx");
+				String sPath = "";
+				sPath = Configuration.getConf(1);
+				
+				f2 = new File(sPath+this.getEtudeName()+" base qualif.xlsx");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -92,9 +99,9 @@ public class TraitementEtude extends Thread {
 		*/
 		for(int i = 0 ; i < etudes.size(); i ++){
 			if(i%200==0){
-				System.out.println("passage pour i = " + i + " et études : "+ etudeName);
+				System.out.println("passage pour i = " + i +"/"+etudes.size()+ " et études : "+ etudeName);
 			}
-			TraitementEntrer temp = etudes.get(i);*
+			TraitementEntrer temp = etudes.get(i);
 			if(questions.size()>0){
 				temp.setQuestionName(questions);
 				

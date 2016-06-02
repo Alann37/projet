@@ -20,13 +20,7 @@ public class TraitementEntrer {
 	public void addNotToBe(String quest){
 		notToBeAnswer.add(quest);
 	}
-	public void clearAnswer(){
-		for(int i = 0 ; i < reponses.size(); i ++){
-			if(reponses.get(i).isEmpty){
-				reponses.remove(i);
-			}
-		}
-	}
+
 	public List<String> getNotToBeAnswer(){
 		return notToBeAnswer; 
 	}
@@ -89,13 +83,17 @@ public class TraitementEntrer {
 	
 	public void setQuestionName(List<Question> questions){
 		for(int i = 0 ; i < reponses.size(); i ++){
+			String temp = reponses.get(i).getQuestionTag();
+			if(temp.contains(".")){
+				temp = temp.split("\\.")[0];
+			}
+			if(temp.contains("_")){
+				temp = temp.split("_")[0];
+			}
 			for(int j = 0 ; j< questions.size();j++){
 				String s = questions.get(j).name;
 				s = s.replaceAll("\\s+", "");
-				String temp = reponses.get(i).getQuestionTag();
-				if(temp.contains("_")){
-					temp = temp.split("_")[0];
-				}
+				
 				if(temp.equals(s) && !reponses.get(i).isSetOnQuestion ){
 					reponses.get(i).questionName=questions.get(j).name;
 					//System.out.println("test questiontag " + reponses.get(i).questionTag + " et question name "+reponses.get(i).questionName);
