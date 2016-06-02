@@ -22,7 +22,14 @@ public class MultipleCondition {
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date") ){
@@ -49,7 +56,14 @@ public class MultipleCondition {
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
@@ -95,7 +109,14 @@ public class MultipleCondition {
 				secondCondition = new Condition("=/="+i);
 			}
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
@@ -140,7 +161,14 @@ public MultipleCondition(String secondPart,double i,String s,String country){
 				secondCondition = new Condition("=/="+i);
 			}
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
