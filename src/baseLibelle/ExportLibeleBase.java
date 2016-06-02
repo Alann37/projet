@@ -9,10 +9,14 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import Configuration.Configuration;
 /*
@@ -114,4 +118,46 @@ public class ExportLibeleBase {
 		books.write(writer);
 		books.close();
 	}
+
+
+	public static void setMasterWithPrintStudy(List<String> list,String name){
+		File master = new File("Word Master.docx");
+		XWPFDocument doc;
+	
+		try {
+			FileInputStream in = new FileInputStream(master);
+			doc = new XWPFDocument(in);
+			XWPFParagraph temp;
+			for(int i = 0 ; i < list.size(); i ++){
+				temp = null;
+			
+					doc.createParagraph();
+					temp = doc.getLastParagraph();
+					temp.createRun();
+					changeText(temp,list.get(i));
+					temp.setStyle("QuestionName");
+				if(temp!=null){
+					doc.setParagraph(temp, (i));
+				}
+			}
+			File out = new File(System.getProperty("user.dir")+"\\MasterPrintStudy\\"+name+".docx");
+			FileOutputStream f = new FileOutputStream(out);
+			doc.write(f);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	public static void changeText(XWPFParagraph p, String newText) {
+		   List<XWPFRun> runs = p.getRuns();
+		   for(int i = runs.size() - 1; i > 0; i--) {
+		      p.removeRun(i);
+		   }
+		   if(runs.size()>0){
+		   XWPFRun run = runs.get(0);
+		   run.setText(newText, 0);
+		   }
+		}
+
 }

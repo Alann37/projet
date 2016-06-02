@@ -94,6 +94,7 @@ public class MainView {
 						try {
 							m.visibility(true);
 							basesQualif(m);
+							Stop_Chrono();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -108,6 +109,13 @@ public class MainView {
 					}
 				}
 			});
+			
+			JButton btnCrerMasters = new JButton("Cr\u00E9er masters");
+			btnCrerMasters.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					createMaster();
+				}
+			});
 			 
 			
 			// lProgress.setVisible(false);
@@ -118,17 +126,20 @@ public class MainView {
 					.addGroup(groupLayout.createSequentialGroup()
 						.addGap(72)
 						.addComponent(btnQualificationetudes)
-						.addGap(129)
+						.addGap(18)
 						.addComponent(btnBaseLibele)
-						.addContainerGap(110, Short.MAX_VALUE))
+						.addGap(18)
+						.addComponent(btnCrerMasters)
+						.addContainerGap(114, Short.MAX_VALUE))
 			);
 			groupLayout.setVerticalGroup(
 				groupLayout.createParallelGroup(Alignment.LEADING)
 					.addGroup(groupLayout.createSequentialGroup()
 						.addGap(32)
 						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+							.addComponent(btnQualificationetudes)
 							.addComponent(btnBaseLibele)
-							.addComponent(btnQualificationetudes))
+							.addComponent(btnCrerMasters))
 						.addContainerGap(97, Short.MAX_VALUE))
 			);
 			frame.getContentPane().setLayout(groupLayout);
@@ -161,9 +172,9 @@ public class MainView {
 		}
 		Filter printStudyFilter = new Filter ();
     	File[] printStudys = printStudyFilter.finder(paths.get(2),".txt");
-    	File[] bases = printStudyFilter.finder(paths.get(0),".xlsx");
+    	File[] bases = printStudyFilter.finder(paths.get(1),".xlsx");
     	for(int i = 0 ; i < bases.length;i++){
-    		List<SawtoothList> toto = new ArrayList<SawtoothList>();
+    		List<SawtoothList> sawtoothList = new ArrayList<SawtoothList>();
     		boolean canPass = false;
     		int j=0;
     		for(j=0;j<printStudys.length;j++){
@@ -171,7 +182,7 @@ public class MainView {
     			temp = temp.replaceAll(".txt", "");
     			if(bases[i].getName().contains(temp)){
     				try {
-						toto =ImportTxt.test(printStudys[j]);
+    					sawtoothList =ImportTxt.getSawtoothList(printStudys[j]);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -181,7 +192,7 @@ public class MainView {
     		}
     		if(canPass){
     			try {
-					ExportLibeleBase.exportBaseWithLibelle(toto,bases[i]);
+					ExportLibeleBase.exportBaseWithLibelle(sawtoothList,bases[i]);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -264,19 +275,45 @@ public class MainView {
 			if(endCount != m.getValue()){
 				m.progressUpdate(endCount);
 			}
-
-			for(int i = 0 ; i < list.size();i++){
-			//	System.out.println(i + "  " + list.get(i).getState());
-				if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
-					threadCount++;
-					Thread.currentThread().sleep(5000);
-					System.out.println("throw new thread " + threadCount);
-					list.get(i).start();
+			if(threadCount != 2 ){
+				for(int i = 0 ; i < list.size();i++){
+				//	System.out.println(i + "  " + list.get(i).getState());
+					if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
+						threadCount++;
+						Thread.currentThread();
+						Thread.sleep(5000);
+						System.out.println("throw new thread " + threadCount);
+						list.get(i).start();
+						
+					}
 					
 				}
-				
 			}
 		}while(threadCount!=0);
+	}
+	private void createMaster(){
+		Filter printStudyFilter = new Filter ();
+		File[] printStudys=null;
+    	try {
+			printStudys = printStudyFilter.finder(Configuration.getConf(2),".txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<String> exportMaster = new ArrayList<String>();
+		for(int i = 0 ; i < printStudys.length;i++){
+			try {
+				exportMaster= ImportTxt.getQuestionList(printStudys[i]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			String temp ="E"+ printStudys[i].getName()+"-";
+			temp = temp.replaceAll("Print","");
+			temp = temp.replaceAll(".txt","");
+			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,temp);
+		}
 	}
 }
 

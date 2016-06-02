@@ -22,10 +22,17 @@ public class MultipleCondition {
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
-		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
+		}else if(secondPart.contains("MIN") && !secondPart.contains("date") ){
 			questionName= secondPart.split("MIN")[0];
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("MIN"+secondPart.split("MIN")[1]);
@@ -36,7 +43,7 @@ public class MultipleCondition {
 			questionName= secondPart.split("<")[0];
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("<"+secondPart.split("<")[1]);
-		}else if(secondPart.contains(">")){
+		}else if(secondPart.contains(">") ){
 			questionName= secondPart.split(">")[0];
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition(">"+secondPart.split(">")[1]);
@@ -49,7 +56,14 @@ public class MultipleCondition {
 			questionName = questionName.replaceAll(" ","");
 			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
@@ -69,7 +83,7 @@ public class MultipleCondition {
 			}else {
 				secondCondition = new Condition("<"+i);
 			}
-		}else if(secondPart.contains(">")){
+		}else if(secondPart.contains(">") ){
 			questionName= secondPart.split(">")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
@@ -95,7 +109,14 @@ public class MultipleCondition {
 				secondCondition = new Condition("=/="+i);
 			}
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){
@@ -114,7 +135,7 @@ public MultipleCondition(String secondPart,double i,String s,String country){
 			}else {
 				secondCondition = new Condition("<"+i);
 			}
-		}else if(secondPart.contains(">")){
+		}else if(secondPart.contains(">") ){
 			questionName= secondPart.split(">")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
@@ -140,7 +161,14 @@ public MultipleCondition(String secondPart,double i,String s,String country){
 				secondCondition = new Condition("=/="+i);
 			}
 		} else if(secondPart.contains(",")){
-			
+			if(secondPart.contains(" ")){
+				if(secondPart.startsWith(" ")){
+					secondPart=secondPart.substring(1);
+				}
+				questionName = secondPart.split(" ")[0];
+				secondPart = secondPart.replace(questionName, "");
+			}
+			secondCondition = new Condition(secondPart);
 		}else if(secondPart.contains("date")){
 			
 		}else if(secondPart.contains("MIN") && !secondPart.contains("date")){

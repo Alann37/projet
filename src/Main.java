@@ -21,7 +21,8 @@ import importMSQLServer.ConnectURL;
 
 public class Main {
     public static void main(String[] args) throws IOException, ParseException, PropertyVetoException, InterruptedException, InvalidFormatException {
-    	MainView m = new MainView();
+    	 MainView m = new MainView();
     	m.visible(true);
+    	
     }
 }

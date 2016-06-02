@@ -2,7 +2,11 @@ package importExcel;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import Configuration.Configuration;
@@ -38,7 +42,10 @@ public class TraitementEtude extends Thread {
 		do{
 			File f2 = null;
 			try {
-				f2 = new File(Configuration.getConf(1)+"\\"+this.getEtudeName()+" base qualif.xlsx");
+				String sPath = "";
+				sPath = Configuration.getConf(1);
+				
+				f2 = new File(sPath+this.getEtudeName()+" base qualif.xlsx");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -92,47 +99,49 @@ public class TraitementEtude extends Thread {
 		*/
 		for(int i = 0 ; i < etudes.size(); i ++){
 			if(i%200==0){
-				System.out.println("passage pour i = " + i + " et études : "+ etudeName);
+				System.out.println("passage pour i = " + i +"/"+etudes.size()+ " et études : "+ etudeName);
 			}
 			TraitementEntrer temp = etudes.get(i);
-			temp.setQuestionName(questions);
-			
-			for(int j = 0 ; j < temp.getReponses().size();j++){
-				Reponse rTemp = temp.getReponses().get(j);
-				if(rTemp.questionName!=null){
-					for(int h = 0 ; h < questions.size() ; h ++){
-						if(questions.get(h).name.equals(rTemp.questionName)){
-							questions.get(h).reponses.add(rTemp);
-							//h=questions.size();
+			if(questions.size()>0){
+				temp.setQuestionName(questions);
+				
+				for(int j = 0 ; j < temp.getReponses().size();j++){
+					Reponse rTemp = temp.getReponses().get(j);
+					if(rTemp.questionName!=null){
+						for(int h = 0 ; h < questions.size() ; h ++){
+							if(questions.get(h).name.equals(rTemp.questionName)){
+								questions.get(h).reponses.add(rTemp);
+								//h=questions.size();
+							}
+							questions.get(h).setNa();
 						}
-						questions.get(h).setNa();
 					}
 				}
-			}
-			QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
-			for(int t = 0 ; t < questions.size(); t++){
-				skipTo.validate=true;
-				//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
-				QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
-				if(!returnQuest.validate){
-					temp.setDisqualif(true);
-					//numberFail++;
-					temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
-					
+				QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
+				for(int t = 0 ; t < questions.size(); t++){
+					skipTo.validate=true;
+					//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
+					QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
+					if(!returnQuest.validate){
+						temp.setDisqualif(true);
+						//numberFail++;
+						temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
+						
+					}
+					skipTo = returnQuest;
+					   
+				
+				} 
+				for(int o = 0 ; o <questions.size() ; o ++){
+					questions.get(o).reponses.clear();
 				}
-				skipTo = returnQuest;
-				   
-			
-			} 
-			for(int o = 0 ; o <questions.size() ; o ++){
-				questions.get(o).reponses.clear();
-			}
-			for(int p = 0 ; p<temp.getReponses().size();p++){
-				if( temp.getReponses().get(p).shouldBeEmpty){
-					temp.addNotToBe(temp.getReponses().get(p).questionTag);
+				for(int p = 0 ; p<temp.getReponses().size();p++){
+					if( temp.getReponses().get(p).shouldBeEmpty){
+						temp.addNotToBe(temp.getReponses().get(p).questionTag);
+					}
 				}
+				this.etudes.set(i, temp);
 			}
-			this.etudes.set(i, temp);
 		}
 	/*	for(int i = 0; i<etudes.size();i++){
 			if(!etudes.get(i).isDisqualif()){
