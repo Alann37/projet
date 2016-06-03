@@ -69,6 +69,11 @@ public class Condition {
 			questionSkipTo="";
 			type = new int[0];
 		}else {
+		if(condition.contains("then")){
+			questionSkip = condition.split("then")[1];
+			condition = condition.split("then")[0];
+			multiple = true;
+		}
 		String newConditionMulti="";
 			if(condition.contains("&"))
 			{
@@ -125,59 +130,6 @@ public class Condition {
 			questionValue=true;	
 			questionSkip = condition.replaceAll("VALUE","");
 			type[indice]=-1;
-		}
-		if(condition.contains("then")){
-			init=true;
-			String preThen = condition.split("then")[0];
-			questionSkip = condition.split("then")[1];
-			multiple = true;
-			if(preThen.contains("SUP")){
-				newCondition = preThen.replaceAll("[^\\d.]", "");
-				sup = Integer.parseInt(newCondition);
-				type[indice]=0;				
-			}else if(preThen.contains("INF")){
-				newCondition = preThen.replaceAll("[^\\d.]", "");
-				inf = Integer.parseInt(newCondition);
-				type[indice]=1;
-			}else if(preThen.contains("EQ")){
-				type[indice] = 2;
-				newCondition = preThen.replaceAll("[^\\d.]", "");
-				newCondition = newCondition.replaceAll("==","");
-				eq = Double.valueOf(newCondition);
-			} else if(preThen.contains("NEQ")){
-				type[indice] = 3;
-				newCondition = preThen.replaceAll("[^\\d.]", "");
-				newCondition = newCondition.replaceAll("=/=","");
-				neq = Double.valueOf(newCondition);
-			}else if(preThen.contains("#")) {
-				type[indice] = 8;
-				preThen = preThen.replaceAll("#", "");
-				String [] possibility = preThen.split(",");
-				checkbox = new int[possibility.length];
-				for(int i = 0 ; i < possibility.length; i++){
-					possibility[i] = possibility[i].replaceAll(" ", "");
-					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					checkbox[i] = Integer.valueOf(possibility[i]);					
-				}
-			} else if(preThen.contains(",")){
-				type[indice] = 4;
-				String [] possibility = preThen.split(",");
-				checkbox = new int[possibility.length];
-				for(int i = 0 ; i < possibility.length; i++){
-					possibility[i] = possibility[i].replaceAll(" ", "");
-					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					checkbox[i] = Integer.valueOf(possibility[i]);					
-				}
-			}else if(preThen.contains("MIN") && !condition.contains("date")){
-				type[indice] = 5;
-				newCondition = preThen.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
-				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
-				newCondition = newCondition.split("-")[1];
-				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
-			}
 		}
 		if(condition.contains("SKIP") && !init ){
 			init=true;
