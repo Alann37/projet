@@ -13,6 +13,7 @@ public class QuestionReturn {
 	List<SkipCondition> loopPart;
 	List<String> questionTagSkip;
 	List<MultipleCondition> conditions;
+	List<AndCondition> andConditions;
 	double sum;
 	boolean isConstSum;
 	boolean isLoop;
@@ -35,6 +36,7 @@ public class QuestionReturn {
 		loopPart = new ArrayList<SkipCondition>();
 		conditions = new ArrayList<MultipleCondition>();
 		questionTagSum =  new ArrayList<String>();
+		andConditions = new ArrayList<AndCondition>();
 		loopNumber="";
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum,String etudename){
@@ -50,6 +52,7 @@ public class QuestionReturn {
 		conditions = new ArrayList<MultipleCondition>();
 		this.etudename = etudename;
 		loopNumber="";
+		andConditions = new ArrayList<AndCondition>();
 	}
 	public QuestionReturn (boolean val,String etudename){
 		validate = val;
@@ -62,6 +65,7 @@ public class QuestionReturn {
 		conditions = new ArrayList<MultipleCondition>();
 		this.etudename = etudename;
 		loopNumber="";
+		andConditions = new ArrayList<AndCondition>();
 	}
 	public void setQuestionNumber(){
 		String temp = questionSkip.split("@")[0];

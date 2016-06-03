@@ -121,15 +121,16 @@ public class TraitementEtude extends Thread {
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
 					//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
-					QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
-					if(!returnQuest.validate){
-						temp.setDisqualif(true);
-						//numberFail++;
-						temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
-						
+					if(questions.get(t).conditions.size()>0 || skipTo.conditions.size()>0 || skipTo.andConditions.size()>0 || skipTo.gotSkipTo ||skipTo.doubleSkip ){
+						QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
+						if(!returnQuest.validate){
+							temp.setDisqualif(true);
+							//numberFail++;
+							temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
+							
+						}
+						skipTo = returnQuest;
 					}
-					skipTo = returnQuest;
-					   
 				
 				} 
 				for(int o = 0 ; o <questions.size() ; o ++){

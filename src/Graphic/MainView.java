@@ -161,7 +161,7 @@ public class MainView {
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 	}
-
+	
 	private void basesLibeler(){
 		List<String> paths = new ArrayList<String>();
 		try {
@@ -250,7 +250,6 @@ public class MainView {
 		for(int i = 0 ; i < listBdd.size();i++){
 			for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
 				ConnectURL connectionWithDB = new ConnectURL();
-				//System.out.println("passage pour : " + list.get(listIndice).getEtudeName());
 				list.get(listIndice).setEtudes(connectionWithDB.test(listBdd.get(i).getBase(), listBdd.get(i).getLangues().get(j)));
 				listIndice++;
 			}
@@ -308,11 +307,9 @@ public class MainView {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			String temp ="E"+ printStudys[i].getName()+"-";
-			temp = temp.replaceAll("Print","");
-			temp = temp.replaceAll(".txt","");
-			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,temp);
+			String temp =printStudys[i].getName();
+			temp = temp.replaceAll("[^\\d.]", "");
+			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,"E"+temp+"-");
 		}
 	}
 }

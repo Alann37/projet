@@ -24,12 +24,16 @@ public class Condition {
 	String countryTag;
 	boolean isNa;
 	
+	String associateCondition;
+	boolean andorOr; //true and false or
 	boolean notEmptyCondition;
 	int conditionSens; // 0 colonne 1 row
 	
 	public Condition(String condition){
 		isNa=false;
+		
 		notEmptyCondition=false;
+		associateCondition="";
 		if(condition.contains("answerC")){
 			conditionSens=0;
 			condition = condition.replace("answerC", "");
@@ -39,6 +43,20 @@ public class Condition {
 			conditionSens=1;
 			notEmptyCondition=true;
 			condition = condition.replace("answerR", "");
+		}
+		if(condition.contains("AND") ||condition.contains("OR")){
+			if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
+				String temp = condition.split("OR")[0];
+				andorOr=false;
+				associateCondition=condition.replaceAll(temp+"OR", "");
+				condition = temp;	
+			} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
+				String temp = condition.split("AND")[0];
+				andorOr=true;
+				associateCondition=condition.replaceAll(temp+"AND", "");
+				condition = temp;	
+			}
+			
 		}
 		if(condition.contains("NA")){
 			condition= condition.replaceAll(" ","");
@@ -113,20 +131,20 @@ public class Condition {
 			String preThen = condition.split("then")[0];
 			questionSkip = condition.split("then")[1];
 			multiple = true;
-			if(preThen.contains("<")){
+			if(preThen.contains("SUP")){
 				newCondition = preThen.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
 				type[indice]=0;				
-			}else if(preThen.contains(">")){
+			}else if(preThen.contains("INF")){
 				newCondition = preThen.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
 				type[indice]=1;
-			}else if(preThen.contains("==")){
+			}else if(preThen.contains("EQ")){
 				type[indice] = 2;
 				newCondition = preThen.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
-			} else if(preThen.contains("=/=")){
+			} else if(preThen.contains("NEQ")){
 				type[indice] = 3;
 				newCondition = preThen.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
@@ -174,20 +192,20 @@ public class Condition {
 				questionSkip = condition.split("SKIP")[1];
 			}
 			skip = true;
-			if(preGoTo.contains("<")){
+			if(preGoTo.contains("SUP")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
 				type[indice]=0;				
-			}else if(preGoTo.contains(">")){
+			}else if(preGoTo.contains("INF")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
 				type[indice]=1;
-			}else if(preGoTo.contains("==")){
+			}else if(preGoTo.contains("EQ")){
 				type[indice] = 2;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
-			} else if(preGoTo.contains("=/=")){
+			} else if(preGoTo.contains("NEQ")){
 				type[indice] = 3;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
@@ -236,20 +254,20 @@ public class Condition {
 			}
 		} 
 		if(!init){
-			if(condition.contains("<")){
+			if(condition.contains("SUP")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				sup = Integer.parseInt(newCondition);
 				type[indice]=0;
-			}else if(condition.contains(">")){
+			}else if(condition.contains("INF")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
 				type[indice]=1;
-			}else if(condition.contains("==")){
+			}else if(condition.contains("EQ")){
 				type[indice] = 2;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
-			} else if(condition.contains("=/=")){
+			} else if(condition.contains("NEQ")){
 				type[indice] = 3;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
