@@ -91,6 +91,7 @@ public class ConnectURL {
             
             for(int i = 0 ; i < tablesImport.size(); i++){
             	query = "SELECT * FROM "+ tablesImport.get(i).name;
+          
             	listTraitement=test2(stmt, rs, con, query,listTraitement);
             	//System.out.println("nbr rqt + " + tablesImport.size() + " et i = " +i);
             }

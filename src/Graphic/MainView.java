@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -199,7 +200,7 @@ public class MainView {
 				}  
     		}
     	}
-    	System.out.println("sortie de libeler");
+    	//System.out.println("sortie de libeler");
 	}
 	static void Go_Chrono() { 
 		chrono = java.lang.System.currentTimeMillis() ; 
@@ -227,11 +228,13 @@ public class MainView {
     	for(int i = 0 ; i < listBdd.size();i++){
     		for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
     			list.get(listIndice).setEtudeName(listBdd.get(i).getBase()+listBdd.get(i).getLangues().get(j));
+    			list.get(listIndice).setBaseAndLanguage(listBdd.get(i).getLangues().get(j), listBdd.get(i).getBase());
     			listIndice++;
     		}
     	}
-    	System.out.println("mise en place des masters");
+    //	System.out.println("mise en place des masters");
     	Filter filterMaster = new Filter ();
+    
     	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\MASTER",".docx");
     	for(int i = 0 ; i < list.size();i++){
     		for(int j = 0 ; j < masters.length;j++){
@@ -243,36 +246,33 @@ public class MainView {
     			}
     		}
     	}
-    	System.out.println("début import bdd");
-		
-		listIndice=0;
-	
-		for(int i = 0 ; i < listBdd.size();i++){
-			for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
-				ConnectURL connectionWithDB = new ConnectURL();
-				list.get(listIndice).setEtudes(connectionWithDB.test(listBdd.get(i).getBase(), listBdd.get(i).getLangues().get(j)));
-				listIndice++;
-			}
-		}
 		int threadCount = 0;
+		System.out.println("size = " +list.size());
+		int listSize = list.size();
 		int endCount =0;
+		int calculCount=0;
 		m.progressUpdate(endCount);
 		do{
-			endCount=0;
 			threadCount = 0;
 			for(int i = 0 ; i < list.size(); i ++){
 			//	System.out.println(i + "  " + list.get(i).getState());
 				if(list.get(i).getState()==Thread.State.TERMINATED){
+					list.remove(i);
+					i--;
 					endCount++;
-				}
-				if(list.get(i).getState()==Thread.State.RUNNABLE){
+				}else if(list.get(i).getState()==Thread.State.RUNNABLE){
 					threadCount ++;
 				}
 			}
-			endCount = (100/list.size())*endCount;
+			if(list.size()==0){
+				break;
+			}
+			if(list.size()>0){
+				calculCount = (100/listSize)*endCount;
+			}
 			//lProgress.setText(endCount+"%");
-			if(endCount != m.getValue()){
-				m.progressUpdate(endCount);
+			if(calculCount != m.getValue()){
+				m.progressUpdate(calculCount);
 			}
 			if(threadCount != 2 ){
 				for(int i = 0 ; i < list.size();i++){
@@ -281,14 +281,14 @@ public class MainView {
 						threadCount++;
 						Thread.currentThread();
 						Thread.sleep(5000);
-						System.out.println("throw new thread " + threadCount);
+			//			System.out.println("throw new thread " + threadCount);
 						list.get(i).start();
 						
 					}
 					
 				}
 			}
-		}while(threadCount!=0);
+		}while(list.size()!=0);
 	}
 	private void createMaster(){
 		Filter printStudyFilter = new Filter ();

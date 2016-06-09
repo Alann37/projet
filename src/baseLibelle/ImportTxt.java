@@ -182,7 +182,7 @@ public class ImportTxt {
 				break;
 			}
 		}
-		System.out.println(lRet);
+		//System.out.println(lRet);
 		return lRet;
 	}
 }

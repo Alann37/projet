@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import Configuration.Configuration;
+import importMSQLServer.ConnectURL;
 public class TraitementEtude extends Thread {
 	private String etudeName;
 	private List<Question> questions;
@@ -17,6 +18,12 @@ public class TraitementEtude extends Thread {
 	private boolean isTreated;
 	private boolean onTreatment;
 	private boolean haveBeenWrite;
+	private String language ;
+	private String base;
+	public void setBaseAndLanguage(String l, String b){
+		language=l;
+		base = b;
+	}
 	public String getEtudeName() {
 		return etudeName;
 	}
@@ -34,6 +41,13 @@ public class TraitementEtude extends Thread {
 		/*String temp = etudeName.substring(etudeName.length()-2);
 		connectURL t = new connectURL();
 		etudes = t.test(temp);*/
+		ConnectURL connectionWithDB = new ConnectURL();
+		try {
+			etudes = connectionWithDB.test(base, language);
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		onTreatment=true;
 		System.out.println("début de "+etudeName);
 		
@@ -121,7 +135,6 @@ public class TraitementEtude extends Thread {
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
 					//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
-					if(questions.get(t).conditions.size()>0 || skipTo.conditions.size()>0 || skipTo.andConditions.size()>0 || skipTo.gotSkipTo ||skipTo.doubleSkip ){
 						QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
 						if(!returnQuest.validate){
 							temp.setDisqualif(true);
@@ -130,7 +143,7 @@ public class TraitementEtude extends Thread {
 							
 						}
 						skipTo = returnQuest;
-					}
+					
 				
 				} 
 				for(int o = 0 ; o <questions.size() ; o ++){
@@ -141,20 +154,21 @@ public class TraitementEtude extends Thread {
 						temp.addNotToBe(temp.getReponses().get(p).questionTag);
 					}
 				}
+				skipTo.setSpecific();
+				for(int m = 0 ; m < skipTo.specificC.size();m++){
+
+					for(int n = 0 ; n < skipTo.specificC.get(m).conditions.size();n++){
+						skipTo.specificC.get(m).conditions.get(n).answers.clear();
+						skipTo.specificC.get(m).conditions.get(n).loop.clear();
+						skipTo.specificC.get(m).conditions.get(n).inLoop=false;
+						
+						
+					}
+				
+				}
 				this.etudes.set(i, temp);
 			}
-		}
-	/*	for(int i = 0; i<etudes.size();i++){
-			if(!etudes.get(i).isDisqualif()){
-				success[unfail]=i;
-				unfail++;
-			}
-		}
-		System.out.println("Number of disqualif : "+numberFail +" on " + etudes.size() + " study");
-		for(int i = 0 ; i < unfail; i++){
-			//System.out.println("complete study is number : " + success[i]);
-		}*/
-		
+		}		
 	}
 	public boolean isOnTreatment(){
 		return onTreatment;

@@ -1,11 +1,22 @@
 package importExcel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Condition {
-	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox
-	int[] type;
+	
 	boolean skip;
 	boolean isCheckBox;
-	String questionSkip;
+	boolean doubleSkip;
+	boolean multiple;
+	boolean questionValue;
+	boolean andorOr; //true and false or
+	boolean notEmptyCondition;
+	boolean isNa;
+	boolean isDate;
+	boolean withBraket;
+	List<SpecificCondition> subCondition;
+	
 	double min;
 	double max;
 	double inf;
@@ -13,86 +24,159 @@ public class Condition {
 	double eq;
 	double neq;
 	double constSumRes;
-	int[] checkbox;
-	boolean isDate;
-	String tag;
-	String multi;
-	String questionSkipTo;	
-	boolean doubleSkip;
-	boolean multiple;
-	boolean questionValue;
-	String countryTag;
-	boolean isNa;
 	
-	String associateCondition;
-	boolean andorOr; //true and false or
-	boolean notEmptyCondition;
+	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox
+	int[] type;
+	int[] checkbox;
 	int conditionSens; // 0 colonne 1 row
 	
+	String tag;
+	String questionSkipTo;	
+	String questionSkip;
+	String countryTag;
+	String associateCondition;
+	
+	
+	
 	public Condition(String condition){
-		isNa=false;
-		
-		notEmptyCondition=false;
-		associateCondition="";
-		if(condition.contains("answerC")){
-			conditionSens=0;
-			condition = condition.replace("answerC", "");
-			notEmptyCondition=true;
-		}
-		if(condition.contains("answerR")){
-			conditionSens=1;
-			notEmptyCondition=true;
-			condition = condition.replace("answerR", "");
-		}
-		if(condition.contains("AND") ||condition.contains("OR")){
-			if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
-				String temp = condition.split("OR")[0];
-				andorOr=false;
-				associateCondition=condition.replaceAll(temp+"OR", "");
-				condition = temp;	
-			} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
-				String temp = condition.split("AND")[0];
-				andorOr=true;
-				associateCondition=condition.replaceAll(temp+"AND", "");
-				condition = temp;	
-			}
-			
-		}
-		if(condition.contains("NA")){
-			condition= condition.replaceAll(" ","");
-			condition = condition.replaceAll("NA", "");
-			eq = Double.parseDouble(condition);
-			isNa = true;
-			multi="";
-			tag ="";
-			countryTag="";
-			questionSkipTo="";
-			type = new int[0];
+		if(condition.contains("(")){
+			braket(condition);
 		}else {
-		if(condition.contains("then")){
-			questionSkip = condition.split("then")[1];
-			condition = condition.split("then")[0];
-			multiple = true;
-		}
-		String newConditionMulti="";
-			if(condition.contains("&"))
-			{
-				if(condition.split("&").length!=0)
-				{
-					type=new int [condition.split("&").length];
-					for(int lg=0; lg!= condition.split("&").length; lg++)
-					{
-						newConditionMulti=condition.split("&")[lg];
-						traitement(newConditionMulti, lg);
-					}
+			isNa=false;
+			withBraket=false;
+			notEmptyCondition=false;
+			associateCondition="";
+			if(condition.contains("answerC")){
+				conditionSens=0;
+				condition = condition.replace("answerC", "");
+				notEmptyCondition=true;
+			}
+			if(condition.contains("answerR")){
+				conditionSens=1;
+				notEmptyCondition=true;
+				condition = condition.replace("answerR", "");
+			}
+			if(condition.contains("AND") ||condition.contains("OR")){
+				if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
+					String temp = condition.split("OR")[0];
+					andorOr=false;
+					associateCondition=condition.replaceAll(temp+"OR", "");
+					condition = temp;	
+				} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
+					String temp = condition.split("AND")[0];
+					andorOr=true;
+					associateCondition=condition.replaceAll(temp+"AND", "");
+					condition = temp;	
 				}
-			}else{
-				type=new int [1];
-				traitement(condition, 0);
+				
+			}
+			if(condition.contains("NA")){
+				condition= condition.replaceAll(" ","");
+				condition = condition.replaceAll("NA", "");
+				eq = Double.parseDouble(condition);
+				isNa = true;
+				tag ="";
+				countryTag="";
+				questionSkipTo="";
+				type = new int[0];
+			}else {
+			if(condition.contains("then")){
+				questionSkip = condition.split("then")[1];
+				condition = condition.split("then")[0];
+				multiple = true;
+			}
+			String newConditionMulti="";
+				if(condition.contains("&"))
+				{
+					if(condition.split("&").length!=0)
+					{
+						type=new int [condition.split("&").length];
+						for(int lg=0; lg!= condition.split("&").length; lg++)
+						{
+							newConditionMulti=condition.split("&")[lg];
+							traitement(newConditionMulti, lg);
+						}
+					}
+				}else{
+					type=new int [1];
+					traitement(condition, 0);
+				}
 			}
 		}
 	}
 	 
+	private void  braket(String condition){
+		
+		if(condition.contains(":")){
+			countryTag=condition.split(":")[0];
+			condition = condition.substring(countryTag.length()+1);
+			countryTag=countryTag.replaceAll(" ","");
+		} else{
+			countryTag="";
+			
+		}
+		 tag=null;
+		 questionSkipTo="";	
+		 questionSkip="";
+		 associateCondition="";
+		 isCheckBox=false;
+		 isDate=false;
+		 doubleSkip=false;
+		 skip=false;
+		 
+		 if(condition.contains("(")){
+			withBraket=true;
+			int nbr = condition.split("\\(").length;
+			subCondition= new ArrayList<SpecificCondition>();
+			int inBr=0;
+			String link;
+			for(int i = 1 ; i < nbr; i++){
+				String temp = condition.split("\\(")[i];
+				if(temp.contains("OR")){
+					link=null;
+				}
+				inBr++;
+				link = null;
+				if(!temp.isEmpty()){
+					
+					
+					
+					subCondition.add(new SpecificCondition(temp.split("\\)")[0],inBr,false));
+					if(temp.contains(")")){
+						inBr--;
+						if(temp.split("\\)").length==2){
+							if(!temp.split("\\)")[1].isEmpty()){
+								link = temp.split("\\)")[1];
+								subCondition.add(new SpecificCondition(link, inBr, true));
+								
+							}
+						}else if(temp.split("\\)").length>2){
+					
+							for(int j = 1 ; j < temp.split("\\)").length;j++){
+								
+								if(!temp.split("\\)")[j].isEmpty()){
+									link = temp.split("\\)")[j];
+									subCondition.add(new SpecificCondition(link, inBr, true));
+								} else {
+									inBr--;
+								}
+							}
+						}
+					}
+					
+					
+				}
+				
+			}
+			for(int i = 0 ; i < subCondition.size();i++){
+				if(!subCondition.get(i).isLink && subCondition.get(i).link==null && subCondition.get(i).c==null){
+					subCondition.remove(i);
+					i--;
+				}
+			}
+			nbr++;
+		}
+	}
 	
 	public void traitement(String condition,int indice){
 		String newCondition = "";
@@ -152,7 +236,7 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
 				type[indice]=1;
-			}else if(preGoTo.contains("EQ")){
+			}else if(preGoTo.contains("EQ") && !preGoTo.contains("NEQ")){
 				type[indice] = 2;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
@@ -214,7 +298,7 @@ public class Condition {
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				inf = Integer.parseInt(newCondition);
 				type[indice]=1;
-			}else if(condition.contains("EQ")){
+			}else if(condition.contains("EQ") && !condition.contains("NEQ")){
 				type[indice] = 2;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");

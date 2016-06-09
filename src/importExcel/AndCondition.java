@@ -28,6 +28,18 @@ public class AndCondition {
 		previous=null;
 		andOr = b;
 	}
+	public AndCondition(Reponse a,boolean val , SpecificCondition secondPart,boolean b){
+		firstPart=val;
+		loopPart ="";
+		firstAnswer=a;
+
+		qName = secondPart.link;
+
+
+		this.secondPart = secondPart.c;
+		previous=null;
+		andOr = b;
+	}
 	public AndCondition(Reponse a,boolean val , String secondPart,AndCondition p,boolean b){
 		firstPart=val;
 		previous=p;

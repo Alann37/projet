@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -86,7 +89,29 @@ public class ReadExcel {
 		return questions;
 	}
 
-
+	public static List<TraitementEntrer> readExcelDocument(File file) throws IOException, ParseException {
+		InputStream reader = new FileInputStream(file);
+		XSSFWorkbook books = new XSSFWorkbook(reader);
+		XSSFSheet sh = books.getSheetAt(0);
+		XSSFCell cell;
+		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
+		Iterator rows = sh.rowIterator();
+	    XSSFRow row;
+		while(rows.hasNext()){
+		   row = (XSSFRow)rows.next();
+		   listeEntrer.add(new TraitementEntrer());
+		   Iterator cells = row.cellIterator();
+		   if(row.getRowNum()>0){
+			   while(cells.hasNext()){
+				   cell=(XSSFCell) cells.next();
+				   listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex()))); 
+			   }
+		    
+		   	}
+		  }
+		books.close();
+		return listeEntrer;
+	}
 
 
 	public static List<InformationBDD> importListBases() throws InvalidFormatException, IOException{
@@ -138,10 +163,14 @@ public class ReadExcel {
 			//	System.out.println("passage pour " + file.getName());
 				CellStyle styleDisqu = books.createCellStyle();
 				CellStyle styleSkip = books.createCellStyle();
-				for(int i = 0 ; i < list.size();i++){
-					sh.createRow(i);
-					disqu= false;
+				for(int i = 1 ; i < list.size()+1;i++){
 					if(i==1){
+						sh.createRow(0);
+					}
+					sh.createRow(i);
+					
+					disqu= false;
+					if(i==2){
 						styleDisqu.cloneStyleFrom(sh.getRow(0).getCell(0).getCellStyle());
 						styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
 						styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
@@ -152,39 +181,54 @@ public class ReadExcel {
 						styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());
 						styleSkip.setFillPattern(CellStyle.SOLID_FOREGROUND);
 					}
-					for(int j = 0 ; j < list.get(i).getReponses().size();j++){
-						if(i == 0){
-							sh.getRow(i).createCell(j);
+					for(int j = 0 ; j < list.get(i-1).getReponses().size();j++){
+						if(i == 1){
+							sh.getRow(0).createCell(j);
 							//shDisqu.getRow(0).createCell(j);
-							sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
+							sh.getRow(0).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
 							//shDisqu.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
-						} else {
+						} 
 
-							if(!list.get(i).getReponses().get(j).isEmpty){
+							if(!list.get(i-1).getReponses().get(j).isEmpty){
 								sh.getRow(i).createCell(j);
-								if(list.get(i).getReponses().get(j).reponseType==1){
-									sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).reponseNumeric);
+								if(list.get(i-1).getReponses().get(j).reponseType==1){
+									sh.getRow(i).getCell(j).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
 								} else {
-									sh.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).reponseTexte);
+									sh.getRow(i).getCell(j).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
 								}
-								if(list.get(i).getReponses().get(j).disqualif){
+								if(list.get(i-1).getReponses().get(j).disqualif){
 									disqu = true;
 					
 									sh.getRow(i).getCell(j).setCellStyle(styleDisqu);
 								}
-								if(list.get(i).getReponses().get(j).shouldBeEmpty){
+								if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
 
 									sh.getRow(i).getCell(j).setCellStyle(styleSkip);
 								}
 							}
-						}
+						
 					}
 					if(disqu){
 					
 						sh.getRow(i).getCell(0).setCellStyle(styleDisqu);
 					}
 				}
-				OutputStream writer = new FileOutputStream(file);
+				int toto =0;
+				boolean t = false;
+				File f2 = file;
+				do{
+					if(Files.exists(Paths.get(f2.getAbsolutePath()), LinkOption.NOFOLLOW_LINKS)){
+						String temp = file.getAbsolutePath();
+						temp = temp.split("base qualif")[0] + toto + " base qualif" + temp.split("base qualif")[1];
+						f2= new File(temp);
+						toto++;
+					}
+					else {
+						t=true;
+					}
+				}while(!t);
+				
+				OutputStream writer = new FileOutputStream(f2);
 				POIXMLProperties xmlProps = books.getProperties();    
 				POIXMLProperties.CoreProperties coreProps =  xmlProps.getCoreProperties();
 				coreProps.setCreator("A+A");
