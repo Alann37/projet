@@ -277,7 +277,7 @@ public class MainView {
 			if(threadCount != 2 ){
 				for(int i = 0 ; i < list.size();i++){
 				//	System.out.println(i + "  " + list.get(i).getState());
-					if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
+					if(list.get(i).getState()==Thread.State.NEW && threadCount<3){
 						threadCount++;
 						Thread.currentThread();
 						Thread.sleep(5000);
@@ -309,6 +309,7 @@ public class MainView {
 			}
 			String temp =printStudys[i].getName();
 			temp = temp.replaceAll("[^\\d.]", "");
+			temp =temp.replaceAll("\\.","");
 			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,"E"+temp+"-");
 		}
 	}

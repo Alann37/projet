@@ -33,7 +33,6 @@ public class ConnectURL {
 				  	 
 
 	        	   for(int j; i <= rs.getMetaData().getColumnCount(); i++){
-	        		   //System.out.println(rs.getString(i));
 	        		   int type = -1;
 	        		   if(rs.getMetaData().getColumnTypeName(i).contains("int")){
 	        			   type = 1;
@@ -41,13 +40,10 @@ public class ConnectURL {
 	        			   type = 2;
 	        		   }
 	        		   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
-	        		//   System.out.println( " test " + rs.getRow() + " nbRow  " + rs.getMetaData().getColumnCount());
-	        		   
 	        	   	}
 	        	   
 	           }
 
-			//System.out.println(query);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -91,9 +87,7 @@ public class ConnectURL {
             
             for(int i = 0 ; i < tablesImport.size(); i++){
             	query = "SELECT * FROM "+ tablesImport.get(i).name;
-          
             	listTraitement=test2(stmt, rs, con, query,listTraitement);
-            	//System.out.println("nbr rqt + " + tablesImport.size() + " et i = " +i);
             }
            
          }

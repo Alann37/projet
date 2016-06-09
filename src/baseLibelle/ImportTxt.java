@@ -171,7 +171,7 @@ public class ImportTxt {
 				onFill=true;
 			}
 			if(onFill && !line.isEmpty()){
-				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link")){
+				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link") && !line.contains("Quota")){
 					line = line.split("\\(")[0] ;
 					line = line.replaceAll(" ", "");
 					lRet.add(line);

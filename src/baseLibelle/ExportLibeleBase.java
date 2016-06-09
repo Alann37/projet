@@ -140,6 +140,13 @@ public class ExportLibeleBase {
 					doc.setParagraph(temp, (i));
 				}
 			}
+			temp = doc.getLastParagraph();
+			temp.createRun();
+			changeText(temp,"");
+			temp.setStyle("QuestionName");
+		if(temp!=null){
+			doc.setParagraph(temp, list.size());
+		}
 			File out = new File(System.getProperty("user.dir")+"\\MasterPrintStudy\\"+name+".docx");
 			FileOutputStream f = new FileOutputStream(out);
 			doc.write(f);

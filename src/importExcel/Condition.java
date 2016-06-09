@@ -39,6 +39,7 @@ public class Condition {
 	
 	
 	public Condition(String condition){
+		
 		if(condition.contains("(")){
 			braket(condition);
 		}else {
@@ -215,6 +216,7 @@ public class Condition {
 			questionValue=true;	
 			questionSkip = condition.replaceAll("VALUE","");
 			type[indice]=-1;
+			init = true;
 		}
 		if(condition.contains("SKIP") && !init ){
 			init=true;
@@ -231,11 +233,11 @@ public class Condition {
 			skip = true;
 			if(preGoTo.contains("SUP")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
-				sup = Integer.parseInt(newCondition);
+				sup = Double.parseDouble(newCondition);
 				type[indice]=0;				
 			}else if(preGoTo.contains("INF")){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
-				inf = Integer.parseInt(newCondition);
+				inf = Double.parseDouble(newCondition);
 				type[indice]=1;
 			}else if(preGoTo.contains("EQ") && !preGoTo.contains("NEQ")){
 				type[indice] = 2;
@@ -284,20 +286,20 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
 				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
+				min = Double.parseDouble(newCondition.split("-")[0]);
 				newCondition = newCondition.split("-")[1];
 				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
+				max = Double.parseDouble(newCondition);
 			}
 		} 
 		if(!init){
 			if(condition.contains("SUP")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
-				sup = Integer.parseInt(newCondition);
+				sup = Double.parseDouble(newCondition);
 				type[indice]=0;
 			}else if(condition.contains("INF")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
-				inf = Integer.parseInt(newCondition);
+				inf = Double.parseDouble(newCondition);
 				type[indice]=1;
 			}else if(condition.contains("EQ") && !condition.contains("NEQ")){
 				type[indice] = 2;
@@ -344,10 +346,10 @@ public class Condition {
 				newCondition = condition.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
 				newCondition = newCondition.replaceAll(" ","");
-				min = Integer.parseInt(newCondition.split("-")[0]);
+				min = Double.parseDouble(newCondition.split("-")[0]);
 				newCondition = newCondition.split("-")[1];
 				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Integer.parseInt(newCondition);
+				max = Double.parseDouble(newCondition);
 			}else if(condition.contains("SUM")){
 				type[indice]=7;
 				newCondition = condition.replaceAll("[^\\d.]", "");

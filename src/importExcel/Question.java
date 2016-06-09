@@ -1569,7 +1569,6 @@ public class Question {
 										}	
 									}
 									qRet.validate = false;
-									//erreur a faire
 								}
 							}
 						}
