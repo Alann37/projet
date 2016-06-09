@@ -283,7 +283,7 @@ public class QuestionReturn {
 					
 				}
 			}
-			if(pillier==null && ind>0 && ind < cs.size()){
+			if(pillier==null && ind>=0 && ind < cs.size()){
 				pillier = cs.get(ind);
 			}
 

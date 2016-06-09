@@ -5,22 +5,22 @@ public class MultipleCondition {
 	Condition secondCondition;
 	String partOfLoop;
 	public MultipleCondition(String secondPart){
-		if(secondPart.contains("<")){
-			questionName= secondPart.split("<")[0];
+		if(secondPart.contains("SUP")){
+			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("<"+secondPart.split("<")[1]);
-		}else if(secondPart.contains(">")){
-			questionName= secondPart.split(">")[0];
+			secondCondition = new Condition("SUP"+secondPart.split("SUP")[1]);
+		}else if(secondPart.contains("INF")){
+			questionName= secondPart.split("INF")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition(">"+secondPart.split(">")[1]);
-		}else if(secondPart.contains("==")){
-			questionName= secondPart.split("==")[0];
+			secondCondition = new Condition("INF"+secondPart.split("INF")[1]);
+		}else if(secondPart.contains("EQ") && !secondPart.contains("NEQ")){
+			questionName= secondPart.split("EQ")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("=="+secondPart.split("==")[1]);
-		} else if(secondPart.contains("=/=")){
-			questionName= secondPart.split("=/=")[0];
+			secondCondition = new Condition("EQ"+secondPart.split("EQ")[1]);
+		} else if(secondPart.contains("NEQ")){
+			questionName= secondPart.split("NEQ")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
+			secondCondition = new Condition("NEQ"+secondPart.split("NEQ")[1]);
 		} else if(secondPart.contains(",")){
 			if(secondPart.contains(" ")){
 				if(secondPart.startsWith(" ")){
@@ -39,22 +39,22 @@ public class MultipleCondition {
 		}
 	}
 	public MultipleCondition(String secondPart,String loopPart){
-		if(secondPart.contains("<")){
-			questionName= secondPart.split("<")[0];
+		if(secondPart.contains("SUP")){
+			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("<"+secondPart.split("<")[1]);
-		}else if(secondPart.contains(">") ){
+			secondCondition = new Condition("SUP"+secondPart.split("SUP")[1]);
+		}else if(secondPart.contains("INF") ){
 			questionName= secondPart.split(">")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition(">"+secondPart.split(">")[1]);
-		}else if(secondPart.contains("==")){
-			questionName= secondPart.split("==")[0];
+			secondCondition = new Condition("INF"+secondPart.split("INF")[1]);
+		}else if(secondPart.contains("EQ") && !secondPart.contains("NEQ")){
+			questionName= secondPart.split("EQ")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("=="+secondPart.split("==")[1]);
-		} else if(secondPart.contains("=/=")){
-			questionName= secondPart.split("=/=")[0];
+			secondCondition = new Condition("EQ"+secondPart.split("EQ")[1]);
+		} else if(secondPart.contains("NEQ")){
+			questionName= secondPart.split("NEQ")[0];
 			questionName = questionName.replaceAll(" ","");
-			secondCondition = new Condition("=/="+secondPart.split("=/=")[1]);
+			secondCondition = new Condition("NEQ"+secondPart.split("NEQ")[1]);
 		} else if(secondPart.contains(",")){
 			if(secondPart.contains(" ")){
 				if(secondPart.startsWith(" ")){
@@ -75,38 +75,38 @@ public class MultipleCondition {
 	}
 	public MultipleCondition(String secondPart,double i,String s){
 		
-		if(secondPart.contains("<")){
-			questionName= secondPart.split("<")[0];
+		if(secondPart.contains("SUP")){
+			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("<"+s);
+				secondCondition = new Condition("SUP"+s);
 			}else {
-				secondCondition = new Condition("<"+i);
+				secondCondition = new Condition("SUP"+i);
 			}
-		}else if(secondPart.contains(">") ){
-			questionName= secondPart.split(">")[0];
+		}else if(secondPart.contains("INF") ){
+			questionName= secondPart.split("INF")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition(">"+s);
+				secondCondition = new Condition("INF"+s);
 			}else if ( i > 0) {
-				secondCondition = new Condition(">"+i);
+				secondCondition = new Condition("INF"+i);
 			}
-		}else if(secondPart.contains("==")){
-			questionName= secondPart.split("==")[0];
+		}else if(secondPart.contains("EQ") && !secondPart.contains("NEQ")){
+			questionName= secondPart.split("EQ")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("=="+s);
+				secondCondition = new Condition("EQ"+s);
 			}else {
-				secondCondition = new Condition("=="+i);
+				secondCondition = new Condition("EQ"+i);
 			}
 			
-		} else if(secondPart.contains("=/=")){
-			questionName= secondPart.split("=/=")[0];
+		} else if(secondPart.contains("NEQ")){
+			questionName= secondPart.split("NEQ")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("=/="+s);
+				secondCondition = new Condition("NEQ"+s);
 			}else {
-				secondCondition = new Condition("=/="+i);
+				secondCondition = new Condition("NEQ"+i);
 			}
 		} else if(secondPart.contains(",")){
 			if(secondPart.contains(" ")){
@@ -127,38 +127,38 @@ public class MultipleCondition {
 	}
 public MultipleCondition(String secondPart,double i,String s,String country){
 		
-		if(secondPart.contains("<")){
-			questionName= secondPart.split("<")[0];
+		if(secondPart.contains("SUP")){
+			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("<"+s);
+				secondCondition = new Condition("SUP"+s);
 			}else {
-				secondCondition = new Condition("<"+i);
+				secondCondition = new Condition("SUP"+i);
 			}
-		}else if(secondPart.contains(">") ){
-			questionName= secondPart.split(">")[0];
+		}else if(secondPart.contains("INF") ){
+			questionName= secondPart.split("INF")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition(">"+s);
+				secondCondition = new Condition("INF"+s);
 			}else {
-				secondCondition = new Condition(">"+i);
+				secondCondition = new Condition("INF"+i);
 			}
-		}else if(secondPart.contains("==")){
-			questionName= secondPart.split("==")[0];
+		}else if(secondPart.contains("EQ")&& !secondPart.contains("NEQ")){
+			questionName= secondPart.split("EQ")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("=="+s);
+				secondCondition = new Condition("EQ"+s);
 			}else {
-				secondCondition = new Condition("=="+i);
+				secondCondition = new Condition("EQ"+i);
 			}
 			
-		} else if(secondPart.contains("=/=")){
-			questionName= secondPart.split("=/=")[0];
+		} else if(secondPart.contains("NEQ")){
+			questionName= secondPart.split("NEQ")[0];
 			questionName = questionName.replaceAll(" ","");
 			if(!s.isEmpty() ){
-				secondCondition = new Condition("=/="+s);
+				secondCondition = new Condition("NEQ"+s);
 			}else {
-				secondCondition = new Condition("=/="+i);
+				secondCondition = new Condition("NEQ"+i);
 			}
 		} else if(secondPart.contains(",")){
 			if(secondPart.contains(" ")){

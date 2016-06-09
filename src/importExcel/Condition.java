@@ -44,6 +44,7 @@ public class Condition {
 		}else {
 			isNa=false;
 			withBraket=false;
+			multiple = false;
 			notEmptyCondition=false;
 			associateCondition="";
 			if(condition.contains("answerC")){
@@ -181,7 +182,7 @@ public class Condition {
 	public void traitement(String condition,int indice){
 		String newCondition = "";
 		boolean init=false;
-		multiple = false;
+		
 		isDate=false;
 		questionValue = false;
 		isCheckBox=false;

@@ -131,7 +131,7 @@ public class ReadExcel {
 			   		cell = (XSSFCell)cells.next();
 			   		if(cell.getColumnIndex()==0){
 			   			lRet.add(new InformationBDD(cell.getStringCellValue()));
-			   		}else {
+			   		}else if (cell.getColumnIndex()>1) {
 			   			if(!cell.getStringCellValue().isEmpty()){
 			   				lRet.get(lRet.size()-1).getLangues().add(cell.getStringCellValue());
 			   			}
