@@ -268,8 +268,9 @@ public class MainView {
 				break;
 			}
 			if(list.size()>0){
-				calculCount = (100/listSize)*endCount;
-			}
+				calculCount = (1000/listSize)*endCount;
+		
+			}	
 			//lProgress.setText(endCount+"%");
 			if(calculCount != m.getValue()){
 				m.progressUpdate(calculCount);
@@ -277,7 +278,7 @@ public class MainView {
 			if(threadCount != 2 ){
 				for(int i = 0 ; i < list.size();i++){
 				//	System.out.println(i + "  " + list.get(i).getState());
-					if(list.get(i).getState()==Thread.State.NEW && threadCount<3){
+					if(list.get(i).getState()==Thread.State.NEW && threadCount<2){
 						threadCount++;
 						Thread.currentThread();
 						Thread.sleep(5000);

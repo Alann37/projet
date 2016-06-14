@@ -31,6 +31,10 @@ public class ImportTxt {
 					if(line.contains("Numeric") && questionName == allList.get(allList.size()-1).questionName){
 						allList.get(allList.size()-1).setUse(false);
 					}
+					if(line.contains("Constant Sum") && questionName == allList.get(allList.size()-1).questionName){
+						allList.get(allList.size()-1).setUse(false);
+						allList.get(allList.size()-2).setUse(false);
+					}
 				}
 				if(line.contains("Number of Items")){
 					break;
@@ -156,9 +160,9 @@ public class ImportTxt {
 				allList.get(h).isGridList= true;
 			}
 		}
-		for(int j = 0 ; j < allList.size();j++){
-			//System.out.println(allList.get(j).questionName);
-		}
+		/*for(int j = 0 ; j < allList.size();j++){
+			System.out.println(allList.get(j).questionName + " used " +allList.get(j).isUsed() + " listName : "+allList.get(j).listName);
+		}*/
 		return allList;
 	}
 

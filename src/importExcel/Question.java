@@ -33,6 +33,47 @@ public class Question {
 			}
 		}
 	}
+	
+	private QuestionReturn gestionDisqualif(QuestionReturn qRet,Condition c, Reponse answer){
+		if(c.skip && !c.doubleSkip && c.associateCondition.isEmpty()){
+			qRet.gotSkipTo=true;
+			qRet.questionSkip = c.questionSkip;
+			qRet.validate=true;
+			qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
+			qRet.setQuestionNumber();
+			if(answer.partOfLoop){
+				qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
+			}
+		}else if(c.skip && c.doubleSkip && c.associateCondition.isEmpty()) {
+			qRet.doubleSkip = true;
+			qRet.beginSkip = c.questionSkip;
+			qRet.endSkip = c.questionSkipTo;
+			qRet.validate=true;
+			qRet.gotSkipTo=true;
+			if(answer.partOfLoop){
+				qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
+			
+			}
+		} else if(c.multiple && c.associateCondition.isEmpty()){
+			 if(answer.questionTag.contains(".")){
+					qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
+				}else {
+					qRet.conditions.add(new MultipleCondition(c.questionSkip));	
+				}
+		 }else if (!c.associateCondition.isEmpty()){
+			 if(c.andorOr){
+					qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
+				}else{
+					qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
+				}
+			 answer.disqualif=true;
+		 }else {
+			qRet.validate = false;
+			answer.disqualif=true;
+			qRet.questionDisqualifs.add(answer.questionTag);
+		}
+		return qRet;
+	}
 	public Question(String name) {
 		this.type=null;
 		this.name = name;
@@ -100,7 +141,7 @@ public class Question {
 		Condition c = andC.secondPart;
 		for(int h = 0 ; h < c.type.length;h++){
 		if(c.type[h]==0){
-			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
+			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				if(andC.andOr){
 					answer.disqualif=true;
 					qRet.validate=false;
@@ -138,7 +179,7 @@ public class Question {
 					}
 				}
 			}
-			if( answer.reponseNumeric<=(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
+			if( answer.reponseNumeric<=(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				if(!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,andC,true));
@@ -160,7 +201,7 @@ public class Question {
 		}
 		if(c.type[h]==1){
 
-			if(answer.reponseNumeric<(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+			if(answer.reponseNumeric<(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty ){
 				if(andC.andOr){
 					qRet.validate=false;
 					answer.disqualif=true;
@@ -198,7 +239,7 @@ public class Question {
 					}
 				}
 			}
-			if(answer.reponseNumeric>=(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+			if(answer.reponseNumeric>=(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty ){
 				if(!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,andC,true));
@@ -219,7 +260,7 @@ public class Question {
 			}
 		}
 		if(c.type[h]==2){
-			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 				if(andC.andOr){
 					answer.disqualif=true;
 					qRet.validate=false;
@@ -259,7 +300,7 @@ public class Question {
 					}
 				}
 			}
-			if( answer.reponseNumeric==(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric==(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 				if(!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,andC,true));
@@ -280,7 +321,7 @@ public class Question {
 			}
 		}
 		if(c.type[h]==3){
-			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 			
 				if(andC.andOr){
 					answer.disqualif=true;
@@ -319,7 +360,7 @@ public class Question {
 					}
 				}
 			}	
-			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 				if(!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,andC,true));
@@ -343,7 +384,7 @@ public class Question {
 		
 			for(int k = 0 ; k < c.checkbox.length;k++){
 				
-				if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty ){
+				if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty && !answer.isEmpty ){
 					 
 					if(andC.andOr){
 						answer.disqualif=true;
@@ -401,7 +442,7 @@ public class Question {
 			}
 		}
 		if(c.type[h]==5){
-			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty  ){
+			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				if(andC.andOr){
 					answer.disqualif=true;
 					qRet.validate=false;
@@ -439,7 +480,7 @@ public class Question {
 					}
 				}
 			}
-			if( (answer.reponseNumeric<=(double)c.max ||answer.reponseNumeric>=(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty  ){
+			if( (answer.reponseNumeric<=(double)c.max ||answer.reponseNumeric>=(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				if(!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,andC,true));
@@ -461,7 +502,7 @@ public class Question {
 		}
 		if(c.type[h]==6){
 			if(answer.reponseDate!=null){
-			 if( answer.reponseDate.get(Calendar.YEAR)>c.max ||answer.reponseDate.get(Calendar.YEAR)<c.min && !answer.shouldBeEmpty  ){
+			 if( answer.reponseDate.get(Calendar.YEAR)>c.max ||answer.reponseDate.get(Calendar.YEAR)<c.min && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				 if(andC.andOr){
 						answer.disqualif=true;
 						qRet.validate=false;
@@ -499,7 +540,7 @@ public class Question {
 						}
 					}
 			 }
-			 if( answer.reponseDate.get(Calendar.YEAR)<=c.max ||answer.reponseDate.get(Calendar.YEAR)>=c.min && !answer.shouldBeEmpty  ){
+			 if( answer.reponseDate.get(Calendar.YEAR)<=c.max ||answer.reponseDate.get(Calendar.YEAR)>=c.min && !answer.shouldBeEmpty && !answer.isEmpty  ){
 
 				 if(!c.associateCondition.isEmpty()){
 					 if(c.andorOr){
@@ -578,7 +619,7 @@ public class Question {
 				 temp = temp.replaceAll("[^\\d.]", "");
 				 testNum = Integer.valueOf(temp);
 				}
-				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty ){
+				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty && !answer.isEmpty ){
 					if(andC.andOr){
 						answer.disqualif=true;
 						qRet.validate=false;
@@ -706,45 +747,9 @@ public class Question {
 		qRet=option;
 		for(int h = 0 ; h < c.type.length;h++){
 		if(c.type[h]==0){
-			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
-				if(c.skip && !c.doubleSkip && c.associateCondition.isEmpty()){
-					qRet.gotSkipTo=true;
-					qRet.questionSkip = c.questionSkip;
-					qRet.validate=true;
-					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-					qRet.setQuestionNumber();
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
-					}
-				}else if(c.skip && c.doubleSkip && c.associateCondition.isEmpty()) {
-					qRet.doubleSkip = true;
-					qRet.beginSkip = c.questionSkip;
-					qRet.endSkip = c.questionSkipTo;
-					qRet.validate=true;
-					qRet.gotSkipTo=true;
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
-					
-					}
-				} else if(c.multiple && c.associateCondition.isEmpty()){
-					 if(answer.questionTag.contains(".")){
-							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
-						}else {
-							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
-						}
-				 }else if (!c.associateCondition.isEmpty()){
-					 if(c.andorOr){
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-						}else{
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-						}
-					 answer.disqualif=true;
-				 }else {
-					qRet.validate = false;
-					answer.disqualif=true;
-					qRet.questionDisqualifs.add(answer.questionTag);
-				}
-			}else if(answer.reponseNumeric<=(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty&& !c.associateCondition.isEmpty()){
+			if( answer.reponseNumeric>(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
+				qRet= gestionDisqualif(qRet, c, answer);
+			}else if(answer.reponseNumeric<=(double)c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty && !answer.isEmpty&& !c.associateCondition.isEmpty()){
 				if(c.andorOr){
 					qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,true));
 				}else{
@@ -755,46 +760,10 @@ public class Question {
 			
 		}
 		if(c.type[h]==1){
-			if( answer.reponseNumeric<=(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
-				if(c.skip && !c.doubleSkip && c.associateCondition.isEmpty()){
-					qRet.gotSkipTo=true;
-					qRet.questionSkip = c.questionSkip;
-					qRet.validate=true;
-					qRet.setQuestionNumber();
-					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
-					}
-				}else if(c.skip && c.doubleSkip && c.associateCondition.isEmpty()) {
-					qRet.doubleSkip = true;
-					qRet.beginSkip = c.questionSkip;
-					qRet.endSkip = c.questionSkipTo;
-					qRet.validate=true;
-					qRet.gotSkipTo=true;
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
-					
-					}
-				} else if(c.multiple && c.associateCondition.isEmpty()){
-					 if(answer.questionTag.contains(".")){
-							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
-						}else {
-							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
-						}
-				 }else if (!c.associateCondition.isEmpty()){
-					 if(c.andorOr){
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-						}else{
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-						}
-					 answer.disqualif=true;
-				 }else {
-					qRet.validate = false;
-					answer.disqualif=true;
-					qRet.questionDisqualifs.add(answer.questionTag);
-				}
+			if( answer.reponseNumeric<=(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty   ){
+				qRet= gestionDisqualif(qRet, c, answer);
 			}
-			if(answer.reponseNumeric>(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+			if(answer.reponseNumeric>(double)c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty ){
 				if(c.multiple){
 					if(answer.questionTag.contains(".")){
 						qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
@@ -814,23 +783,10 @@ public class Question {
 			
 		}
 		if(c.type[h]==2){
-			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
-					if(c.associateCondition.isEmpty()){
-						qRet.validate = false;
-						answer.disqualif=true;
-						qRet.questionDisqualifs.add(answer.questionTag);
-					}else {
-							qRet.validate=false;
-							if(c.andorOr){
-								qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-							}else{
-								qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-							}
-							 answer.disqualif=true;
-						 
-					}
+			if( answer.reponseNumeric!=(double)c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+				qRet= gestionDisqualif(qRet, c, answer);
 				
-			}else if (answer.reponseNumeric == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty){
+			}else if (answer.reponseNumeric == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty){
 				if(c.skip && !c.doubleSkip && c.associateCondition.isEmpty()){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = c.questionSkip;
@@ -868,22 +824,9 @@ public class Question {
 			
 		}
 		if(c.type[h]==3){
-			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
-				if(c.associateCondition.isEmpty()){
-					qRet.validate = false;
-					answer.disqualif=true;
-					qRet.questionDisqualifs.add(answer.questionTag);
-				} else {
-					
-					if(c.andorOr){
-						qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-					}else{
-						qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-					}
-						 answer.disqualif=true;
-				}
-				
-			} else if (answer.reponseNumeric!=(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+			if( answer.reponseNumeric==(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+				qRet= gestionDisqualif(qRet, c, answer);
+			} else if (answer.reponseNumeric!=(double)c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty ){
 				if(c.skip && !c.doubleSkip&& c.associateCondition.isEmpty()){
 					qRet.gotSkipTo=true;
 					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
@@ -929,48 +872,12 @@ public class Question {
 				 temp = temp.replaceAll("[^\\d.]", "");
 				 testNum = Integer.valueOf(temp);
 				}
-				if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty ){
-					if(c.skip && !c.doubleSkip && !c.multiple && c.associateCondition.isEmpty()){
-						qRet.gotSkipTo=true;
-						qRet.questionSkip = c.questionSkip;
-						qRet.validate=true;
-						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-						qRet.setQuestionNumber();
-						if(answer.partOfLoop){
-							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
-						}
+				if( answer.reponseNumeric == c.checkbox[k] &&  !answer.shouldBeEmpty && !answer.isEmpty ){
+					qRet= gestionDisqualif(qRet, c, answer);
 						break;
-					}else if(c.skip && c.doubleSkip && !c.multiple && c.associateCondition.isEmpty()) {
-						qRet.doubleSkip = true;
-						qRet.beginSkip = c.questionSkip;
-						qRet.endSkip = c.questionSkipTo;
-						qRet.validate=true;
-						qRet.gotSkipTo=true;
-						if(answer.partOfLoop){
-							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
-						
-						}
-					}else if(c.multiple && c.associateCondition.isEmpty()) {
-						if(answer.questionTag.contains(".")){
-							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
-						}else {
-							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
-						}							
-					}else if (!c.associateCondition.isEmpty()){
-						if(c.andorOr){
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-						}else{
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-						}
-						 answer.disqualif=true;
-					 }else {
-						qRet.validate = false;
-						answer.disqualif=true;
-						qRet.questionDisqualifs.add(answer.questionTag);
-						break;
-					}
 				}
 			}
+		
 			if(!answer.disqualif && !c.associateCondition.isEmpty()){
 
 				if(c.andorOr){
@@ -983,41 +890,9 @@ public class Question {
 			}
 		}
 		if(c.type[h]==5){
-			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty  ){
-				if(c.skip && !c.doubleSkip){
-					qRet.gotSkipTo=true;
-					qRet.questionSkip = c.questionSkip;
-					qRet.validate=true;
-					qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-					qRet.setQuestionNumber();
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
-					}
-				}else if(c.skip && c.doubleSkip) {
-					qRet.doubleSkip = true;
-					qRet.beginSkip = c.questionSkip;
-					qRet.endSkip = c.questionSkipTo;
-					qRet.validate=true;
-					qRet.gotSkipTo=true;
-					if(answer.partOfLoop){
-						qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
-					
-					}
-				}else if(c.multiple) {
-					qRet.conditions.add(new MultipleCondition(c.questionSkip));								
-				}else if (!c.associateCondition.isEmpty()){
-					if(c.andorOr){
-						qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-					}else{
-						qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-					}
-					 answer.disqualif=true;
-				 }else {
-					qRet.validate = false;
-					answer.disqualif=true;
-					qRet.questionDisqualifs.add(answer.questionTag);
-				}
-			}else if((answer.reponseNumeric<(double)c.max ||answer.reponseNumeric>(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty) {
+			if( (answer.reponseNumeric>(double)c.max ||answer.reponseNumeric<(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
+				qRet= gestionDisqualif(qRet, c, answer);
+			}else if((answer.reponseNumeric<(double)c.max ||answer.reponseNumeric>(double)c.min )&&  answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty) {
 				if (!c.associateCondition.isEmpty()){
 					if(c.andorOr){
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition,true));
@@ -1087,46 +962,9 @@ public class Question {
 				 temp = temp.replaceAll("[^\\d.]", "");
 				 testNum = Integer.valueOf(temp);
 				}
-				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty ){
-					if(c.skip && !c.doubleSkip && !c.multiple){
-						qRet.gotSkipTo=true;
-						qRet.questionSkip = c.questionSkip;
-						qRet.validate=true;
-						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-						qRet.setQuestionNumber();
-						if(answer.partOfLoop){
-							qRet.loopPart.add(new SkipCondition(answer.questionName,answer.questionTag.split("\\.")[1]));
-						}
-						break;
-					}else if(c.skip && c.doubleSkip && !c.multiple) {
-						qRet.doubleSkip = true;
-						qRet.beginSkip = c.questionSkip;
-						qRet.endSkip = c.questionSkipTo;
-						qRet.validate=true;
-						qRet.gotSkipTo=true;
-						if(answer.partOfLoop){
-							qRet.loopPart.add(new SkipCondition(c.questionSkip,c.questionSkipTo,answer.questionTag.split("\\.")[1]));
-						
-						}
-					}else if(c.multiple) {
-						if(answer.questionTag.contains(".")){
-							qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
-						}else {
-							qRet.conditions.add(new MultipleCondition(c.questionSkip));	
-						}							
-					}else if (!c.associateCondition.isEmpty()){
-						if(c.andorOr){
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,true));
-						}else{
-							qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition,false));
-						}
-						 answer.disqualif=true;
-					 }else {
-						qRet.validate = false;
-						answer.disqualif=true;
-						qRet.questionDisqualifs.add(answer.questionTag);
-						break;
-					}
+				if( testNum == c.checkbox[k] &&  !answer.shouldBeEmpty && !answer.isEmpty ){
+					qRet= gestionDisqualif(qRet, c, answer);
+					break;
 				}
 			}
 			if(!answer.disqualif && !c.associateCondition.isEmpty()){
@@ -1150,7 +988,7 @@ public class Question {
 		for(int h = 0 ; h < c.type.length;h++){
 		if(c.type[h]==0){
 			if(answer.reponseDate!=null){
-				if( answer.reponseDate.get(Calendar.YEAR)>=c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty  ){
+				if( answer.reponseDate.get(Calendar.YEAR)>=c.sup && answer.reponseNumeric!=naValue && !answer.shouldBeEmpty && !answer.isEmpty  ){
 					if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
@@ -1187,7 +1025,7 @@ public class Question {
 		}
 		if(c.type[h]==1){
 			if(answer.reponseDate!=null){
-				if( answer.reponseDate.get(Calendar.YEAR)<=c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty   ){
+				if( answer.reponseDate.get(Calendar.YEAR)<=c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty   ){
 					if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
@@ -1219,7 +1057,7 @@ public class Question {
 						qRet.questionDisqualifs.add(answer.questionTag);
 					}
 				}
-				if(answer.reponseDate.get(Calendar.YEAR)>c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && c.multiple){
+				if(answer.reponseDate.get(Calendar.YEAR)>c.inf && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && c.multiple){
 					if(answer.questionTag.contains(".")){
 						qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.questionTag.split("\\.")[1]));	
 					}else {
@@ -1229,13 +1067,13 @@ public class Question {
 			}
 		}
 		if(c.type[h]==2){
-			if(answer.reponseDate!=null){
-				if( answer.reponseDate.get(Calendar.YEAR)!=c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+			if(answer.reponseDate!=null){ 
+				if( answer.reponseDate.get(Calendar.YEAR)!=c.eq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 						qRet.validate = false;
 						answer.disqualif=true;
 						qRet.questionDisqualifs.add(answer.questionTag);
 					
-				}else if (answer.reponseDate.get(Calendar.YEAR) == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty){
+				}else if (answer.reponseDate.get(Calendar.YEAR) == c.eq &&answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty){
 					if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
@@ -1267,14 +1105,14 @@ public class Question {
 		}
 		if(c.type[h]==3){
 			if(answer.reponseDate!=null){
-				if( answer.reponseDate.get(Calendar.YEAR)==c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !c.multiple && !c.skip && !c.doubleSkip){
+				if( answer.reponseDate.get(Calendar.YEAR)==c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip){
 				
 						qRet.validate = false;
 						answer.disqualif=true;
 						qRet.questionDisqualifs.add(answer.questionTag);
 					
 					
-				} else if (answer.reponseDate.get(Calendar.YEAR)!=c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty ){
+				} else if (answer.reponseDate.get(Calendar.YEAR)!=c.neq && answer.reponseNumeric !=naValue && !answer.shouldBeEmpty && !answer.isEmpty ){
 					if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
@@ -1302,7 +1140,7 @@ public class Question {
 		}
 		if(c.type[h]==5){
 			if(answer.reponseDate!=null){
-			 if( answer.reponseDate.get(Calendar.YEAR)>c.max ||answer.reponseDate.get(Calendar.YEAR)<c.min && !answer.shouldBeEmpty  ){
+			 if( answer.reponseDate.get(Calendar.YEAR)>c.max ||answer.reponseDate.get(Calendar.YEAR)<c.min && !answer.shouldBeEmpty && !answer.isEmpty  ){
 				 if(c.skip && !c.doubleSkip){
 						qRet.gotSkipTo=true;
 						qRet.questionSkip = c.questionSkip;
@@ -1395,8 +1233,8 @@ public class Question {
 		return qRet;
 }
 	public QuestionReturn questionTreatement(QuestionReturn option){
-
 		QuestionReturn qRet = new QuestionReturn();
+		boolean alreadyAssign = false;
 		qRet.etudename = option.etudename;
 		boolean alreadyDoubleSkip=false;
 		if(!reponses.isEmpty()){
@@ -1423,6 +1261,7 @@ public class Question {
 						}
 					}
 					qRet = option;
+					alreadyAssign=true;
 				} else {
 					option.gotSkipTo = false;
 					option.questionSkip="";
@@ -1543,6 +1382,9 @@ public class Question {
 								if(conditions.get(j).withBraket && conditions.get(j).subCondition.size()>=1 && countSpecific>insertSpecific){
 									conditions.get(j).subCondition.get(0).link=this.name;
 									qRet.specificC.add(new SpecificList(conditions.get(j).subCondition));
+									if(!conditions.get(j).countryTag.isEmpty()){
+										qRet.specificC.get(qRet.specificC.size()-1).countryTag = conditions.get(j).countryTag;
+									}
 									insertSpecific++;
 								}else if(!conditions.get(j).withBraket) {
 									qRet = tryCondition(conditions.get(j),reponses.get(i), qRet);
@@ -1574,7 +1416,7 @@ public class Question {
 						}
 					}
 				}
-				if(alreadyDoubleSkip){
+				if(alreadyDoubleSkip&& !alreadyAssign){
 					qRet.doubleSkip=true;
 					qRet.beginSkip = option.beginSkip;
 					qRet.endSkip = option.endSkip;
@@ -1583,14 +1425,14 @@ public class Question {
 						qRet.loopPart.add(option.loopPart.get(i));
 					}
 				}
-				if(option.conditions.size()>0){
+				if(option.conditions.size()>0&& !alreadyAssign){
 					qRet.conditions.addAll(option.conditions);
 				}
-				if(option.andConditions.size()>0){
+				if(option.andConditions.size()>0&& !alreadyAssign){
 					qRet.andConditions.addAll(option.andConditions);
 				}
 				
-				if(option.specificC.size()>0){
+				if(option.specificC.size()>0 && !alreadyAssign){
 					qRet.specificC.addAll(option.specificC);
 				}
 		} else {
@@ -1608,11 +1450,11 @@ public class Question {
 			for(int h = 0; h < qRet.specificC.get(i).conditions.size();h++){
 				for(int j = 0 ; j < reponses.size();j++){
 					if(!qRet.specificC.get(i).conditions.get(h).isValue){
-						if(!qRet.specificC.get(i).conditions.get(h).isLink && qRet.specificC.get(i).conditions.get(h).link.equals(reponses.get(j).questionName) ){
+						if(!reponses.get(j).isEmpty && !qRet.specificC.get(i).conditions.get(h).isLink && qRet.specificC.get(i).conditions.get(h).link.equals(reponses.get(j).questionName) ){
 							qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
 						}
 					} else {
-						if(qRet.specificC.get(i).conditions.get(h).c.questionSkip.contains(reponses.get(j).questionName)){
+						if(!reponses.get(j).isEmpty &&qRet.specificC.get(i).conditions.get(h).c.questionSkip.contains(reponses.get(j).questionName)){
 							qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
 						}
 					}

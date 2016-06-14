@@ -26,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheetDimension;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
@@ -146,7 +147,7 @@ public class ReadExcel {
 	}
 	
 	
-	public static boolean test(File file,List<TraitementEntrer> list) throws IOException {
+	public static boolean exportBaseExcel(File file,List<TraitementEntrer> list) throws IOException {
 		//System.out.println("test acquire for " + file.getName()  + " " +sem.tryAcquire());
 
 				
@@ -156,7 +157,9 @@ public class ReadExcel {
 
 			//	Go_Chrono();
 				XSSFWorkbook books = new XSSFWorkbook();
-				XSSFSheet sh = books.createSheet();
+				List<XSSFSheet> shs= new ArrayList<XSSFSheet>();
+				shs.add(books.createSheet("Page 0"));
+				int shPage=0;
 				//XSSFSheet shDisqu= books.createSheet();
 				//shDisqu.createRow(0);
 				boolean disqu=false;
@@ -165,70 +168,104 @@ public class ReadExcel {
 				CellStyle styleSkip = books.createCellStyle();
 				for(int i = 1 ; i < list.size()+1;i++){
 					if(i==1){
-						sh.createRow(0);
+						shs.get(shPage).createRow(0);
+						shs.get(shPage).createRow(i);
+					} else {
+						for(int j= 0 ; j<shs.size();j++){
+							shs.get(j).createRow(i);
+						}
 					}
-					sh.createRow(i);
 					
+					shPage=0;
 					disqu= false;
 					if(i==2){
-						styleDisqu.cloneStyleFrom(sh.getRow(0).getCell(0).getCellStyle());
+						styleDisqu.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
 						styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
 						styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
 						styleDisqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-						styleSkip.cloneStyleFrom(sh.getRow(0).getCell(0).getCellStyle());
+						styleSkip.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
 						styleSkip.setFillBackgroundColor(IndexedColors.PINK.getIndex());
 						styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());
 						styleSkip.setFillPattern(CellStyle.SOLID_FOREGROUND);
 					}
 					for(int j = 0 ; j < list.get(i-1).getReponses().size();j++){
+						
+						if(j%16384==0 && j !=0&& i==1){
+							shPage++;
+							shs.add(books.createSheet("Page"+shPage));
+							
+							
+							shs.get(shPage).createRow(0);
+							shs.get(shPage).createRow(i);
+							
+						} else if (j%16384==0 && j !=0){
+							shPage++;
+						}
 						if(i == 1){
-							sh.getRow(0).createCell(j);
+							shs.get(shPage).getRow(0).createCell(j%16384);
 							//shDisqu.getRow(0).createCell(j);
-							sh.getRow(0).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
+							shs.get(shPage).getRow(0).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).questionTag);
 							//shDisqu.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
 						} 
-
 							if(!list.get(i-1).getReponses().get(j).isEmpty){
-								sh.getRow(i).createCell(j);
+						
+								if(j==16384){
+									shs.get(shPage).getRow(i).createCell(0);
+									shs.get(shPage).getRow(i).getCell(0).setCellValue(shs.get(0).getRow(i).getCell(0).getStringCellValue());
+									j++;
+								}else if(j>16384){
+									j++;
+								}
+								if(shs.get(shPage).getRow(i)==null){
+									System.out.println(" i = "+i+" j= "+j + " et j%="+j%16384);
+								}
+								shs.get(shPage).getRow(i).createCell(j%16384);
 								if(list.get(i-1).getReponses().get(j).reponseType==1){
-									sh.getRow(i).getCell(j).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
+									shs.get(shPage).getRow(i).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
 								} else {
-									sh.getRow(i).getCell(j).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
+									shs.get(shPage).getRow(i).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
 								}
 								if(list.get(i-1).getReponses().get(j).disqualif){
 									disqu = true;
 					
-									sh.getRow(i).getCell(j).setCellStyle(styleDisqu);
+									shs.get(shPage).getRow(i).getCell(j%16384).setCellStyle(styleDisqu);
 								}
 								if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
 
-									sh.getRow(i).getCell(j).setCellStyle(styleSkip);
+									shs.get(shPage).getRow(i).getCell(j%16384).setCellStyle(styleSkip);
+								}
+								if(j>16384){
+									j--;
 								}
 							}
+							
 						
 					}
 					if(disqu){
 					
-						sh.getRow(i).getCell(0).setCellStyle(styleDisqu);
+						shs.get(shPage).getRow(i).getCell(0).setCellStyle(styleDisqu);
 					}
 				}
-				int toto =0;
-				boolean t = false;
+				int fileNumber =0;
+				boolean isWrite = false;
 				File f2 = file;
+				String temp = file.getAbsolutePath();
+				temp = temp.split("base qualif")[0] + fileNumber + " base qualif" + temp.split("base qualif")[1];
+				f2= new File(temp);
 				do{
 					if(Files.exists(Paths.get(f2.getAbsolutePath()), LinkOption.NOFOLLOW_LINKS)){
-						String temp = file.getAbsolutePath();
-						temp = temp.split("base qualif")[0] + toto + " base qualif" + temp.split("base qualif")[1];
+						temp = file.getAbsolutePath();
+						temp = temp.split("base qualif")[0] + fileNumber + " base qualif" + temp.split("base qualif")[1];
 						f2= new File(temp);
-						toto++;
+						fileNumber++;
 					}
 					else {
-						t=true;
+						isWrite=true;
 					}
-				}while(!t);
+				}while(!isWrite);
 				
-				OutputStream writer = new FileOutputStream(f2);
+				FileOutputStream writer = new FileOutputStream(f2);
 				POIXMLProperties xmlProps = books.getProperties();    
 				POIXMLProperties.CoreProperties coreProps =  xmlProps.getCoreProperties();
 				coreProps.setCreator("A+A");

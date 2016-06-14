@@ -39,7 +39,7 @@ public class Condition {
 	
 	
 	public Condition(String condition){
-		
+		countryTag="";
 		if(condition.contains("(")){
 			braket(condition);
 		}else {
@@ -158,7 +158,10 @@ public class Condition {
 								
 								if(!temp.split("\\)")[j].isEmpty()){
 									link = temp.split("\\)")[j];
-									subCondition.add(new SpecificCondition(link, inBr, true));
+									link = link.replaceAll(" ", "");
+									if(!link.isEmpty()){
+										subCondition.add(new SpecificCondition(link, inBr, true));
+									}
 								} else {
 									inBr--;
 								}
@@ -175,6 +178,9 @@ public class Condition {
 					subCondition.remove(i);
 					i--;
 				}
+			}
+			for(int i = 0 ; i < subCondition.size();i++){
+				System.out.println("Braket Place : " + subCondition.get(i).braketPlace + " link " + subCondition.get(i).link);
 			}
 			nbr++;
 		}

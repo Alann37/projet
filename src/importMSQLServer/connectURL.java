@@ -39,8 +39,10 @@ public class ConnectURL {
 	        		   }else {
 	        			   type = 2;
 	        		   }
-	        		   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
-	        	   	}
+	  	        			   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
+	        		   //}
+	        		
+        		   }
 	        	   
 	           }
 

@@ -37,7 +37,7 @@ public class LoadingScreen extends JDialog {
 		setResizable(false);
 		setBounds(100, 100, 450, 160);
 		this.setTitle("Ongoing Treatment");
-		progressBar = new JProgressBar(0,100);
+		progressBar = new JProgressBar(0,1000);
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import Configuration.Configuration;
 import importMSQLServer.ConnectURL;
 public class TraitementEtude extends Thread {
@@ -66,7 +68,7 @@ public class TraitementEtude extends Thread {
 			}
 				try {
 					if(f2!=null){
-						this.setHaveBeenWrite(ReadExcel.test(f2,this.getEtudes()));
+						this.setHaveBeenWrite(ReadExcel.exportBaseExcel(f2,this.getEtudes()));
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -134,6 +136,7 @@ public class TraitementEtude extends Thread {
 				QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
+			
 					//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
 						QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
 						if(!returnQuest.validate){
@@ -154,6 +157,7 @@ public class TraitementEtude extends Thread {
 						temp.addNotToBe(temp.getReponses().get(p).questionTag);
 					}
 				}
+		
 				skipTo.setSpecific();
 				for(int m = 0 ; m < skipTo.specificC.size();m++){
 
