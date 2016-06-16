@@ -90,6 +90,72 @@ public class Question {
 			naValue = -999999;
 		}
 	}
+	public QuestionReturn gestionCheckBox(QuestionReturn option,List<Reponse>answers,Condition c){
+		for(int i = 0 ; i < answers.size();i++){
+			for(int k = 0 ; k < c.checkbox.length;k++){
+				int testNum=0;
+				if(answers.get(i).reponseNumeric == 1){
+				String temp = answers.get(i).questionTag;
+				temp = temp.split("_")[temp.split("_").length-1];
+				if(temp.contains(".")){
+					temp = temp.split("\\.")[0];
+				}
+				 temp = temp.replaceAll("[^\\d.]", "");
+				 testNum = Integer.valueOf(temp);
+				}
+				if( testNum == c.checkbox[k] &&  !answers.get(i).shouldBeEmpty && !answers.get(i).isEmpty ){
+					option.validate=false;
+				}
+			}
+		}
+		return option;
+	}
+	public QuestionReturn gestionAndOrCheckBox(QuestionReturn option,List<Reponse>answers,AndCondition andC){
+		QuestionReturn qRet= new QuestionReturn();
+		qRet.validate=true;
+		for(int i = 0 ; i < answers.size();i++){
+			Reponse answer = answers.get(i);
+		if(!andC.firstPart){
+			if(andC.loopPart.isEmpty()){
+				if(andC.andOr){
+					answer.disqualif=true;
+					qRet.validate=false;
+					if(andC.previous!=null){
+						andC.previous.firstAnswer.disqualif=true;
+					}
+
+				} else {
+					qRet = gestionConditionAndOr(qRet,answer,andC);
+				}
+				
+			} else if(answer.questionTag.contains(".")){
+				if(andC.andOr){
+					answer.disqualif=true;
+					qRet.validate=false;
+					if(andC.previous!=null){
+						andC.previous.firstAnswer.disqualif=true;
+					}
+				} else {
+					if(andC.loopPart.equals(answer.questionTag.split("\\.")[1])){
+						qRet = gestionConditionAndOr(qRet, answer,andC);
+					}
+				}
+			}
+} else {
+			if(andC.loopPart.isEmpty()){
+				
+				qRet = gestionConditionAndOr(qRet,answer,andC);
+			
+			} else if(answer.questionTag.contains(".")){
+				if(answer.questionTag.split("\\.")[1].equals(andC.loopPart) && !answer.questionTag.contains("other")&& !answer.questionTag.contains("NA")){
+					qRet = gestionConditionAndOr(qRet, answer,andC);
+				}
+			}
+}
+	
+		}
+		return qRet;
+	}
 	public QuestionReturn gestionAndOr(QuestionReturn option,Reponse answer,AndCondition andC){
 		QuestionReturn qRet= new QuestionReturn();
 	

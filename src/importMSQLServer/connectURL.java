@@ -13,7 +13,7 @@ public class ConnectURL {
 	public ConnectURL(){
 		
 	}
-	private List<TraitementEntrer> test2(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list) throws ParseException{
+	private List<TraitementEntrer> doQuery(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list) throws ParseException{
 		boolean firstPassage= false;
 		if(list.size()==0){
 			firstPassage = true;
@@ -32,7 +32,7 @@ public class ConnectURL {
 				  	 }
 				  	 
 
-	        	   for(int j; i <= rs.getMetaData().getColumnCount(); i++){
+	        	   for(; i <= rs.getMetaData().getColumnCount(); i++){
 	        		   int type = -1;
 	        		   if(rs.getMetaData().getColumnTypeName(i).contains("int")){
 	        			   type = 1;
@@ -55,7 +55,7 @@ public class ConnectURL {
 
         }
 	
-	public  List<TraitementEntrer>  test(String database,String langue) throws IOException{
+	public  List<TraitementEntrer>  importDatabase(String database,String langue) throws IOException{
 		String connectionUrl = "jdbc:sqlserver://91.232.41.147;"
 					+"databaseName="+database;
 		String user = Configuration.getConf(4);
@@ -89,7 +89,7 @@ public class ConnectURL {
             
             for(int i = 0 ; i < tablesImport.size(); i++){
             	query = "SELECT * FROM "+ tablesImport.get(i).name;
-            	listTraitement=test2(stmt, rs, con, query,listTraitement);
+            	listTraitement=doQuery(stmt, rs, con, query,listTraitement);
             }
            
          }

@@ -130,8 +130,8 @@ public class MainView {
 						.addGap(18)
 						.addComponent(btnBaseLibele)
 						.addGap(18)
-						.addComponent(btnCrerMasters)
-						.addContainerGap(114, Short.MAX_VALUE))
+						.addComponent(btnCrerMasters, GroupLayout.PREFERRED_SIZE, 124, GroupLayout.PREFERRED_SIZE)
+						.addContainerGap(79, Short.MAX_VALUE))
 			);
 			groupLayout.setVerticalGroup(
 				groupLayout.createParallelGroup(Alignment.LEADING)

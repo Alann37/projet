@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.plaf.synth.SynthSpinnerUI;
+import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
 
 public class QuestionReturn {
 	boolean validate;
@@ -106,9 +107,7 @@ public class QuestionReturn {
 	public void setSpecific(){
 	
 	
-		QuestionReturn qRet = new QuestionReturn(true, this.etudename);
-		Question q= new Question("");
-		
+		QuestionReturn qRet = new QuestionReturn(true, this.etudename);		
 		Question qu = new Question("");
 
 		List<SpecificCondition> cs = new ArrayList<SpecificCondition>();
@@ -128,6 +127,7 @@ public class QuestionReturn {
 		boolean init = false;
 		boolean disqu=false;
 		for(int n = 0 ;n < specificC.get(i).conditions.get(0).answers.size();n++){
+			qRet.validate=true;
 			qRet = qu.gestionTypeCondition(qRet, specificC.get(i).conditions.get(0).c, specificC.get(i).conditions.get(0).answers.get(n));
 			if(specificC.get(i).conditions.get(0).answers.get(n).isPartOfLoop()){
 				specificC.get(i).conditions.get(0).loop.add(new ValidationBoucle(qRet.validate,specificC.get(i).conditions.get(0).answers.get(n).questionTag.split("\\.")[1]));
@@ -147,7 +147,7 @@ public class QuestionReturn {
 			
 			if(specificC.get(i).conditions.get(j).isLink){
 				cs.add(specificC.get(i).conditions.get(j));
-				cs.get(cs.size()-1).indice=cs.size()-1;
+				cs.get(cs.size()-1).indice=j;
 				boolean type = false;
 				if(j+1<specificC.get(i).conditions.size()){
 					if(j>0){
@@ -157,10 +157,14 @@ public class QuestionReturn {
 							for(int n = 0 ; n < specificC.get(i).conditions.get(j-1).answers.size() && n < specificC.get(i).conditions.get(j+1).answers.size();n++){
 								
 								qRet.validate=true;
-								qRet = qu.gestionTypeCondition(qRet, specificC.get(i).conditions.get(j-1).c, specificC.get(i).conditions.get(j-1).answers.get(n));
-					
+								if(specificC.get(i).conditions.get(j-1).c.type[0]==8){
+									qRet = qu.gestionCheckBox(qRet, specificC.get(i).conditions.get(j-1).answers, specificC.get(i).conditions.get(j-1).c);
+								}else {
+									qRet = qu.gestionTypeCondition(qRet, specificC.get(i).conditions.get(j-1).c, specificC.get(i).conditions.get(j-1).answers.get(n));
+								}
 								if(specificC.get(i).conditions.get(j-1).answers.get(n).isPartOfLoop()){
 									specificC.get(i).conditions.get(j-1).loop.add(new ValidationBoucle(qRet.validate,specificC.get(i).conditions.get(j-1).answers.get(n).questionTag.split("\\.")[1]));
+									specificC.get(i).conditions.get(j-1).inLoop=true;
 								}
 								if(specificC.get(i).conditions.get(j).link.contains("OR")){
 									type=false;
@@ -169,10 +173,14 @@ public class QuestionReturn {
 								}
 								AndCondition an = new AndCondition(specificC.get(i).conditions.get(j-1).answers.get(n),qRet.validate, specificC.get(i).conditions.get(j+1), type);
 								qRet.validate=true;
-								qRet= qu.gestionAndOr(qRet, specificC.get(i).conditions.get(j+1).answers.get(n), an);
-								
+								if(specificC.get(i).conditions.get(j+1).c.type[0]==8){
+									qRet = qu.gestionAndOrCheckBox(qRet, specificC.get(i).conditions.get(j+1).answers, an);
+								}else {
+									qRet= qu.gestionAndOr(qRet, specificC.get(i).conditions.get(j+1).answers.get(n), an);
+								}
 								if(specificC.get(i).conditions.get(j+1).answers.get(n).isPartOfLoop()){
 									specificC.get(i).conditions.get(j+1).loop.add(new ValidationBoucle(qRet.validate,specificC.get(i).conditions.get(j+1).answers.get(n).questionTag.split("\\.")[1]));
+									specificC.get(i).conditions.get(j+1).inLoop=true;
 								}
 								disqu = qRet.validate;
 								
@@ -189,11 +197,25 @@ public class QuestionReturn {
 								specificC.get(i).conditions.get(j).treated=true;
 								specificC.get(i).conditions.get(j-1).treated=true;
 								specificC.get(i).conditions.get(j+1).treated=true;
+								if(!disqu){
+									for(int m = cs.size()-2;m>0;m--){
+										if(cs.get(m).braketPlace<cs.get(cs.size()-1).braketPlace){
+											break;
+										}
+										if(cs.get(cs.size()-1).braketPlace==cs.get(m).braketPlace){
+											if(cs.get(m).link.contains("AND")){
+												cs.get(m).satisfied=cs.get(cs.size()-1).satisfied;
+											}
+										}
+										
+									}
+								}
 							}else {
 								specificC.get(i).conditions.get(j).satisfied=disqu;
 								specificC.get(i).conditions.get(j).treated=true;
 								specificC.get(i).conditions.get(j-1).treated=true;
 								specificC.get(i).conditions.get(j+1).treated=true;
+								
 							}
 						} else {
 							for(int t = 0 ; t < specificC.get(i).conditions.get(j+1).loop.size();t++){
@@ -211,41 +233,108 @@ public class QuestionReturn {
 			}
 		}
 		cs.get(0).treated=true;
+		if(!specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).treated){
+			if(!cs.get(cs.size()-1).equals(specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1))){
+				for(int n = 0 ;n < specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).answers.size();n++){
+					qRet.validate=true;
+					qRet = qu.gestionTypeCondition(qRet, specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).c, specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).answers.get(n));
+					if(specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).answers.get(n).isPartOfLoop()){
+						specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).loop.add(new ValidationBoucle(qRet.validate,specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).answers.get(n).questionTag.split("\\.")[1]));
+						specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).inLoop=true;
+						
+					}
+					
+				}
+				specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).satisfied=qRet.validate;
+				specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).treated=true;
+				cs.add(specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1));
+				cs.get(cs.size()-1).indice=specificC.get(i).conditions.size()-1;
+			}
+		}
+		for(int o=0;o<cs.size();o++){
+			if((o+1)<cs.size()){
+				if(!cs.get(o).treated && !cs.get(o+1).treated){
+					if(cs.get(o).braketPlace>cs.get(o+1).braketPlace){
+						boolean add=false;
+						for(int p= cs.get(o).indice ; p< cs.get(o+1).indice;p++){
+							if(specificC.get(i).conditions.get(p).braketPlace==(cs.get(o).braketPlace)+1){
+								if(specificC.get(i).conditions.get(p).endBraket==cs.get(o).endBraket ){
+									if(!add){
+										if(!specificC.get(i).conditions.get(p).treated){
+											for(int n = 0 ;n < specificC.get(i).conditions.get(p).answers.size();n++){
+												qRet.validate=true;
+												qRet = qu.gestionTypeCondition(qRet, specificC.get(i).conditions.get(specificC.get(i).conditions.size()-1).c, specificC.get(i).conditions.get(p).answers.get(n));
+												if(specificC.get(i).conditions.get(p).answers.get(n).isPartOfLoop()){
+													specificC.get(i).conditions.get(p).loop.add(new ValidationBoucle(qRet.validate,specificC.get(i).conditions.get(p).answers.get(n).questionTag.split("\\.")[1]));
+													specificC.get(i).conditions.get(p).inLoop=true;
+													
+												}
+												
+											}
+											specificC.get(i).conditions.get(p).satisfied=qRet.validate;
+											specificC.get(i).conditions.get(p).treated=true;
+										}
+										cs.add(o+1, specificC.get(i).conditions.get(p));
+										cs.get(o+1).indice=o+1;
+										add =true;
+									}else {
+										cs.set(o+1, specificC.get(i).conditions.get(p));
+									}
+									
+								} 
+							}
+						}
+					}
+				}
+			}
+			
+		}
 		int up=-2;
 		int nbrTreated=0;
 		int passageDoWhile=0;
-		int testPassage =0;
-		int previousUp = -2;
+	
+	
 		do{
 			
 			passageDoWhile++;
 			nbrTreated=0;
-			testPassage++;
+		
 		
 			for(int j= 0 ; j < cs.size();j++){
 				if(cs.get(j).treated){
 					nbrTreated++;
 				}
+				if(cs.get(j).braketPlace==0){
+					nbrTreated++;
+				}
 				if(cs.get(j).braketPlace>up && !cs.get(j).treated){
 					temp.clear();
-					previousUp=up;
+				
 					up = cs.get(j).braketPlace;
 					temp.add(cs.get(j));
 				}
 			
-				if(cs.get(j).braketPlace==up+1 && cs.get(j).treated){
-					temp.add(cs.get(j));
+				if(cs.get(j).braketPlace==up+1 && cs.get(j).treated && cs.get(j).endBraket == temp.get(0).endBraket ){
+					boolean  add=true;
+					for(int k=0;k<temp.size();k++){
+						if(temp.get(k).indice==cs.get(j).indice){
+							add=false;
+						}
+					}
+					if(add){
+						temp.add(cs.get(j));
+					}
 				}
 				if(temp.size()==3){
-					testPassage = 0;
+			
 					if(!temp.get(1).inLoop){
 						if(temp.get(0).link.contains("OR")){
 							if(temp.get(1).satisfied ||temp.get(2).satisfied){
-								cs.get(temp.get(0).indice).satisfied=true;
+								specificC.get(i).conditions.get(temp.get(0).indice).satisfied=true;
 							}
 						}else {
 							if(temp.get(1).satisfied &&temp.get(2).satisfied){
-								cs.get(temp.get(0).indice).satisfied=true;
+								specificC.get(i).conditions.get(temp.get(0).indice).satisfied=true;
 							}	
 						}
 					}else {
@@ -254,49 +343,144 @@ public class QuestionReturn {
 								if(temp.get(0).inLoop){
 									if(temp.get(0).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart) &&temp.get(1).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart)){
 										if(temp.get(1).loop.get(k).satisfied ||temp.get(2).loop.get(k).satisfied){
-											cs.get(temp.get(0).indice).loop.get(k).satisfied=true;
+											specificC.get(i).conditions.get(temp.get(0).indice).loop.get(k).satisfied=true;
 										}
 									}
 								} else {
 									if(temp.get(1).loop.get(k).satisfied ||temp.get(2).loop.get(k).satisfied){
-										cs.get(temp.get(0).indice).loop.add(new ValidationBoucle(true,temp.get(1).loop.get(k).loopPart));
+										specificC.get(i).conditions.get(temp.get(0).indice).loop.add(new ValidationBoucle(true,temp.get(1).loop.get(k).loopPart));
+										
 									}
 								}
 							}else {
 								if(temp.get(0).inLoop){
 									if(temp.get(0).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart) &&temp.get(1).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart)){
 										if(temp.get(1).loop.get(k).satisfied &&temp.get(2).loop.get(k).satisfied){
-											cs.get(temp.get(0).indice).loop.get(k).satisfied=true;
+											specificC.get(i).conditions.get(temp.get(0).indice).loop.get(k).satisfied=true;
 										}
 										else {
-											cs.get(temp.get(0).indice).loop.get(k).satisfied=false;
+											specificC.get(i).conditions.get(temp.get(0).indice).loop.get(k).satisfied=false;
 										}
 									}
 								}  else {
 									if(temp.get(1).loop.get(k).satisfied &&temp.get(2).loop.get(k).satisfied){
-										cs.get(temp.get(0).indice).loop.add(new ValidationBoucle(true,temp.get(1).loop.get(k).loopPart));
+										specificC.get(i).conditions.get(temp.get(0).indice).loop.add(new ValidationBoucle(true,temp.get(1).loop.get(k).loopPart));
+										
 									} else {
-										cs.get(temp.get(0).indice).loop.add(temp.get(2).loop.get(k));
-										cs.get(temp.get(0).indice).loop.get(cs.get(temp.get(0).indice).loop.size()-1).satisfied=false;
+										specificC.get(i).conditions.get(temp.get(0).indice).loop.add(temp.get(2).loop.get(k));
+										specificC.get(i).conditions.get(temp.get(0).indice).loop.get(specificC.get(i).conditions.get(temp.get(0).indice).loop.size()-1).satisfied=false;
+										
 									}
 								}
 							}
 						}
 					}
-					cs.get(temp.get(0).indice).treated=true;
+					if(temp.get(1).inLoop || temp.get(2).inLoop){
+						temp.get(0).inLoop=true;
+					}
+					specificC.get(i).conditions.get(temp.get(0).indice).treated=true;
 					temp.clear();
-					previousUp=up;
+		
 					up=-2;
 				}
 				
 			}
 			
 			if(passageDoWhile==320){
-				System.out.println("SORTIE NON VOULUS");
+				System.out.println("SORTIE NON VOULUS POUR "+ this.etudename);
 				break;
 			}
 		}while(nbrTreated!=cs.size());
 		SpecificCondition pillier=null;
+		SpecificCondition lastPrevious =null;
+		SpecificCondition lastNext=null;
+		boolean treatZeroBraket=false;
+		for(int j = 0 ; j < cs.size();j++){
+			if(pillier == null){
+				if(cs.get(j).braketPlace==1){
+					lastPrevious=cs.get(j);
+				}
+			}
+			if(pillier !=null && cs.get(j).braketPlace==1){
+				lastNext=cs.get(j);
+			}
+			if(!treatZeroBraket && cs.get(j).braketPlace==0){
+				pillier=cs.get(j);
+				treatZeroBraket=true;
+			}
+			if(pillier !=null && cs.get(j).braketPlace==0){
+				if(lastNext!= null && lastPrevious!=null){
+					if(pillier.link.contains("OR")){
+						if(lastNext.inLoop||lastPrevious.inLoop){
+							pillier.inLoop=true;
+							for(int o = 0 ; o < lastNext.loop.size()&& o<lastPrevious.loop.size();o++){
+								if(lastNext.loop.get(o).satisfied || lastPrevious.loop.get(o).satisfied){
+									pillier.loop.add(new ValidationBoucle(true,lastNext.loop.get(o).loopPart));
+								}else {
+									pillier.loop.add(new ValidationBoucle(false,lastNext.loop.get(o).loopPart));
+								}
+							}
+						}else {
+							if(lastNext.satisfied || lastPrevious.satisfied){
+								pillier.satisfied=true;
+							}
+						}
+					}else{
+						if(lastNext.inLoop||lastPrevious.inLoop){
+							pillier.inLoop=true;
+							for(int o = 0 ; o < lastNext.loop.size()&& o<lastPrevious.loop.size();o++){
+								if(lastNext.loop.get(o).satisfied && lastPrevious.loop.get(o).satisfied){
+									pillier.loop.add(new ValidationBoucle(true,lastNext.loop.get(o).loopPart));
+								}else {
+									pillier.loop.add(new ValidationBoucle(false,lastNext.loop.get(o).loopPart));
+								}
+							}
+						} else {
+							if(lastNext.satisfied && lastPrevious.satisfied){
+								pillier.satisfied=true;
+							}
+						}
+					}
+					pillier.treated=true;
+					lastPrevious=pillier;
+					pillier=cs.get(j);
+				}
+			}
+		}
+		if(lastNext!= null && lastPrevious!=null){
+			if(pillier.link.contains("OR")){
+				if(lastNext.inLoop||lastPrevious.inLoop){
+					pillier.inLoop=true;
+					for(int o = 0 ; o < lastNext.loop.size()&& o<lastPrevious.loop.size();o++){
+						if(lastNext.loop.get(o).satisfied || lastPrevious.loop.get(o).satisfied){
+							pillier.loop.add(new ValidationBoucle(true,lastNext.loop.get(o).loopPart));
+						}else {
+							pillier.loop.add(new ValidationBoucle(false,lastNext.loop.get(o).loopPart));
+						}
+					}
+				}else {
+					if(lastNext.satisfied || lastPrevious.satisfied){
+						pillier.satisfied=true;
+					}
+				}
+			}else{
+				if(lastNext.inLoop||lastPrevious.inLoop){
+					pillier.inLoop=true;
+					for(int o = 0 ; o < lastNext.loop.size()&& o<lastPrevious.loop.size();o++){
+						if(lastNext.loop.get(o).satisfied && lastPrevious.loop.get(o).satisfied){
+							pillier.loop.add(new ValidationBoucle(true,lastNext.loop.get(o).loopPart));
+						}else {
+							pillier.loop.add(new ValidationBoucle(false,lastNext.loop.get(o).loopPart));
+						}
+					}
+				} else {
+					if(lastNext.satisfied && lastPrevious.satisfied){
+						pillier.satisfied=true;
+					}
+				}
+			}
+			pillier.treated=true;
+		}
 		int lower = 5;
 		int ind=-1;
 		for(int j = 0 ; j < cs.size();j++){

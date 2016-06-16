@@ -125,6 +125,7 @@ public class Condition {
 		 isDate=false;
 		 doubleSkip=false;
 		 skip=false;
+		 int beginBraket=0;
 		 
 		 if(condition.contains("(")){
 			withBraket=true;
@@ -137,19 +138,26 @@ public class Condition {
 				if(temp.contains("OR")){
 					link=null;
 				}
+				if(inBr ==0){
+					if(subCondition.size()>0){
+						beginBraket= subCondition.size()-1;
+					}else {
+						beginBraket=i-1;
+					}
+				}
 				inBr++;
 				link = null;
 				if(!temp.isEmpty()){
 					
 					
 					
-					subCondition.add(new SpecificCondition(temp.split("\\)")[0],inBr,false));
+					subCondition.add(new SpecificCondition(temp.split("\\)")[0],inBr,false,beginBraket));
 					if(temp.contains(")")){
 						inBr--;
 						if(temp.split("\\)").length==2){
 							if(!temp.split("\\)")[1].isEmpty()){
 								link = temp.split("\\)")[1];
-								subCondition.add(new SpecificCondition(link, inBr, true));
+								subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
 								
 							}
 						}else if(temp.split("\\)").length>2){
@@ -160,8 +168,13 @@ public class Condition {
 									link = temp.split("\\)")[j];
 									link = link.replaceAll(" ", "");
 									if(!link.isEmpty()){
-										subCondition.add(new SpecificCondition(link, inBr, true));
+										if(inBr==0){
+											subCondition.add(new SpecificCondition(link, inBr, true,i+1));
+										}else {
+											subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
+										}
 									}
+										
 								} else {
 									inBr--;
 								}
@@ -170,7 +183,7 @@ public class Condition {
 					}
 					
 					
-				}
+				} 
 				
 			}
 			for(int i = 0 ; i < subCondition.size();i++){
@@ -179,8 +192,43 @@ public class Condition {
 					i--;
 				}
 			}
+			int endBraket=-1;
+			beginBraket=-1;
 			for(int i = 0 ; i < subCondition.size();i++){
-				System.out.println("Braket Place : " + subCondition.get(i).braketPlace + " link " + subCondition.get(i).link);
+				if(subCondition.get(i).braketPlace==0){
+					if(beginBraket==-1){
+						beginBraket=i;
+						endBraket=-1;
+					}else if(endBraket ==-1){
+						endBraket=i;
+						for(int j = beginBraket ; j < i; j ++){
+							if(beginBraket== subCondition.get(j).beginBraket){
+								subCondition.get(j).endBraket=i;
+							}
+						}
+						beginBraket=-1;
+					} 
+					
+				}
+				if((i+1)==subCondition.size()){
+					if(endBraket>=0){
+						for(int j = endBraket ; j < subCondition.size(); j ++){
+							if(0== subCondition.get(j).endBraket){
+								subCondition.get(j).endBraket=subCondition.size()-1;
+							}
+						}
+					}else {
+						for(int j = 0 ; j < subCondition.size(); j ++){
+							if(0== subCondition.get(j).endBraket){
+								subCondition.get(j).endBraket=subCondition.size()-1;
+							}
+						}
+					}
+				}
+			}
+			
+			for(int i = 0 ; i < subCondition.size();i++){
+				System.out.println("Braket Place : " + subCondition.get(i).braketPlace + " link " + subCondition.get(i).link+ " beginBraket "+subCondition.get(i).beginBraket + " endBraket "+subCondition.get(i).endBraket);
 			}
 			nbr++;
 		}
@@ -337,7 +385,7 @@ public class Condition {
 						 checkbox = new int[1];
 						 checkbox[0] = Integer.valueOf(newCondition);	
 					 }
-				 }
+ 				 }
 				} else if(condition.contains(",") && !condition.contains("#")){
 				type[indice] = 4;
 				String [] possibility = condition.split(",");

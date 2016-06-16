@@ -40,12 +40,10 @@ public class TraitementEtude extends Thread {
 	}
 	@Override
 	public void run(){
-		/*String temp = etudeName.substring(etudeName.length()-2);
-		connectURL t = new connectURL();
-		etudes = t.test(temp);*/
+
 		ConnectURL connectionWithDB = new ConnectURL();
 		try {
-			etudes = connectionWithDB.test(base, language);
+			etudes = connectionWithDB.importDatabase(base, language);
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -157,7 +155,9 @@ public class TraitementEtude extends Thread {
 						temp.addNotToBe(temp.getReponses().get(p).questionTag);
 					}
 				}
-		
+				if(i==2){
+					System.out.println();
+				}
 				skipTo.setSpecific();
 				for(int m = 0 ; m < skipTo.specificC.size();m++){
 
