@@ -303,8 +303,7 @@ public class QuestionReturn {
 			for(int j= 0 ; j < cs.size();j++){
 				if(cs.get(j).treated){
 					nbrTreated++;
-				}
-				if(cs.get(j).braketPlace==0){
+				}else if(cs.get(j).braketPlace==0){
 					nbrTreated++;
 				}
 				if(cs.get(j).braketPlace>up && !cs.get(j).treated){
