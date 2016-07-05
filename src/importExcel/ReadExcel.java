@@ -18,6 +18,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.poi.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -34,9 +35,13 @@ import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 
 import Configuration.Configuration;
+import baseLibelle.InfoQuota;
+import baseLibelle.StudyQuotas;
+import importMSQLServer.ConnectURL;
 import importMSQLServer.InformationBDD;
 
 public class ReadExcel {
+	
 	static long chrono;
 	static void Go_Chrono() { 
 		chrono = java.lang.System.currentTimeMillis() ; 
@@ -50,8 +55,108 @@ public class ReadExcel {
 		return temps;
 		} 
 	static Semaphore sem = new Semaphore(1,true);
+	public static void exportQuota(List<StudyQuotas> listQuotas,File file) throws IOException{
+		XSSFWorkbook books = new XSSFWorkbook();
+		for(int h = 0 ; h < listQuotas.size();h++){
+			List<InfoQuota> quotas = listQuotas.get(h).getQuotas();
+			XSSFSheet sh = books.createSheet(listQuotas.get(h).getLanguage());
+			XSSFRow row; 
+			XSSFCell cell;
+			row = sh.createRow(0);
+			for(int i = 0 ;i < 50; i +=3){
+				cell = row.createCell(i);
+				if(i==3){
+					i-=2;
+					cell = row.createCell(i);
+				}
+				if(i==0){
+					cell.setCellValue("Nom  quota");
+				} else {
+					cell.setCellValue("Name");
+					cell = row.createCell(i+1);
+					cell.setCellValue("Value");
+					cell = row.createCell(i+2);
+					cell.setCellValue("Limit");
+				}
+			}
+			for(int i = 0 ; i < quotas.size();i++){
+				row =sh.createRow(i+1);
+				cell = row.createCell(0);
+				cell.setCellValue(quotas.get(i).getName());
+				int limite = quotas.get(i).getPosibility().size();
+				limite--;
+				limite *=2;
+				limite ++;
+				int cellIterator = 1;
+				for(int j =0; j<quotas.get(i).getPosibility().size();j++){
+					
+					if(j==0){
+						cellIterator=1;
+					}else {
+						cellIterator=(j*3) +1;
+					}
+					cell = row.createCell(cellIterator);
+					cell.setCellValue(quotas.get(i).getPosibility().get(j).getName());
+					cell = row.createCell(cellIterator+1);
+					cell.setCellValue(quotas.get(i).getPosibility().get(j).getValue());
+					cell = row.createCell(cellIterator+2);
+					cell.setCellValue(quotas.get(i).getPosibility().get(j).getLimite());
+				}
+			}
+		}
+		FileOutputStream writer = new FileOutputStream(file);
+		POIXMLProperties xmlProps = books.getProperties();    
+		POIXMLProperties.CoreProperties coreProps =  xmlProps.getCoreProperties();
+		coreProps.setCreator("A+A");
+		books.write(writer);
+		books.close();
 
+	}
+	
+	private static void errorLog(String error) throws InvalidFormatException, IOException{
+		File file = new File("debug.xlsx");
+		XSSFWorkbook books = new XSSFWorkbook();
+		XSSFSheet sh = books.createSheet();
+		
+	    XSSFRow row= sh.createRow(0);
+	    XSSFCell cell= row.createCell(0);
+	    cell.setCellValue(error);
+	    FileOutputStream writer = new FileOutputStream(file);
+		POIXMLProperties xmlProps = books.getProperties();    
+		POIXMLProperties.CoreProperties coreProps =  xmlProps.getCoreProperties();
+		coreProps.setCreator("A+A");
+		books.write(writer);
+		books.close();
+		
+			   
+		
+	}
+	public static void callExcelMacro() throws InvalidFormatException, IOException {
+		ComThread.InitSTA();
+		File file = new File("general_update.xlsm");
+		String macro = "!Module1.test";
+		final ActiveXComponent excel = new ActiveXComponent("Excel.Application");
+		try {
+			
+			final Dispatch workbooks = excel.getProperty("Workbooks").toDispatch();
+// TODO PROBLEME HERE
+			final Dispatch workBook = Dispatch.call(workbooks, "Open", file.getAbsolutePath()).toDispatch();
+			
+			final Variant result = Dispatch.call(excel, "Run", new Variant("\'" + file.getName() + "\'" + macro));
+			com.jacob.com.Variant f = new com.jacob.com.Variant(true);
+			Dispatch.call(workBook, "Close", f);
 
+		} catch (Exception e) {
+			
+			ReadExcel.errorLog(e.getMessage());
+			
+		} finally {
+
+			excel.invoke("Quit", new Variant[0]);
+			ComThread.Release();
+		}
+
+	}
 	public static List<Question> importConditionFromWord(File file) throws IOException {
 		int j = -1;
 		List<Question> questions = new ArrayList<Question>();
@@ -70,7 +175,9 @@ public class ReadExcel {
 								j++;
 								questions.add(new Question(para.getText()));
 							} else if (!para.getText().isEmpty()) {
-								questions.get(j).conditions.add(new Condition(para.getText()));
+								if(!para.getText().equals(" ")){
+									questions.get(j).conditions.add(new Condition(para.getText()));
+								}
 							}
 						}
 					}
@@ -97,6 +204,7 @@ public class ReadExcel {
 		XSSFCell cell;
 		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
 		Iterator rows = sh.rowIterator();
+		
 	    XSSFRow row;
 		while(rows.hasNext()){
 		   row = (XSSFRow)rows.next();
@@ -132,10 +240,12 @@ public class ReadExcel {
 			   		cell = (XSSFCell)cells.next();
 			   		if(cell.getColumnIndex()==0){
 			   			lRet.add(new InformationBDD(cell.getStringCellValue()));
-			   		}else if (cell.getColumnIndex()>1) {
+			   		}else if (cell.getColumnIndex()>2) {
 			   			if(!cell.getStringCellValue().isEmpty()){
 			   				lRet.get(lRet.size()-1).getLangues().add(cell.getStringCellValue());
 			   			}
+			   		} else if (cell.getColumnIndex()==2){
+			   			lRet.get(lRet.size()-1).setServeur(cell.getStringCellValue());
 			   		}
 			   	}
 			   }
@@ -146,110 +256,163 @@ public class ReadExcel {
 		return lRet;
 	}
 	
-	
-	public static boolean exportBaseExcel(File file,List<TraitementEntrer> list) throws IOException {
+
+	private static  XSSFWorkbook testExcel(List<String> s) throws IOException{
+		XSSFWorkbook books = new XSSFWorkbook();
+		List<XSSFSheet> shs= new ArrayList<XSSFSheet>();
+		shs.add(books.createSheet("Page 0"));
+		int shPage=0;
+		shs.get(0).createRow(0);
+		int cellIndex;
+		for(int i = 0 ; i < s.size();i++){
+			cellIndex=i;
+			if(i%16384==0 && i!=0){
+				shPage++;
+				shs.add(books.createSheet("Page "+shPage));
+				shs.get(shPage).createRow(0);
+				shs.get(shPage).getRow(0).createCell(0);
+				shs.get(shPage).getRow(0).getCell(0).setCellValue(s.get(0));
+				
+			}
+			if(i>=16384){
+				cellIndex++;
+				cellIndex= cellIndex%16384;
+				if(cellIndex==0){
+					cellIndex++;
+				}
+				
+			}
+			shs.get(shPage).getRow(0).createCell(cellIndex);
+			shs.get(shPage).getRow(0).getCell(cellIndex).setCellValue(s.get(i));
+			
+		}
+		return books;
+	}
+	public static boolean exportBaseExcel(File file,TraitementEtude study) throws IOException, InvalidFormatException {
 		//System.out.println("test acquire for " + file.getName()  + " " +sem.tryAcquire());
 
 				
-			try {
-				sem.acquire();
+			//try {
+				//sem.acquire();
 				System.out.println("sem acquire for "+ file.getName());
-
+				List<TraitementEntrer> list = study.getEtudes();
 			//	Go_Chrono();
-				XSSFWorkbook books = new XSSFWorkbook();
+				ConnectURL con = new ConnectURL();
+				XSSFWorkbook books;
+				if(!study.getBase().isEmpty() && !study.getLanguage().isEmpty() && !study.getServeur().isEmpty()){
+					books= ReadExcel.testExcel(con.getColumnLabel(study.getBase(), study.getLanguage(),study.getServeur()));
+				} else {
+					books = new XSSFWorkbook(file);
+				}
 				List<XSSFSheet> shs= new ArrayList<XSSFSheet>();
-				shs.add(books.createSheet("Page 0"));
+				for(int i =0 ; i < books.getNumberOfSheets();i++){
+					shs.add(books.getSheetAt(i));
+				
+				}
 				int shPage=0;
 				//XSSFSheet shDisqu= books.createSheet();
 				//shDisqu.createRow(0);
 				boolean disqu=false;
+				boolean aerDisqu = false;
 			//	System.out.println("passage pour " + file.getName());
 				CellStyle styleDisqu = books.createCellStyle();
 				CellStyle styleSkip = books.createCellStyle();
-				for(int i = 1 ; i < list.size()+1;i++){
-					if(i==1){
-						shs.get(shPage).createRow(0);
-						shs.get(shPage).createRow(i);
-					} else {
-						for(int j= 0 ; j<shs.size();j++){
-							shs.get(j).createRow(i);
-						}
-					}
+				CellStyle styleAer = books.createCellStyle();
+				styleDisqu.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
+				styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
+				styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
+				styleDisqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+				styleSkip.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
+				styleSkip.setFillBackgroundColor(IndexedColors.PINK.getIndex());
+				styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());
+				styleSkip.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				
+				styleAer.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
+				styleAer.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
+				styleAer.setFillForegroundColor(IndexedColors.BLUE_GREY.getIndex());
+				styleAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				
+				File f2 = file;
+			
+				for(int i = 1 ; i <((list.size())+1);i++){
+					int rowNum = shs.get(0).getLastRowNum()+1;
 					
+					//System.out.println("passage pour i = " + i + " et size = " + list.size());
+					for(int j= 0 ; j<shs.size();j++){
+						shs.get(j).createRow(rowNum);
+					}
 					shPage=0;
 					disqu= false;
-					if(i==2){
-						styleDisqu.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
-						styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
-						styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
-						styleDisqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
-
-						styleSkip.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
-						styleSkip.setFillBackgroundColor(IndexedColors.PINK.getIndex());
-						styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());
-						styleSkip.setFillPattern(CellStyle.SOLID_FOREGROUND);
-					}
+				
 					for(int j = 0 ; j < list.get(i-1).getReponses().size();j++){
 						
-						if(j%16384==0 && j !=0&& i==1){
-							shPage++;
-							shs.add(books.createSheet("Page"+shPage));
-							
-							
-							shs.get(shPage).createRow(0);
-							shs.get(shPage).createRow(i);
-							
-						} else if (j%16384==0 && j !=0){
-							shPage++;
-						}
-						if(i == 1){
-							shs.get(shPage).getRow(0).createCell(j%16384);
-							//shDisqu.getRow(0).createCell(j);
-							shs.get(shPage).getRow(0).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).questionTag);
-							//shDisqu.getRow(i).getCell(j).setCellValue(list.get(i).getReponses().get(j).questionTag);
+						if(j>=16384){
+							shPage++;							
 						} 
-							if(!list.get(i-1).getReponses().get(j).isEmpty){
 						
-								if(j==16384){
-									shs.get(shPage).getRow(i).createCell(0);
-									shs.get(shPage).getRow(i).getCell(0).setCellValue(shs.get(0).getRow(i).getCell(0).getStringCellValue());
-									j++;
-								}else if(j>16384){
-									j++;
-								}
-								if(shs.get(shPage).getRow(i)==null){
-									System.out.println(" i = "+i+" j= "+j + " et j%="+j%16384);
-								}
-								shs.get(shPage).getRow(i).createCell(j%16384);
-								if(list.get(i-1).getReponses().get(j).reponseType==1){
-									shs.get(shPage).getRow(i).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
-								} else {
-									shs.get(shPage).getRow(i).getCell(j%16384).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
-								}
-								if(list.get(i-1).getReponses().get(j).disqualif){
-									disqu = true;
-					
-									shs.get(shPage).getRow(i).getCell(j%16384).setCellStyle(styleDisqu);
-								}
-								if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
+							if(!list.get(i-1).getReponses().get(j).isEmpty){
+								
+								//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
+										int columnIndex = list.get(i-1).getReponses().get(j).columnPosition;
+										if(columnIndex>=16384){
+											columnIndex++;
+											columnIndex %=16384;
+											if(columnIndex==0){
+												columnIndex++;
+											}
+											
+										}
+										shs.get(shPage).getRow(rowNum).createCell(columnIndex);
+										if(list.get(i-1).getReponses().get(j).reponseType==1){
+											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
+										} else {
+											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
+										}
+										if(list.get(i-1).getReponses().get(j).disqualif){
+											disqu = true;
+											if(list.get(i-1).getReponses().get(j).isAerDisq){
+												aerDisqu=true;
+												shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleAer);
+											}else {
+												shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleDisqu);
+											}
+										}
+										if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
 
-									shs.get(shPage).getRow(i).getCell(j%16384).setCellStyle(styleSkip);
-								}
-								if(j>16384){
-									j--;
-								}
-							}
+											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleSkip);
+										}
+										list.get(i-1).getReponses().remove(j);
+										j--;
+							
+				 					}
+								
+							
+							
 							
 						
 					}
 					if(disqu){
-					
-						shs.get(shPage).getRow(i).getCell(0).setCellStyle(styleDisqu);
+						if(aerDisqu){
+							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleAer);
+						}else {
+							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleDisqu);
+						}
+					}
+					list.remove(i-1);
+					i--;
+				}
+				if(books.getNumberOfSheets()>1){
+					for(int i = 1; i < books.getNumberOfSheets();i++){
+						for(int j = 1 ; j <= books.getSheetAt(i).getLastRowNum();j++){
+							books.getSheetAt(i).getRow(j).createCell(0);
+							books.getSheetAt(i).getRow(j).getCell(0).setCellValue(list.get(j-1).getReponses().get(0).reponseNumeric);
+						}
 					}
 				}
 				int fileNumber =0;
 				boolean isWrite = false;
-				File f2 = file;
+				
 				String temp = file.getAbsolutePath();
 				temp = temp.split("base qualif")[0] + fileNumber + " base qualif" + temp.split("base qualif")[1];
 				f2= new File(temp);
@@ -265,20 +428,19 @@ public class ReadExcel {
 					}
 				}while(!isWrite);
 				
-				FileOutputStream writer = new FileOutputStream(f2);
-				POIXMLProperties xmlProps = books.getProperties();    
-				POIXMLProperties.CoreProperties coreProps =  xmlProps.getCoreProperties();
-				coreProps.setCreator("A+A");
+				FileOutputStream writer = new FileOutputStream(file);
+
 				books.write(writer);
 				books.close();
-				sem.release();
+				System.out.println("Sem release " + file.getPath());
+				//sem.release();
 				return true;
-			} catch (InterruptedException e) {
+			/*} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("passage catch ");
 				return false;
-			} 
+			} */
 	}
 	
 	

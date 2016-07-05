@@ -12,12 +12,14 @@ public class SpecificCondition {
 	boolean isValue;
 	boolean treated;
 	boolean satisfied;
+	boolean empty;
 	int indice;
 	boolean inLoop;
 	String link;
 	List<ValidationBoucle> loop;
 	List<Reponse> answers;
 	public SpecificCondition (String condition, int i ,boolean b,int begin){
+		empty=false;
 		satisfied=false;
 		beginBraket=begin;
 		loop=new ArrayList<ValidationBoucle>();
@@ -38,12 +40,25 @@ public class SpecificCondition {
 					link = condition.split(" ")[0];
 					condition = condition.split(" ")[1];
 				}
+				if(link.contains("_")){
+					if(link.split("_").length==2){
+						condition += "_" + link.split("_")[1];
+					}else if (link.split("_").length==3){
+						String tag = "_" + link.split("_")[1]+"_"+link.split("_")[2];
+						condition += tag;
+						link = link.replaceAll(tag, "");
+						
+					}
+				}
+			}
+			if(link!=null){
+				link = link.replaceAll(" ", "");
 			}
 			if(condition.contains("VALUE")){
 				isValue=true;
 			}
 			if(!condition.isEmpty()){
-				c=new Condition(condition);
+				c=new Condition(condition,true);
 			}
 		}else {
 			link = condition;

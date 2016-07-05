@@ -23,7 +23,7 @@ import javax.swing.JMenuItem;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.store.Path;
-
+import ErrorLog.Error;
 import Configuration.Configuration;
 import baseLibelle.ExportLibeleBase;
 import baseLibelle.ImportTxt;
@@ -69,7 +69,12 @@ public class MainView {
 		btnBaseLibele.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		btnBaseLibele.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				basesLibeler();
+				try {
+					basesLibeler();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		JButton btnQualificationetudes = new JButton("Qualification Etudes");
@@ -85,7 +90,13 @@ public class MainView {
 						sPath = Configuration.getConf(0);
 						  Calendar cal = Calendar.getInstance();
 					 	  int month = cal.get(Calendar.MONTH)+1;
-					 	  String sDate = ""+cal.get(Calendar.DAY_OF_MONTH)+"." + month +"."+ cal.get(Calendar.YEAR);
+					 	 String sMonth ="";
+					 	  if(month<10){
+					 		  sMonth = "0"+String.valueOf(month);
+					 	  } else {
+					 		 sMonth = String.valueOf(month);
+					 	  }
+					 	  String sDate = ""+cal.get(Calendar.DAY_OF_MONTH)+"." + sMonth +"."+ cal.get(Calendar.YEAR);
 						sPath+="\\"+sDate+"\\";
 						if(!Files.isDirectory(Paths.get(sPath), LinkOption.NOFOLLOW_LINKS)){
 							File folder = new File(sPath);
@@ -98,15 +109,28 @@ public class MainView {
 							Stop_Chrono();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							Error errr = new Error(e.getMessage());
+							errr.printError();
 						}
 						m.setVisible(false);
 					} catch (InvalidFormatException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Error er = new Error(e.getMessage());
+						try {
+							er.printError();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Error er = new Error(e.getMessage());
+						try {
+							er.printError();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				}
 			});
@@ -114,7 +138,14 @@ public class MainView {
 			JButton btnCrerMasters = new JButton("Cr\u00E9er masters");
 			btnCrerMasters.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					createMaster();
+					try {
+						createMaster();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
 				}
 			});
 			 
@@ -156,20 +187,26 @@ public class MainView {
 					confOption.setVisible(true);		
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error er = new Error(e.getMessage()); try {
+						er.printError();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 	}
 	
-	private void basesLibeler(){
+	private void basesLibeler() throws IOException{
 		List<String> paths = new ArrayList<String>();
 		try {
 			paths = Configuration.importConfig();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Error er = new Error(e1.getMessage());
+			er.printError();
 		}
 		Filter printStudyFilter = new Filter ();
     	File[] printStudys = printStudyFilter.finder(paths.get(2),".txt");
@@ -186,7 +223,7 @@ public class MainView {
     					sawtoothList =ImportTxt.getSawtoothList(printStudys[j]);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Error er = new Error(e.getMessage()); er.printError();
 					}
     				canPass = true;
     			}
@@ -196,7 +233,8 @@ public class MainView {
 					ExportLibeleBase.exportBaseWithLibelle(sawtoothList,bases[i]);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error er = new Error(e.getMessage());
+					er.printError();
 				}  
     		}
     	}
@@ -229,6 +267,7 @@ public class MainView {
     		for(int j = 0 ; j < listBdd.get(i).getLangues().size();j++){
     			list.get(listIndice).setEtudeName(listBdd.get(i).getBase()+listBdd.get(i).getLangues().get(j));
     			list.get(listIndice).setBaseAndLanguage(listBdd.get(i).getLangues().get(j), listBdd.get(i).getBase());
+    			list.get(listIndice).setServeur(listBdd.get(i).getServeur());
     			listIndice++;
     		}
     	}
@@ -291,14 +330,14 @@ public class MainView {
 			}
 		}while(list.size()!=0);
 	}
-	private void createMaster(){
+	private void createMaster() throws IOException{
 		Filter printStudyFilter = new Filter ();
 		File[] printStudys=null;
     	try {
 			printStudys = printStudyFilter.finder(Configuration.getConf(2),".txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Error er = new Error(e.getMessage()); er.printError();
 		}
 		List<String> exportMaster = new ArrayList<String>();
 		for(int i = 0 ; i < printStudys.length;i++){
@@ -306,11 +345,12 @@ public class MainView {
 				exportMaster= ImportTxt.getQuestionList(printStudys[i]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Error er = new Error(e.getMessage()); er.printError();
 			}
 			String temp =printStudys[i].getName();
-			temp = temp.replaceAll("[^\\d.]", "");
-			temp =temp.replaceAll("\\.","");
+			temp=temp.replaceAll("Print","");
+			temp=temp.replaceAll(".txt","");
+			temp= temp.replaceAll("[^\\d.]", "");
 			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,"E"+temp+"-");
 		}
 	}

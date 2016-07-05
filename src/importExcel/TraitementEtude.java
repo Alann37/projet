@@ -2,16 +2,15 @@ package importExcel;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Paths;
+
 import java.util.ArrayList;
-import java.util.Calendar;
+import ErrorLog.Error;
 import java.util.List;
 
-import javax.swing.plaf.synth.SynthSpinnerUI;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import Configuration.Configuration;
+import ErrorLog.Error;
 import importMSQLServer.ConnectURL;
 public class TraitementEtude extends Thread {
 	private String etudeName;
@@ -21,6 +20,13 @@ public class TraitementEtude extends Thread {
 	private boolean onTreatment;
 	private boolean haveBeenWrite;
 	private String language ;
+	private String serveur;
+	public String getServeur() {
+		return serveur;
+	}
+	public void setServeur(String serveur) {
+		this.serveur = serveur;
+	}
 	private String base;
 	public void setBaseAndLanguage(String l, String b){
 		language=l;
@@ -40,16 +46,17 @@ public class TraitementEtude extends Thread {
 	}
 	@Override
 	public void run(){
-
+		System.out.println("début de "+etudeName);
 		ConnectURL connectionWithDB = new ConnectURL();
 		try {
-			etudes = connectionWithDB.importDatabase(base, language);
+			etudes = connectionWithDB.importDatabase(base, language,serveur);
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+		System.out.println("xfin import bdd pour "+ etudeName);
 		onTreatment=true;
-		System.out.println("début de "+etudeName);
+		
 		
 		checkEtude();
 		System.out.println("isTreated " + etudeName);
@@ -62,15 +69,36 @@ public class TraitementEtude extends Thread {
 				f2 = new File(sPath+this.getEtudeName()+" base qualif.xlsx");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+				Error er = new Error(e1.getMessage());
 				try {
-					if(f2!=null){
-						this.setHaveBeenWrite(ReadExcel.exportBaseExcel(f2,this.getEtudes()));
-					}
+					er.printError();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+			}
+				try {
+					if(f2!=null){
+						this.setHaveBeenWrite(ReadExcel.exportBaseExcel(f2,this));
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Error er = new Error(e.getMessage());
+					try {
+						er.printError();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				} catch (InvalidFormatException e) {
+					// TODO Auto-generated catch block
+					Error er = new Error(e.getMessage());
+					try {
+						er.printError();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 
 		} while(!this.haveBeenWrite);
@@ -118,7 +146,6 @@ public class TraitementEtude extends Thread {
 			TraitementEntrer temp = etudes.get(i);
 			if(questions.size()>0){
 				temp.setQuestionName(questions);
-				
 				for(int j = 0 ; j < temp.getReponses().size();j++){
 					Reponse rTemp = temp.getReponses().get(j);
 					if(rTemp.questionName!=null){
@@ -131,21 +158,18 @@ public class TraitementEtude extends Thread {
 						}
 					}
 				}
+			
 				QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
-			
 					//System.out.println("originalQuestion "+ questions.get(t).name + " with replace "+questions.get(t).questionNumber);
 						QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
 						if(!returnQuest.validate){
 							temp.setDisqualif(true);
 							//numberFail++;
 							temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
-							
 						}
 						skipTo = returnQuest;
-					
-				
 				} 
 				for(int o = 0 ; o <questions.size() ; o ++){
 					questions.get(o).reponses.clear();
@@ -155,24 +179,32 @@ public class TraitementEtude extends Thread {
 						temp.addNotToBe(temp.getReponses().get(p).questionTag);
 					}
 				}
-				if(i==2){
+				if(i==18){
 					System.out.println();
 				}
 				skipTo.setSpecific();
 				for(int m = 0 ; m < skipTo.specificC.size();m++){
-
 					for(int n = 0 ; n < skipTo.specificC.get(m).conditions.size();n++){
 						skipTo.specificC.get(m).conditions.get(n).answers.clear();
 						skipTo.specificC.get(m).conditions.get(n).loop.clear();
 						skipTo.specificC.get(m).conditions.get(n).inLoop=false;
-						
-						
 					}
-				
 				}
 				this.etudes.set(i, temp);
 			}
 		}		
+	}
+	public String getLanguage() {
+		return language;
+	}
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+	public String getBase() {
+		return base;
+	}
+	public void setBase(String base) {
+		this.base = base;
 	}
 	public boolean isOnTreatment(){
 		return onTreatment;
@@ -187,6 +219,9 @@ public class TraitementEtude extends Thread {
 		isTreated=false;
 		questions= new ArrayList<Question>();
 		etudes= new ArrayList<TraitementEntrer>();
+		serveur = "";
+		language="";
+		base="";
 		
 	}
 	public boolean isHaveBeenWrite() {

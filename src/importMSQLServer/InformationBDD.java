@@ -5,6 +5,13 @@ import java.util.List;
 
 public class InformationBDD {
 	private String base;
+	private String serveur;
+	public String getServeur() {
+		return serveur;
+	}
+	public void setServeur(String serveur) {
+		this.serveur = serveur;
+	}
 	private List<String>langues;
 	public InformationBDD(String base) {
 		this.base = base;

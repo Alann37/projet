@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
-
+import ErrorLog.Error;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -120,7 +120,7 @@ public class ExportLibeleBase {
 	}
 
 
-	public static void setMasterWithPrintStudy(List<String> list,String name){
+	public static void setMasterWithPrintStudy(List<String> list,String name) throws IOException{
 		File master = new File("Word Master.docx");
 		XWPFDocument doc;
 	
@@ -128,21 +128,44 @@ public class ExportLibeleBase {
 			FileInputStream in = new FileInputStream(master);
 			doc = new XWPFDocument(in);
 			XWPFParagraph temp;
-			for(int i = 0 ; i < list.size(); i ++){
+			XWPFParagraph temp2;
+			XWPFParagraph temp3;
+			int count = 0;
+			for(int i = 0 ; i < list.size(); i++){
+				
 				temp = null;
-			
 					doc.createParagraph();
 					temp = doc.getLastParagraph();
 					temp.createRun();
-					changeText(temp,list.get(i));
+					changeText(temp,list.get(i),false);
 					temp.setStyle("QuestionName");
 				if(temp!=null){
-					doc.setParagraph(temp, (i));
+					doc.setParagraph(temp, count);
 				}
+					count ++;
+					doc.createParagraph();
+					temp2 = doc.getLastParagraph();
+					temp2.createRun();
+					
+					changeText(temp2,"is disqualified if : ",true);
+					if(temp2!=null){
+						doc.setParagraph(temp2,count);
+					}
+					count++;
+					doc.createParagraph();
+					temp3 = doc.getLastParagraph();
+					temp3.createRun();
+					temp3.setStyle("QuestionInformation");
+					changeText(temp3," ",false);
+					if(temp3!=null){
+						doc.setParagraph(temp3, count);
+					}
+					count++;
 			}
+			
 			temp = doc.getLastParagraph();
 			temp.createRun();
-			changeText(temp,"");
+			changeText(temp,"",true);
 			temp.setStyle("QuestionName");
 		if(temp!=null){
 			doc.setParagraph(temp, list.size());
@@ -152,17 +175,22 @@ public class ExportLibeleBase {
 			doc.write(f);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Error er = new Error(e.getMessage());
+			er.printError();
 		}
 		
 	}
-	public static void changeText(XWPFParagraph p, String newText) {
+	public static void changeText(XWPFParagraph p, String newText,boolean b) {
 		   List<XWPFRun> runs = p.getRuns();
+		  
 		   for(int i = runs.size() - 1; i > 0; i--) {
 		      p.removeRun(i);
 		   }
 		   if(runs.size()>0){
 		   XWPFRun run = runs.get(0);
+		   
+		   run.setItalic(b);
+		   
 		   run.setText(newText, 0);
 		   }
 		}

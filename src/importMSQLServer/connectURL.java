@@ -11,9 +11,65 @@ import importExcel.TraitementEntrer;
 
 public class ConnectURL {
 	public ConnectURL(){
-		
+		decalage = 0;
 	}
-	private List<TraitementEntrer> doQuery(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list) throws ParseException{
+	private int decalage;
+	public List<String> getColumnLabel(String database,String langue,String serveur) throws IOException{
+		List<String> lRet = new ArrayList<String>();
+		String connectionUrl = "jdbc:sqlserver://"+serveur+";"
+				+"databaseName="+database;
+		String user = Configuration.getConf(4);
+		String passwd=Configuration.getConf(5);
+		Connection con=null;
+		Statement stmt = null;
+		List<TableImport> tablesImport = new ArrayList<TableImport>();
+		ResultSet rs = null;
+		 try {
+			con = DriverManager.getConnection(connectionUrl,user,passwd);
+			 DatabaseMetaData dbm = con.getMetaData();
+	         ResultSet tables = dbm.getTables(null, null,langue+"_data%",null);
+	         //récupération des tables
+	         while (tables.next()) {
+	         	tablesImport.add(new TableImport(tables.getString(3)));
+	         }
+	         // tri des tables 
+	         TableImport temp ;
+	         for(int i = 0; i < tablesImport.size(); i ++){
+	         	for(int j = i ; j < tablesImport.size();j++){
+	         		if(tablesImport.get(i).number>tablesImport.get(j).number){
+	         			temp = tablesImport.get(i);
+	         			tablesImport.set(i, tablesImport.get(j));
+	         			tablesImport.set(j, temp);
+	         		}
+	         	}
+	         }
+	         String query = "";
+	         boolean firstPassage= true;
+	         for(int i = 0 ; i < tablesImport.size(); i++){
+	            	query = "SELECT * FROM "+ tablesImport.get(i).name;
+	            	stmt = con.createStatement();
+	            	rs = stmt.executeQuery(query);
+	          		for(int j = 1; j <= rs.getMetaData().getColumnCount();j++){
+	          			if(firstPassage){
+	          				lRet.add(rs.getMetaData().getColumnLabel(j));
+	          				firstPassage= false;
+	          			}
+	          			if(j>1){
+	          				lRet.add(rs.getMetaData().getColumnLabel(j));
+	          			}
+            		}
+	            	
+	            	
+	            }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}          
+		
+		return lRet;
+	}
+	
+	private List<TraitementEntrer> doQuery(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list,int passage) throws ParseException{
 		boolean firstPassage= false;
 		if(list.size()==0){
 			firstPassage = true;
@@ -23,6 +79,7 @@ public class ConnectURL {
 			  rs = stmt.executeQuery(query);
 	
 			  int i=0;
+			
 			  while(rs.next()){
 				  	 if(firstPassage){
 				  		 list.add(new TraitementEntrer());
@@ -39,25 +96,37 @@ public class ConnectURL {
 	        		   }else {
 	        			   type = 2;
 	        		   }
-	  	        			   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i)));
-	        		   //}
+	        	
+	        		   if(rs.getString(i)==null){
+	        			 //  System.out.println("passage pour la colonne "+rs.getMetaData().getColumnLabel(i) + " type = " + rs.getMetaData().getColumnType(i));
+	        		   }else {
+	        			   
+	        			   int columnCount = ((passage*201) + i)-(1+passage+decalage);
+	        			   //System.out.println("valeur de i = "+ i + "valeur de column = " + columnCount + " et columnLabel = " + rs.getMetaData().getColumnLabel(i));
+
+	        			   //System.out.println("column = " + columnCount);
+	        			   list.get(rs.getRow()-1).getReponses().add(new Reponse(rs.getString(i),type,rs.getMetaData().getColumnLabel(i),columnCount));
+	        		   }
 	        		
         		   }
-	        	   
+	        	 
 	           }
-
+			  if(rs.getMetaData().getColumnCount() != 201){
+				  decalage = decalage + ( 201 -rs.getMetaData().getColumnCount() );
+			  }
+			  
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+          
          return list;
 
         }
 	
-	public  List<TraitementEntrer>  importDatabase(String database,String langue) throws IOException{
-		String connectionUrl = "jdbc:sqlserver://91.232.41.147;"
-					+"databaseName="+database;
+	public  List<TraitementEntrer>  importDatabase(String database,String langue,String serveur) throws IOException{
+		String connectionUrl = "jdbc:sqlserver://"+serveur+";"
+				+"databaseName="+database;
 		String user = Configuration.getConf(4);
 		String passwd=Configuration.getConf(5);
 		Connection con=null;
@@ -89,7 +158,7 @@ public class ConnectURL {
             
             for(int i = 0 ; i < tablesImport.size(); i++){
             	query = "SELECT * FROM "+ tablesImport.get(i).name;
-            	listTraitement=doQuery(stmt, rs, con, query,listTraitement);
+            	listTraitement=doQuery(stmt, rs, con, query,listTraitement,i);
             }
            
          }
@@ -103,7 +172,9 @@ public class ConnectURL {
             if (con != null) try { con.close(); } catch(Exception e) {}
            
          }
-
+       /* for(int i = 0 ; i < listTraitement.get(1).getReponses().size();i++){
+        	System.out.println(listTraitement.get(1).getReponses().get(i).getColumnPosition() + " et question = "+listTraitement.get(1).getReponses().get(i).getQuestionTag() );
+        }*/
         return listTraitement;
 	}
 }

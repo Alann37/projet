@@ -32,7 +32,9 @@ public class AndCondition {
 		firstPart=val;
 		loopPart ="";
 		firstAnswer=a;
-
+		if(firstAnswer.questionTag.contains(".")){
+			loopPart = firstAnswer.questionTag.split("\\.")[1];
+		}
 		qName = secondPart.link;
 
 

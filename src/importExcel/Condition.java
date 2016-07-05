@@ -15,8 +15,13 @@ public class Condition {
 	boolean isNa;
 	boolean isDate;
 	boolean withBraket;
+	boolean isCheckedCondition;
+	boolean infSup; //true si inf false si sup
+	boolean bEq;
+	boolean isAer;
 	List<SpecificCondition> subCondition;
 	
+	double checked;
 	double min;
 	double max;
 	double inf;
@@ -25,9 +30,10 @@ public class Condition {
 	double neq;
 	double constSumRes;
 	
-	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox
+	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox 9 nb Item Check 10 item uncheck
 	int[] type;
 	int[] checkbox;
+	int[] uncheck;
 	int conditionSens; // 0 colonne 1 row
 	
 	String tag;
@@ -39,12 +45,99 @@ public class Condition {
 	
 	
 	public Condition(String condition){
+		if(condition.contains("AER")){
+			isAer=true;
+			condition = condition.replaceAll("AER", "");
+		} else {
+			isAer = false;
+		}
 		countryTag="";
+		isCheckedCondition=false;
 		if(condition.contains("(")){
 			braket(condition);
 		}else {
 			isNa=false;
 			withBraket=false;
+			multiple = false;
+			notEmptyCondition=false;
+			associateCondition="";
+			if(condition.contains("answerC")){
+				conditionSens=0;
+				condition = condition.replace("answerC", "");
+				notEmptyCondition=true;
+			}
+			if(condition.contains("answerR")){
+				conditionSens=1;
+				notEmptyCondition=true;
+				condition = condition.replace("answerR", "");
+			}
+			if(condition.contains("AND") ||condition.contains("OR")){
+				if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
+					String temp = condition.split("OR")[0];
+					andorOr=false;
+					associateCondition=condition.replaceAll(temp+"OR", "");
+					condition = temp;	
+				} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
+					String temp = condition.split("AND")[0];
+					andorOr=true;
+					associateCondition=condition.replaceAll(temp+"AND", "");
+					condition = temp;	
+				}
+				
+			}
+			if(condition.contains("NA")){
+				condition= condition.replaceAll(" ","");
+				condition = condition.replaceAll("NA", "");
+				eq = Double.parseDouble(condition);
+				isNa = true;
+				tag ="";
+				countryTag="";
+				questionSkipTo="";
+				type = new int[0];
+			}else {
+			if(condition.contains("then")){
+				questionSkip = condition.split("then")[1];
+				condition = condition.split("then")[0];
+				multiple = true;
+			}
+			String newConditionMulti="";
+				if(condition.contains("&"))
+				{
+					if(condition.split("&").length!=0)
+					{
+						type=new int [condition.split("&").length];
+						for(int lg=0; lg!= condition.split("&").length; lg++)
+						{
+							newConditionMulti=condition.split("&")[lg];
+							traitement(newConditionMulti, lg);
+						}
+					}
+				}else{
+					type=new int [1];
+					traitement(condition, 0);
+				}
+			}
+		}
+	}
+	
+	public Condition(String condition, boolean braket){
+		if(condition.contains("AER")){
+			isAer=true;
+			condition = condition.replaceAll("AER", "");
+			if(condition.endsWith(" ")){
+				condition = condition.replace(" ", "");
+			}
+		} else {
+			isAer = false;
+		}
+		withBraket=braket;
+		countryTag="";
+		isCheckedCondition=false;
+		if(condition.contains("(")){
+			braket(condition);
+		}else {
+			isNa=false;
+			
 			multiple = false;
 			notEmptyCondition=false;
 			associateCondition="";
@@ -149,16 +242,21 @@ public class Condition {
 				link = null;
 				if(!temp.isEmpty()){
 					
+					String aer ="";
+					if(isAer){
+						aer="AER";
+					}
+					subCondition.add(new SpecificCondition(temp.split("\\)")[0]+aer,inBr,false,beginBraket));
 					
-					
-					subCondition.add(new SpecificCondition(temp.split("\\)")[0],inBr,false,beginBraket));
 					if(temp.contains(")")){
 						inBr--;
 						if(temp.split("\\)").length==2){
 							if(!temp.split("\\)")[1].isEmpty()){
 								link = temp.split("\\)")[1];
-								subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
-								
+								link = link.replaceAll(" ","");
+								if(!link.isEmpty()){
+									subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
+								}
 							}
 						}else if(temp.split("\\)").length>2){
 					
@@ -230,14 +328,14 @@ public class Condition {
 			for(int i = 0 ; i < subCondition.size();i++){
 				System.out.println("Braket Place : " + subCondition.get(i).braketPlace + " link " + subCondition.get(i).link+ " beginBraket "+subCondition.get(i).beginBraket + " endBraket "+subCondition.get(i).endBraket);
 			}
-			nbr++;
+			System.out.println("<<<<< END CONDITION >>>>>");
 		}
 	}
 	
 	public void traitement(String condition,int indice){
 		String newCondition = "";
 		boolean init=false;
-		
+		bEq=false;
 		isDate=false;
 		questionValue = false;
 		isCheckBox=false;
@@ -260,6 +358,7 @@ public class Condition {
 				tag = "_"+condition.split("_")[1];
 				tag+="_"+condition.split("_")[2];
 				condition = condition.replaceAll(tag,"");
+				tag = tag.replaceAll(" ", "");
 				}
 
 		}else{
@@ -293,6 +392,35 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				inf = Double.parseDouble(newCondition);
 				type[indice]=1;
+			}else if (preGoTo.contains("CHECKED") && !preGoTo.contains("UNCHECKED")){
+				isCheckedCondition=true;
+				newCondition = preGoTo.replaceAll("CHECKED","");
+				if(newCondition.contains("+")){
+					newCondition = newCondition.replaceAll("+", "");
+					infSup=false;
+				}else if (newCondition.contains("=")){
+					bEq=true;
+					newCondition = newCondition.replaceAll("=", "");
+				}
+				else {
+					newCondition = newCondition.replaceAll("-", "");
+					infSup=true;
+				}
+				type[indice] = 9;
+				newCondition = preGoTo.replaceAll("[^\\d.]", "");
+				checked=Double.parseDouble(newCondition);
+			}else if (preGoTo.contains("UNCHECKED")){
+				type[indice]=10;
+				preGoTo = preGoTo.replaceAll("UNCHECKED","");
+				String [] possibility = preGoTo.split(",");
+				uncheck = new int[possibility.length];
+				for(int i = 0 ; i < possibility.length; i++){
+					possibility[i] = possibility[i].replaceAll(" ", "");
+					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+					if(!possibility[i].isEmpty()){
+						uncheck[i] = Integer.valueOf(possibility[i]);		
+					}
+				}
 			}else if(preGoTo.contains("EQ") && !preGoTo.contains("NEQ")){
 				type[indice] = 2;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
@@ -303,7 +431,7 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
 				neq = Double.valueOf(newCondition);
-			} else if(preGoTo.contains(",") && !preGoTo.contains("#")){
+			} else if(preGoTo.contains(",") && !preGoTo.contains("#") && !preGoTo.contains("UNCHECKED")){
 				type[indice] = 4;
 				String [] possibility = preGoTo.split(",");
 				checkbox = new int[possibility.length];
@@ -360,7 +488,34 @@ public class Condition {
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
 				eq = Double.valueOf(newCondition);
-			} else if(condition.contains("NEQ")){
+			} else if (condition.contains("CHECKED") && !condition.contains("UNCHECKED")){
+				isCheckedCondition=true;
+				type[indice] = 9;
+				newCondition = condition.replaceAll("CHECKED", "");
+				if(newCondition.contains("+")){
+					newCondition = newCondition.replaceAll("\\+", "");
+					infSup=false;
+				}else if (newCondition.contains("=")){
+					bEq=true;
+					newCondition = newCondition.replaceAll("=", "");
+				}else {
+					newCondition = newCondition.replaceAll("\\-", "");
+					infSup=true;
+				}
+				checked=Double.parseDouble(newCondition);
+			}else if(condition.contains(",")&& condition.contains("UNCHECKED")){
+				type[indice] = 10;
+				condition = condition.replaceAll("UNCHECKED","");
+				String [] possibility = condition.split(",");
+				uncheck = new int[possibility.length];
+				for(int i = 0 ; i < possibility.length; i++){
+					possibility[i] = possibility[i].replaceAll(" ", "");
+					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+					if(!possibility[i].isEmpty()){
+						uncheck[i] = Integer.valueOf(possibility[i]);		
+					}
+				}
+			}else if(condition.contains("NEQ")){
 				type[indice] = 3;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("=/=","");
@@ -393,7 +548,9 @@ public class Condition {
 				for(int i = 0 ; i < possibility.length; i++){
 					possibility[i] = possibility[i].replaceAll(" ", "");
 					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					checkbox[i] = Integer.valueOf(possibility[i]);					
+					if(!possibility[i].isEmpty()){
+						checkbox[i] = Integer.valueOf(possibility[i]);		
+					}
 				}
 			}else if(condition.contains("MIN") && !condition.contains("date")){
 				type[indice] = 5;

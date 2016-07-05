@@ -19,10 +19,16 @@ public class Reponse {
 	Calendar reponseDate;
 	boolean disqualif;
 	boolean shouldBeEmpty;
+	boolean isAerDisq;
 	boolean isEmpty;
 	int reponseType;
 	boolean isSetOnQuestion;
+	int columnPosition;
+	public int getColumnPosition(){
+		return columnPosition;
+	}
 	public Reponse (Reponse r){
+		isAerDisq=r.isAerDisq;
 		reponseTexte = r.reponseTexte;
 		reponseNumeric= r.reponseNumeric;
 		cellPosition=r.cellPosition;
@@ -36,6 +42,7 @@ public class Reponse {
 		isSetOnQuestion= r.isSetOnQuestion;
 	}
 	public Reponse (){
+		isAerDisq=false;
 		shouldBeEmpty=false;
 		questionName="";
 		reponseTexte="";
@@ -111,7 +118,8 @@ public class Reponse {
 	public void setEmpty(boolean isEmpty) {
 		this.isEmpty = isEmpty;
 	}
-	public Reponse(String answer,int type , String questionLabel) throws ParseException{
+	public Reponse(String answer,int type , String questionLabel,int place) throws ParseException{
+		columnPosition=place;
 		disqualif = false;
 		questionTag= questionLabel;
 		reponseDate= null;

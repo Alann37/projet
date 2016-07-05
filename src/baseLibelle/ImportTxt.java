@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.Position;
+
 public class ImportTxt {
 	public static List<SawtoothList> getSawtoothList(File file) throws IOException{
 		boolean fillList = false;
@@ -166,6 +168,51 @@ public class ImportTxt {
 		return allList;
 	}
 
+	public static StudyQuotas getQuota(File file) throws IOException{
+		boolean onFill=false;
+		String questionName="";
+		String previous="";
+		StudyQuotas quotas = new StudyQuotas(file.getName());
+		
+		for(String line : Files.readAllLines(file.toPath())){
+			if(line.contains("PAGE BREAK")){
+				onFill = false;
+			}
+			if(line.contains("Question Name:")){
+				questionName = line;
+				questionName = questionName.replaceAll("Question Name:", "");
+			}
+			if(line.contains("Type: Quota")){
+				if(questionName.startsWith(" ")){
+					questionName = questionName.substring(1);
+				}
+				quotas.quotas.add(new InfoQuota(questionName));
+				onFill=true;
+			}
+			if(onFill && line.contains("[")){
+				previous=line;
+			}
+			if(quotas.quotas.size()>0){
+				if(line.contains("Limit") && onFill){
+					String temp = line;
+					temp = temp.replaceAll("[^\\d.]", "");
+					quotas.quotas.get(quotas.quotas.size()-1).posibility.get(quotas.quotas.get(quotas.quotas.size()-1).posibility.size()-1).setLimite(Integer.parseInt(temp));
+				}
+				if(line.contains("Value") && onFill){
+					
+					String temp = line;
+					temp = temp.replaceAll("[^\\d.]", "");
+					previous = previous.replaceAll("\\[", "");
+					previous = previous.replaceAll("\\]", "");
+					quotas.quotas.get(quotas.quotas.size()-1).posibility.add(new PartOfQuota(Integer.parseInt(temp)));
+					quotas.quotas.get(quotas.quotas.size()-1).posibility.get(quotas.quotas.get(quotas.quotas.size()-1).posibility.size()-1).setName(previous);
+						
+				}
+			}
+			
+		}
+		return quotas;
+	}
 	public static List<String> getQuestionList(File file) throws IOException {
 		List<String> lRet = new ArrayList<String>();
 		boolean onFill=false;;
@@ -175,7 +222,7 @@ public class ImportTxt {
 				onFill=true;
 			}
 			if(onFill && !line.isEmpty()){
-				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link") && !line.contains("Quota")){
+				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link")  && !line.contains("(CBC ")){
 					line = line.split("\\(")[0] ;
 					line = line.replaceAll(" ", "");
 					lRet.add(line);
