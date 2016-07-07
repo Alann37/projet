@@ -411,6 +411,7 @@ public class Condition {
 				checked=Double.parseDouble(newCondition);
 			}else if (preGoTo.contains("UNCHECKED")){
 				type[indice]=10;
+				isCheckedCondition=true;
 				preGoTo = preGoTo.replaceAll("UNCHECKED","");
 				String [] possibility = preGoTo.split(",");
 				uncheck = new int[possibility.length];
@@ -505,6 +506,7 @@ public class Condition {
 				checked=Double.parseDouble(newCondition);
 			}else if(condition.contains(",")&& condition.contains("UNCHECKED")){
 				type[indice] = 10;
+				isCheckedCondition=true;
 				condition = condition.replaceAll("UNCHECKED","");
 				String [] possibility = condition.split(",");
 				uncheck = new int[possibility.length];

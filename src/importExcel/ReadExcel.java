@@ -399,6 +399,8 @@ public class ReadExcel {
 							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleDisqu);
 						}
 					}
+					disqu = false;
+					aerDisqu=false;
 					list.remove(i-1);
 					i--;
 				}

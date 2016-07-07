@@ -190,8 +190,7 @@ public class Main {
 		sPath+="\\"+sDate+"\\";
 		if(!Files.isDirectory(Paths.get(sPath), LinkOption.NOFOLLOW_LINKS)){
 			File folder = new File(sPath);
-			folder.mkdir();
-			
+			folder.mkdir();	
 		}
 
 			Configuration.setConfig(1,sPath);
@@ -199,10 +198,10 @@ public class Main {
 		
 			basesQualif();
 	   
-    	System.out.println("fin qualif debut macro vba");
+    /*	System.out.println("fin qualif debut macro vba");
     	ReadExcel.callExcelMacro();
-    	System.out.println("fin");
-    	
+    	System.out.println("fin");*/
+    	// */
     	//exportQuotas();
 			Stop_Chrono();	
 			//exportQuotas();
