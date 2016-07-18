@@ -51,7 +51,7 @@ public class Condition {
 		} else {
 			isAer = false;
 		}
-		countryTag="";
+ 		countryTag="";
 		isCheckedCondition=false;
 		if(condition.contains("(")){
 			braket(condition);
@@ -74,16 +74,15 @@ public class Condition {
 			if(condition.contains("AND") ||condition.contains("OR")){
 				if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
 					String temp = condition.split("OR")[0];
-					andorOr=false;
+					andorOr=true;
 					associateCondition=condition.replaceAll(temp+"OR", "");
 					condition = temp;	
 				} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
 					String temp = condition.split("AND")[0];
-					andorOr=true;
+					andorOr=false;
 					associateCondition=condition.replaceAll(temp+"AND", "");
 					condition = temp;	
 				}
-				
 			}
 			if(condition.contains("NA")){
 				condition= condition.replaceAll(" ","");
@@ -141,6 +140,10 @@ public class Condition {
 			multiple = false;
 			notEmptyCondition=false;
 			associateCondition="";
+			if(condition.contains(":")){
+				countryTag=condition.split(":")[0];
+				countryTag= countryTag.replaceAll(" ", "");
+			}
 			if(condition.contains("answerC")){
 				conditionSens=0;
 				condition = condition.replace("answerC", "");
@@ -154,12 +157,12 @@ public class Condition {
 			if(condition.contains("AND") ||condition.contains("OR")){
 				if(condition.indexOf("AND")>condition.indexOf("OR") && condition.indexOf("OR")!=-1 || condition.indexOf("AND")==-1){
 					String temp = condition.split("OR")[0];
-					andorOr=false;
+					andorOr=true;
 					associateCondition=condition.replaceAll(temp+"OR", "");
 					condition = temp;	
 				} else if (condition.indexOf("AND")<condition.indexOf("OR") && condition.indexOf("AND")!=-1 || condition.indexOf("OR")==-1){
 					String temp = condition.split("AND")[0];
-					andorOr=true;
+					andorOr=false;
 					associateCondition=condition.replaceAll(temp+"AND", "");
 					condition = temp;	
 				}
@@ -292,10 +295,15 @@ public class Condition {
 			}
 			int endBraket=-1;
 			beginBraket=-1;
+			int lastBegin =0;
 			for(int i = 0 ; i < subCondition.size();i++){
 				if(subCondition.get(i).braketPlace==0){
 					if(beginBraket==-1){
 						beginBraket=i;
+						for(int h = lastBegin ; h< beginBraket; h++){
+							subCondition.get(h).endBraket=beginBraket;
+						}
+						lastBegin=beginBraket;
 						endBraket=-1;
 					}else if(endBraket ==-1){
 						endBraket=i;
@@ -312,7 +320,7 @@ public class Condition {
 					if(endBraket>=0){
 						for(int j = endBraket ; j < subCondition.size(); j ++){
 							if(0== subCondition.get(j).endBraket){
-								subCondition.get(j).endBraket=subCondition.size()-1;
+								subCondition.get(j).endBraket=endBraket;
 							}
 						}
 					}else {

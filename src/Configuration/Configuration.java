@@ -48,7 +48,8 @@ public class Configuration {
 		InputStream reader = new FileInputStream(config);
 		XSSFWorkbook books = new XSSFWorkbook(reader);
 		XSSFSheet sh = books.getSheetAt(0);
-		
-		return sh.getRow(0).getCell(pos).getStringCellValue();
+		String sRet = sh.getRow(0).getCell(pos).getStringCellValue();
+		books.close();
+		return sRet;
 	}
 }

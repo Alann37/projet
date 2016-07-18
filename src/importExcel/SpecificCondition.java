@@ -40,14 +40,19 @@ public class SpecificCondition {
 					link = condition.split(" ")[0];
 					condition = condition.split(" ")[1];
 				}
-				if(link.contains("_")){
-					if(link.split("_").length==2){
-						condition += "_" + link.split("_")[1];
-					}else if (link.split("_").length==3){
-						String tag = "_" + link.split("_")[1]+"_"+link.split("_")[2];
-						condition += tag;
-						link = link.replaceAll(tag, "");
-						
+				if(link !=null){
+					if(link.contains("_")){
+						if(link.split("_").length==2){
+							
+							String tag = "_" + link.split("_")[1];
+							condition +=tag;
+							link = link.replaceAll(tag, "");
+						}else if (link.split("_").length==3){
+							String tag = "_" + link.split("_")[1]+"_"+link.split("_")[2];
+							condition += tag;
+							link = link.replaceAll(tag, "");
+							
+						}
 					}
 				}
 			}

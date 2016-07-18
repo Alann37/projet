@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import Configuration.Configuration;
-import ErrorLog.Error;
+
 import importMSQLServer.ConnectURL;
 public class TraitementEtude extends Thread {
 	private String etudeName;
@@ -167,21 +167,13 @@ public class TraitementEtude extends Thread {
 						if(!returnQuest.validate){
 							temp.setDisqualif(true);
 							//numberFail++;
-							temp.setQuestionDisqualif(returnQuest.questionDisqualifs);
 						}
 						skipTo = returnQuest;
 				} 
 				for(int o = 0 ; o <questions.size() ; o ++){
 					questions.get(o).reponses.clear();
 				}
-				for(int p = 0 ; p<temp.getReponses().size();p++){
-					if( temp.getReponses().get(p).shouldBeEmpty){
-						temp.addNotToBe(temp.getReponses().get(p).questionTag);
-					}
-				}
-				if(i==18){
-					System.out.println();
-				}
+	
 				skipTo.setSpecific();
 				for(int m = 0 ; m < skipTo.specificC.size();m++){
 					for(int n = 0 ; n < skipTo.specificC.get(m).conditions.size();n++){

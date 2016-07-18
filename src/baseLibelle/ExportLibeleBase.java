@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import ErrorLog.Error;
-import org.apache.poi.hwpf.usermodel.Paragraph;
+
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -121,7 +121,7 @@ public class ExportLibeleBase {
 
 
 	public static void setMasterWithPrintStudy(List<String> list,String name) throws IOException{
-		File master = new File("Word Master.docx");
+		File master = new File("Word Validation Guide.docx");
 		XWPFDocument doc;
 	
 		try {
@@ -147,7 +147,7 @@ public class ExportLibeleBase {
 					temp2 = doc.getLastParagraph();
 					temp2.createRun();
 					
-					changeText(temp2,"is disqualified if : ",true);
+					changeText(temp2,"errorW if : ",true);
 					if(temp2!=null){
 						doc.setParagraph(temp2,count);
 					}
@@ -161,6 +161,25 @@ public class ExportLibeleBase {
 						doc.setParagraph(temp3, count);
 					}
 					count++;
+					temp = null;
+					doc.createParagraph();
+					temp = doc.getLastParagraph();
+					temp.createRun();
+					changeText(temp, "errorS if :", true);
+					if(temp!=null){
+						doc.setParagraph(temp, count);
+					}
+					count++;
+					temp = null;
+					doc.createParagraph();
+					temp = doc.getLastParagraph();
+					temp.setStyle("statCondition");
+					temp.createRun();
+					changeText(temp," ", false);
+					if(temp!=null){
+						doc.setParagraph(temp, count);
+					}
+					count++;
 			}
 			
 			temp = doc.getLastParagraph();
@@ -170,7 +189,7 @@ public class ExportLibeleBase {
 		if(temp!=null){
 			doc.setParagraph(temp, list.size());
 		}
-			File out = new File(System.getProperty("user.dir")+"\\MasterPrintStudy\\"+name+".docx");
+			File out = new File(System.getProperty("user.dir")+"\\ValidationGuideBrut\\"+name+".docx");
 			FileOutputStream f = new FileOutputStream(out);
 			doc.write(f);
 		} catch (IOException e) {

@@ -6,24 +6,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
-import java.text.ParseException;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import ErrorLog.Error;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import Configuration.Configuration;
+import ErrorLog.Error;
 import Graphic.MainView;
-import Graphic.OptionView;
+import baseLibelle.ExportLibeleBase;
 import baseLibelle.ImportTxt;
 import baseLibelle.StudyQuotas;
 import importExcel.Filter;
 import importExcel.ReadExcel;
-import importExcel.TraitementEntrer;
+
 import importExcel.TraitementEtude;
 import importMSQLServer.InformationBDD;
-import importMSQLServer.ConnectURL;
+
 
 public class Main {
 	private static long chrono;
@@ -61,7 +62,7 @@ public class Main {
     //	System.out.println("mise en place des masters");
     	Filter filterMaster = new Filter ();
     
-    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\MASTER",".docx");
+    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\ValidationGuide",".docx");
     	for(int i = 0 ; i < list.size();i++){
     		for(int j = 0 ; j < masters.length;j++){
     			if(masters[j].getName().contains("-")){
@@ -109,10 +110,31 @@ public class Main {
 			}
 		}while(list.size()!=0);
 	}
+	public static void createMaster() throws IOException{
+		Filter printStudyFilter = new Filter ();
+		File[] printStudys=null;
+    	
+			printStudys = printStudyFilter.finder(System.getProperty("user.dir")+"\\PrintStudy",".txt");
+		
+		List<String> exportMaster = new ArrayList<String>();
+		for(int i = 0 ; i < printStudys.length;i++){
+			try {
+				exportMaster= ImportTxt.getQuestionList(printStudys[i]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Error er = new Error(e.getMessage()); er.printError();
+			}
+			String temp =printStudys[i].getName();
+			temp=temp.replaceAll("Print","");
+			temp=temp.replaceAll(".txt","");
+			temp= temp.replaceAll("[^\\d.]", "");
+			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,"E"+temp+"-");
+		}
+	}
 	public static void exportQuotas(){
 		try {
 			Filter a = new Filter();
-			File[] printStudys = a.finder(Configuration.getConf(2), ".txt");
+			File[] printStudys = a.finder(System.getProperty("user.dir")+"\\PrintStudy", ".txt");
 			List<StudyQuotas> list = new ArrayList<StudyQuotas>();
 			for(int i =0 ; i < printStudys.length;i++){
 				String temp = printStudys[i].getName();
@@ -149,7 +171,8 @@ public class Main {
 				}
 				
 				fileName = "Quota" + fileName + ".xlsx";
-				File f2 = new File(Configuration.getConf(6)+"\\"+fileName);
+				File f2 = new File(System.getProperty("user.dir")+"\\QuotasBruts\\"+fileName);
+				System.out.println("ecriture de " + f2.getPath());
 				ReadExcel.exportQuota(temp,f2);
 				int  remove = 0;
 				for(int j = i ; j <list.size();j++){
@@ -172,11 +195,12 @@ public class Main {
 	}
     public static void main(String[] args) throws IOException, InvalidFormatException, InterruptedException, PropertyVetoException  {
     	/*MainView m = new MainView();
-    	m.visible(true);*/
+    	m.visible(true);//*/
     	String sPath = "";
     	Go_Chrono();
     
-			sPath = Configuration.getConf(0);
+
+	sPath = Configuration.getConf(0);
 	
 		  Calendar cal = Calendar.getInstance();
 	 	  int month = cal.get(Calendar.MONTH)+1;
@@ -202,8 +226,12 @@ public class Main {
     	ReadExcel.callExcelMacro();
     	System.out.println("fin");*/
     	// */
-    	//exportQuotas();
+    	//exportQuotas();*/
 			Stop_Chrono();	
-			//exportQuotas();
+		/*	exportQuotas();
+			createMaster();
+    	*/
+    	//ReadExcel.callExcelMacro();
+
     }
 }

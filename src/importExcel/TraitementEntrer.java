@@ -5,25 +5,16 @@ import java.util.List;
 
 public class TraitementEntrer {
 	private List<Reponse> reponses;
-	private String numEntrer;
 	private boolean disqualif;
-	private List<String> questionDisqualif;
-	private List<String> notToBeAnswer;
+
 	public TraitementEntrer(){
 		disqualif = false;
-		numEntrer ="";
+
 		reponses = new ArrayList<Reponse>();
-		notToBeAnswer = new ArrayList<String>();
-		questionDisqualif = new ArrayList<String>();
+
 		
 	}
-	public void addNotToBe(String quest){
-		notToBeAnswer.add(quest);
-	}
 
-	public List<String> getNotToBeAnswer(){
-		return notToBeAnswer; 
-	}
 	public List<Reponse> getReponses() {
 		return reponses;
 	}
@@ -32,26 +23,11 @@ public class TraitementEntrer {
 		this.reponses = reponses;
 	}
 
-	public String getNumEntrer() {
-		return numEntrer;
-	}
-	
-	public int[] getDisqualifCell(){
-		int[] iRet = new int[questionDisqualif.size()];
-		int j = 0;
-		if(questionDisqualif.size()>0){
-			for(int i =0 ; i < reponses.size();i++){
-				if(reponses.get(i).disqualif){
-					iRet[j] = reponses.get(i).cellPosition; 
-				}
-			}
-		}
-		return iRet;
-	}
 
-	public void setNumEntrer(String numEntrer) {
-		this.numEntrer = numEntrer;
-	}
+	
+
+
+
 
 	public boolean isDisqualif() {
 		return disqualif;
@@ -61,15 +37,7 @@ public class TraitementEntrer {
 		this.disqualif = disqualif;
 	}
 
-	public List<String> getQuestionDisqualif() {
-		return questionDisqualif;
-	}
 
-	public void setQuestionDisqualif(List<String> questionDisqualif) {
-		for(int i = 0 ; i < questionDisqualif.size();i++){
-			this.questionDisqualif.add(questionDisqualif.get(i));
-		}
-	}
 
 	@Override
 	public String toString() {

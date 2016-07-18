@@ -54,6 +54,7 @@ public class ReadExcel {
 		System.out.println("Temps ecoule = " + temps + " ms") ; 
 		return temps;
 		} 
+
 	static Semaphore sem = new Semaphore(1,true);
 	public static void exportQuota(List<StudyQuotas> listQuotas,File file) throws IOException{
 		XSSFWorkbook books = new XSSFWorkbook();
@@ -135,6 +136,7 @@ public class ReadExcel {
 		ComThread.InitSTA();
 		File file = new File("general_update.xlsm");
 		String macro = "!Module1.test";
+		System.out.println(file.getName());
 		final ActiveXComponent excel = new ActiveXComponent("Excel.Application");
 		try {
 			
@@ -225,13 +227,12 @@ public class ReadExcel {
 
 	public static List<InformationBDD> importListBases() throws InvalidFormatException, IOException{
 	    List<InformationBDD> lRet = new ArrayList<InformationBDD>();
-		File file = new File("Base à importer.xlsx");
+		File file = new File("Import Database.xlsx");
 		XSSFWorkbook books = new XSSFWorkbook(file);
 		XSSFSheet sh = books.getSheetAt(0);
 		Iterator rows = sh.rowIterator();
 	    XSSFRow row;
 	    XSSFCell cell;
-
 		while(rows.hasNext()){
 			   row = (XSSFRow)rows.next();
 			   if(row.getRowNum()>0){
@@ -240,7 +241,7 @@ public class ReadExcel {
 			   		cell = (XSSFCell)cells.next();
 			   		if(cell.getColumnIndex()==0){
 			   			lRet.add(new InformationBDD(cell.getStringCellValue()));
-			   		}else if (cell.getColumnIndex()>2) {
+			   		}else if (cell.getColumnIndex()>3) {
 			   			if(!cell.getStringCellValue().isEmpty()){
 			   				lRet.get(lRet.size()-1).getLangues().add(cell.getStringCellValue());
 			   			}
@@ -264,27 +265,21 @@ public class ReadExcel {
 		int shPage=0;
 		shs.get(0).createRow(0);
 		int cellIndex;
+		cellIndex= 0;
 		for(int i = 0 ; i < s.size();i++){
-			cellIndex=i;
-			if(i%16384==0 && i!=0){
+
+			if(cellIndex%16384==0 && cellIndex!=0){
 				shPage++;
 				shs.add(books.createSheet("Page "+shPage));
 				shs.get(shPage).createRow(0);
 				shs.get(shPage).getRow(0).createCell(0);
 				shs.get(shPage).getRow(0).getCell(0).setCellValue(s.get(0));
-				
-			}
-			if(i>=16384){
-				cellIndex++;
-				cellIndex= cellIndex%16384;
-				if(cellIndex==0){
-					cellIndex++;
-				}
+				cellIndex=1;
 				
 			}
 			shs.get(shPage).getRow(0).createCell(cellIndex);
 			shs.get(shPage).getRow(0).getCell(cellIndex).setCellValue(s.get(i));
-			
+			cellIndex++;
 		}
 		return books;
 	}
@@ -292,8 +287,8 @@ public class ReadExcel {
 		//System.out.println("test acquire for " + file.getName()  + " " +sem.tryAcquire());
 
 				
-			//try {
-				//sem.acquire();
+			try {
+				sem.acquire();
 				System.out.println("sem acquire for "+ file.getName());
 				List<TraitementEntrer> list = study.getEtudes();
 			//	Go_Chrono();
@@ -318,6 +313,15 @@ public class ReadExcel {
 				CellStyle styleDisqu = books.createCellStyle();
 				CellStyle styleSkip = books.createCellStyle();
 				CellStyle styleAer = books.createCellStyle();
+				if(shs.get(0) == null){
+					shs.add(books.createSheet());
+				}
+				if(shs.get(0).getRow(0)==null){
+					shs.get(0).createRow(0);
+				}
+				if(shs.get(0).getRow(0).getCell(0)==null){
+					shs.get(0).getRow(0).createCell(0);
+				}
 				styleDisqu.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
 				styleDisqu.setFillBackgroundColor(IndexedColors.RED.getIndex());
 				styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
@@ -405,10 +409,20 @@ public class ReadExcel {
 					i--;
 				}
 				if(books.getNumberOfSheets()>1){
+					int rowFirstPage =books.getSheetAt(0).getLastRowNum();
 					for(int i = 1; i < books.getNumberOfSheets();i++){
+						if(books.getSheetAt(i).getLastRowNum()<rowFirstPage){
+							for(int j = books.getSheetAt(i).getLastRowNum()+1; j< rowFirstPage;j++){
+								books.getSheetAt(i).createRow(j);
+							}
+						}
 						for(int j = 1 ; j <= books.getSheetAt(i).getLastRowNum();j++){
 							books.getSheetAt(i).getRow(j).createCell(0);
-							books.getSheetAt(i).getRow(j).getCell(0).setCellValue(list.get(j-1).getReponses().get(0).reponseNumeric);
+							if(list.size()>j){
+								if(list.get(j-1).getReponses().size()>0){
+									books.getSheetAt(i).getRow(j).getCell(0).setCellValue(list.get(j-1).getReponses().get(0).reponseNumeric);
+								}
+							}
 						}
 					}
 				}
@@ -435,14 +449,14 @@ public class ReadExcel {
 				books.write(writer);
 				books.close();
 				System.out.println("Sem release " + file.getPath());
-				//sem.release();
+				sem.release();
 				return true;
-			/*} catch (InterruptedException e) {
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("passage catch ");
 				return false;
-			} */
+			} 
 	}
 	
 	

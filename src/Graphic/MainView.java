@@ -274,7 +274,7 @@ public class MainView {
     //	System.out.println("mise en place des masters");
     	Filter filterMaster = new Filter ();
     
-    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\MASTER",".docx");
+    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\ValidationGuide",".docx");
     	for(int i = 0 ; i < list.size();i++){
     		for(int j = 0 ; j < masters.length;j++){
     			if(masters[j].getName().contains("-")){

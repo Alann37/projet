@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.Position;
-
 public class ImportTxt {
 	public static List<SawtoothList> getSawtoothList(File file) throws IOException{
 		boolean fillList = false;
