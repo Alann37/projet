@@ -31,14 +31,15 @@ public class SpecificCondition {
 		isValue=false;
 		braketPlace=i;
 		if(!b){
-			if(condition.contains(" ") && !condition.contains("VALUE")){
+		
+			if(condition.contains(" ")){
 				
 				if(condition.startsWith(" ")){
 					condition = condition.substring(1);
 				}
 				if(condition.split(" ").length>=2){
 					link = condition.split(" ")[0];
-					condition = condition.split(" ")[1];
+					condition = condition.replaceAll(link, "");
 				}
 				if(link !=null){
 					if(link.contains("_")){
@@ -56,6 +57,7 @@ public class SpecificCondition {
 					}
 				}
 			}
+			
 			if(link!=null){
 				link = link.replaceAll(" ", "");
 			}
@@ -63,7 +65,7 @@ public class SpecificCondition {
 				isValue=true;
 			}
 			if(!condition.isEmpty()){
-				c=new Condition(condition,true);
+ 				c=new Condition(condition,true);
 			}
 		}else {
 			link = condition;

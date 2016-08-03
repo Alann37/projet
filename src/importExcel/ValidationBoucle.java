@@ -14,4 +14,8 @@ public class ValidationBoucle {
 		satisfied=b;
 		empty = false;
 	}
+	public ValidationBoucle(String s){
+		loopPart=s;
+		empty=false;
+	}
 }

@@ -48,7 +48,6 @@ public class Main {
     	}
     	for(int i = 0 ; i <size; i ++){
     		list.add(new TraitementEtude());
-    		
     	}
     	int listIndice = 0;
     	for(int i = 0 ; i < listBdd.size();i++){
@@ -56,21 +55,18 @@ public class Main {
     			list.get(listIndice).setEtudeName(listBdd.get(i).getBase()+listBdd.get(i).getLangues().get(j));
     			list.get(listIndice).setBaseAndLanguage(listBdd.get(i).getLangues().get(j), listBdd.get(i).getBase());
     			list.get(listIndice).setServeur(listBdd.get(i).getServeur());
+    			list.get(listIndice).setValidationGuide(listBdd.get(i).getValidationGuideName());
     			listIndice++;
     		}
     	}
     //	System.out.println("mise en place des masters");
-    	Filter filterMaster = new Filter ();
     
-    	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\ValidationGuide",".docx");
+  //  	File[] masters = filterMaster.finder(System.getProperty("user.dir")+"\\ValidationGuide",".docx");
     	for(int i = 0 ; i < list.size();i++){
-    		for(int j = 0 ; j < masters.length;j++){
-    			if(masters[j].getName().contains("-")){
-	    			if(list.get(i).getEtudeName().contains(masters[j].getName().split("-")[0])){
-	    				list.get(i).setQuestion(ReadExcel.importConditionFromWord(masters[j]));
-	    				j=masters.length;
-	    			}
-    			}
+    		if(list.get(i).getValidationGuide()!=null){
+    			File f = new File(System.getProperty("user.dir")+"\\ValidationGuide\\"+list.get(i).getValidationGuide());
+    			list.get(i).setQuestion(ReadExcel.importConditionFromWord(f));
+    			System.out.println("passage pour " + f.getName());
     		}
     	}
 		int threadCount = 0;
@@ -125,9 +121,9 @@ public class Main {
 				Error er = new Error(e.getMessage()); er.printError();
 			}
 			String temp =printStudys[i].getName();
-			temp=temp.replaceAll("Print","");
+		/*	temp=temp.replaceAll("Print","");
 			temp=temp.replaceAll(".txt","");
-			temp= temp.replaceAll("[^\\d.]", "");
+			temp= temp.replaceAll("[^\\d.]", "");*/
 			ExportLibeleBase.setMasterWithPrintStudy(exportMaster,"E"+temp+"-");
 		}
 	}
@@ -194,13 +190,14 @@ public class Main {
 	    
 	}
     public static void main(String[] args) throws IOException, InvalidFormatException, InterruptedException, PropertyVetoException  {
+    	Go_Chrono();
     	/*MainView m = new MainView();
     	m.visible(true);//*/
     	String sPath = "";
-    	Go_Chrono();
+    	
     
-
-	sPath = Configuration.getConf(0);
+    	  	
+    	sPath = Configuration.getConf(0);
 	
 		  Calendar cal = Calendar.getInstance();
 	 	  int month = cal.get(Calendar.MONTH)+1;
@@ -211,27 +208,27 @@ public class Main {
 	 		 sMonth = String.valueOf(month);
 	 	  }
 	 	  String sDate = ""+cal.get(Calendar.DAY_OF_MONTH)+"." + sMonth +"."+ cal.get(Calendar.YEAR);
-		sPath+="\\"+sDate+"\\";
-		if(!Files.isDirectory(Paths.get(sPath), LinkOption.NOFOLLOW_LINKS)){
+	 	  sPath+="\\"+sDate+"\\";			
+	 	  if(!Files.isDirectory(Paths.get(sPath), LinkOption.NOFOLLOW_LINKS)){
 			File folder = new File(sPath);
 			folder.mkdir();	
-		}
+	 	  } 
 
-			Configuration.setConfig(1,sPath);
+	 	  Configuration.setConfig(1,sPath);
 
-		
-			basesQualif();
+				
+		  basesQualif();
 	   
     /*	System.out.println("fin qualif debut macro vba");
     	ReadExcel.callExcelMacro();
     	System.out.println("fin");*/
     	// */
     	//exportQuotas();*/
-			Stop_Chrono();	
-		/*	exportQuotas();
+				
+			//exportQuotas();
 			createMaster();
-    	*/
+			
     	//ReadExcel.callExcelMacro();
-
+			Stop_Chrono();
     }
 }

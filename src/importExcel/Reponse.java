@@ -24,6 +24,8 @@ public class Reponse {
 	int reponseType;
 	boolean isSetOnQuestion;
 	int columnPosition;
+	boolean isValueDisqu;
+	boolean isDate;
 	public int getColumnPosition(){
 		return columnPosition;
 	}
@@ -38,8 +40,10 @@ public class Reponse {
 		questionTag = r.questionTag;
 		reponseDate = r.reponseDate;
 		disqualif = r.disqualif;
+		isDate = r.isDate;
 		shouldBeEmpty = r.shouldBeEmpty;
 		isSetOnQuestion= r.isSetOnQuestion;
+		isValueDisqu=r.isValueDisqu;
 	}
 	public Reponse (){
 		isAerDisq=false;
@@ -50,6 +54,8 @@ public class Reponse {
 		cellPosition = -2;
 		reponseDate = null;
 		disqualif = false;
+		isDate=false;
+		isValueDisqu=false;
 		isSetOnQuestion=false;
 	}
 	public String getReponseTexte() {
@@ -124,7 +130,9 @@ public class Reponse {
 		questionTag= questionLabel;
 		reponseDate= null;
 		isSetOnQuestion=false;
+		isValueDisqu=false;
 		shouldBeEmpty= false;
+		isDate = false;
 		if(answer != null){
 			reponseTexte=answer;
 			reponseType = type;
@@ -142,6 +150,7 @@ public class Reponse {
 				reponseNumeric=-1;
 				if (questionTag.contains("date") && !answer.contains("undef") && !answer.isEmpty() && answer.length()>4 ){
 					reponseDate= Calendar.getInstance();
+					isDate = true;
 					DateFormat d = new SimpleDateFormat("dd/mm/yy");
 					Date da = d.parse(reponseTexte);
 					reponseDate.setTime(da);

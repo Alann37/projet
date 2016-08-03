@@ -9,6 +9,10 @@ public class SkipCondition {
 		this.loopNumber = loopNumber;
 		this.questionName = questionName;
 	}
+	public SkipCondition (String question ,String to , boolean b){
+		questionName=question;
+		questionTo=to;
+	}
 	public SkipCondition( String questionName,String questionto, String loopNumber) {
 		
 		this.loopNumber = loopNumber;

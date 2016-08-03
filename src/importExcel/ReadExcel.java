@@ -247,11 +247,19 @@ public class ReadExcel {
 			   			}
 			   		} else if (cell.getColumnIndex()==2){
 			   			lRet.get(lRet.size()-1).setServeur(cell.getStringCellValue());
+			   		} else if (cell.getColumnIndex() == 3){
+			   			lRet.get(lRet.size()-1).setValidationGuideName(cell.getStringCellValue());
 			   		}
 			   	}
 			   }
 		}
-		
+		for(int i = 0 ; i < lRet.size();i++){
+			if(lRet.get(i).getServeur()==null || lRet.get(i).getLangues().size()==0 || lRet.get(i).getBase()==null){
+				lRet.remove(i);
+				i--;
+			}
+
+		}
 		
 		
 		return lRet;
@@ -313,6 +321,7 @@ public class ReadExcel {
 				CellStyle styleDisqu = books.createCellStyle();
 				CellStyle styleSkip = books.createCellStyle();
 				CellStyle styleAer = books.createCellStyle();
+				CellStyle styleValueDiqu = books.createCellStyle();
 				if(shs.get(0) == null){
 					shs.add(books.createSheet());
 				}
@@ -327,6 +336,11 @@ public class ReadExcel {
 				styleDisqu.setFillForegroundColor(IndexedColors.RED.getIndex());
 				styleDisqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
+				styleValueDiqu.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
+				styleValueDiqu.setFillBackgroundColor(IndexedColors.ORANGE.getIndex());
+				styleValueDiqu.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+				styleValueDiqu.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				
 				styleSkip.cloneStyleFrom(shs.get(0).getRow(0).getCell(0).getCellStyle());
 				styleSkip.setFillBackgroundColor(IndexedColors.PINK.getIndex());
 				styleSkip.setFillForegroundColor(IndexedColors.PINK.getIndex());
@@ -354,7 +368,6 @@ public class ReadExcel {
 						if(j>=16384){
 							shPage++;							
 						} 
-						
 							if(!list.get(i-1).getReponses().get(j).isEmpty){
 								
 								//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
@@ -385,6 +398,9 @@ public class ReadExcel {
 										if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
 
 											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleSkip);
+										}
+										if(list.get(i-1).getReponses().get(j).isValueDisqu){
+											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleValueDiqu);
 										}
 										list.get(i-1).getReponses().remove(j);
 										j--;

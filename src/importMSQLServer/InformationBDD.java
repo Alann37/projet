@@ -6,13 +6,21 @@ import java.util.List;
 public class InformationBDD {
 	private String base;
 	private String serveur;
+	private List<String>langues;
+	private String ValidationGuideName;
+	public String getValidationGuideName() {
+		return ValidationGuideName;
+	}
+	public void setValidationGuideName(String validationGuideName) {
+		ValidationGuideName = validationGuideName;
+	}
 	public String getServeur() {
 		return serveur;
 	}
 	public void setServeur(String serveur) {
 		this.serveur = serveur;
 	}
-	private List<String>langues;
+	
 	public InformationBDD(String base) {
 		this.base = base;
 		this.langues = new ArrayList<String>();

@@ -118,7 +118,7 @@ public class ExportLibeleBase {
 		books.write(writer);
 		books.close();
 	}
-
+	
 
 	public static void setMasterWithPrintStudy(List<String> list,String name) throws IOException{
 		File master = new File("Word Validation Guide.docx");
@@ -161,27 +161,7 @@ public class ExportLibeleBase {
 						doc.setParagraph(temp3, count);
 					}
 					count++;
-					temp = null;
-					doc.createParagraph();
-					temp = doc.getLastParagraph();
-					temp.createRun();
-					changeText(temp, "errorS if :", true);
-					if(temp!=null){
-						doc.setParagraph(temp, count);
-					}
-					count++;
-					temp = null;
-					doc.createParagraph();
-					temp = doc.getLastParagraph();
-					temp.setStyle("statCondition");
-					temp.createRun();
-					changeText(temp," ", false);
-					if(temp!=null){
-						doc.setParagraph(temp, count);
-					}
-					count++;
 			}
-			
 			temp = doc.getLastParagraph();
 			temp.createRun();
 			changeText(temp,"",true);

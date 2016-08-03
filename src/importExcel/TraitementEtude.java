@@ -19,8 +19,15 @@ public class TraitementEtude extends Thread {
 	private boolean isTreated;
 	private boolean onTreatment;
 	private boolean haveBeenWrite;
+	public String getValidationGuide() {
+		return validationGuide;
+	}
+	public void setValidationGuide(String validationGuide) {
+		this.validationGuide = validationGuide;
+	}
 	private String language ;
 	private String serveur;
+	private String validationGuide;
 	public String getServeur() {
 		return serveur;
 	}
@@ -135,15 +142,13 @@ public class TraitementEtude extends Thread {
 
 	}
 	public void checkEtude(){
-		/*int[] success = new int[etudes.size()];
-		int numberFail = 0;
-		int unfail = 0;
-		*/
+
 		for(int i = 0 ; i < etudes.size(); i ++){
 			if(i%200==0){
 				System.out.println("passage pour i = " + i +"/"+etudes.size()+ " et études : "+ etudeName);
 			}
 			TraitementEntrer temp = etudes.get(i);
+			
 			if(questions.size()>0){
 				temp.setQuestionName(questions);
 				for(int j = 0 ; j < temp.getReponses().size();j++){
@@ -158,7 +163,7 @@ public class TraitementEtude extends Thread {
 						}
 					}
 				}
-			
+				
 				QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
@@ -166,22 +171,25 @@ public class TraitementEtude extends Thread {
 						QuestionReturn returnQuest = questions.get(t).questionTreatement(skipTo);
 						if(!returnQuest.validate){
 							temp.setDisqualif(true);
-							//numberFail++;
 						}
 						skipTo = returnQuest;
 				} 
 				for(int o = 0 ; o <questions.size() ; o ++){
 					questions.get(o).reponses.clear();
 				}
-	
-				skipTo.setSpecific();
+
+ 				skipTo.setSpecific();
 				for(int m = 0 ; m < skipTo.specificC.size();m++){
-					for(int n = 0 ; n < skipTo.specificC.get(m).conditions.size();n++){
+					for(int n = 0 ; n < 	skipTo.specificC.get(m).conditions.size();n++){
 						skipTo.specificC.get(m).conditions.get(n).answers.clear();
 						skipTo.specificC.get(m).conditions.get(n).loop.clear();
+						if(!skipTo.specificC.get(m).conditions.get(n).isLink){
+							skipTo.specificC.get(m).conditions.get(n).c.valueCondition.clear();
+						}
 						skipTo.specificC.get(m).conditions.get(n).inLoop=false;
 					}
 				}
+				skipTo.specificC.clear();
 				this.etudes.set(i, temp);
 			}
 		}		

@@ -39,6 +39,14 @@ public class Question {
 			}
 		}
 	}
+	/**
+	 * fonction servant a traiter une condition particulière
+	 * @param qRet
+	 * @param c
+	 * @param answers
+	 * @param loopPart
+	 * @return qRet
+	 */
 	public QuestionReturn gestionNbrChecked(QuestionReturn qRet,Condition c , List<Reponse> answers,String loopPart){
 		if(c.type[0]!=10){
 			int nbrCheck = 0;
@@ -62,7 +70,7 @@ public class Question {
 					qRet.validate=false;
 				}
 			}else if(c.bEq) {
-				if(nbrCheck!=c.checked){
+				if(nbrCheck==c.checked){
 					qRet.validate=false;
 				}
 			}
@@ -127,7 +135,14 @@ public class Question {
 		}
 		return qRet;
 	}
-
+   /**
+    * fonction servant au traitement d'une condition particulière
+    * @param qRet
+    * @param andc
+    * @param answers
+    * @param loopPart
+    * @return qRet
+    */	
 	public QuestionReturn gestionNbrCheckedAndOr(QuestionReturn qRet,AndCondition andc , List<Reponse> answers,String loopPart){
 		Condition c =andc.secondPart;
 		int nbrCheck = 0;
@@ -151,7 +166,7 @@ public class Question {
 				qRet.validate=false;
 			}
 		}else if(c.bEq) {
-			if(nbrCheck!=c.checked){
+			if(nbrCheck==c.checked){
 				qRet.validate=false;
 			}
 		}
@@ -166,13 +181,20 @@ public class Question {
 		}
 		return qRet;
 	}
-	
+	/**
+	 * fonction de disqualification des conditions simples
+	 * @param qRet
+	 * @param c
+	 * @param answer
+	 * @return qRet
+	 */
 	private QuestionReturn gestionDisqualif(QuestionReturn qRet, Condition c, Reponse answer) {
 		if(c.withBraket){
 			//System.outprintln("passage braket no and or");
 		}
 		if (c.skip && !c.doubleSkip && c.associateCondition.isEmpty()) {
 			qRet.gotSkipTo = true;
+			
 			qRet.questionSkip = c.questionSkip;
 			qRet.validate = true;
 			qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
@@ -181,11 +203,12 @@ public class Question {
 				qRet.loopPart.add(new SkipCondition(answer.questionName, answer.questionTag.split("\\.")[1]));
 			}
 		} else if (c.skip && c.doubleSkip && c.associateCondition.isEmpty()) {
-			qRet.doubleSkip = true;
-			qRet.beginSkip = c.questionSkip;
-			qRet.endSkip = c.questionSkipTo;
+			//qRet.doubleSkip = true;
+			qRet.skipTo.add(new SkipCondition(c.questionSkip, c.questionSkipTo, true));
+			/*qRet.beginSkip = c.questionSkip;
+			qRet.endSkip = c.questionSkipTo;*/
 			qRet.validate = true;
-			qRet.gotSkipTo = true;
+			//qRet.gotSkipTo = true;
 			if (answer.partOfLoop) {
 				qRet.loopPart
 						.add(new SkipCondition(c.questionSkip, c.questionSkipTo, answer.questionTag.split("\\.")[1]));
@@ -197,7 +220,7 @@ public class Question {
 			} else {
 				qRet.conditions.add(new MultipleCondition(c.questionSkip));
 			}
-		} else if (!c.associateCondition.isEmpty()) {
+		} else if (!c.associateCondition.isEmpty()) {	
 			if (c.andorOr) {
 				qRet.andConditions.add(new AndCondition(answer, false, c.associateCondition, true));
 			} else {
@@ -215,6 +238,13 @@ public class Question {
 				answer.disqualif = true;
 				if(c.isAer){
 					answer.isAerDisq=true;
+				}
+			}
+		}
+		if(!c.withBraket){
+			if(c.questionValue){
+				for(int i = 0 ; i < c.valueCondition.size();i++){
+					c.valueCondition.get(i).isValueDisqu=true;
 				}
 			}
 		}
@@ -237,6 +267,13 @@ public class Question {
 			naValue = -999999;
 		}
 	}
+	/**
+	 * fonction de gestion des checkbox
+	 * @param option
+	 * @param answers
+	 * @param c
+	 * @return qRet
+	 */
 	public QuestionReturn gestionCheckBox(QuestionReturn option, List<Reponse> answers, Condition c) {
 		for (int i = 0; i < answers.size(); i++) {
 			for (int k = 0; k < c.checkbox.length; k++) {
@@ -258,7 +295,13 @@ public class Question {
 		return option;
 	}
 
-
+/**
+ * fonction de traitement d'une condition particulière
+ * @param option
+ * @param answers
+ * @param andC
+ * @return qRet
+ */
 	public QuestionReturn gestionAndOrCheckBox(QuestionReturn option, List<Reponse> answers, AndCondition andC) {
 		QuestionReturn qRet = new QuestionReturn();
 		qRet.validate = true;
@@ -308,7 +351,13 @@ public class Question {
 		}
 		return qRet;
 	}
-
+	/**
+	 * fonction servant a disqualifier et/ou rediriger vers le traitement adéquat si nécessaire
+	 * @param option
+	 * @param answer
+	 * @param andC
+	 * @return qRet
+	 */
 	public QuestionReturn gestionAndOr(QuestionReturn option, Reponse answer, AndCondition andC) {
 		QuestionReturn qRet = new QuestionReturn();
 		if(andC.secondPart.tag==null){
@@ -402,11 +451,15 @@ public class Question {
 		return qRet;
 	}
 
+	/**
+	 * fonction qui se charge de la disqualification d'une réponse 
+	 * @param answer
+	 * @param qRet
+	 * @param andC
+	 */
 	private void gestionDisqualifAndOr(Reponse answer,QuestionReturn qRet,AndCondition andC){
 		Condition c = andC.secondPart;
-		if(c.withBraket){
-			//System.outprintln("passage braket");
-		}
+
 		if (andC.andOr) {
 			if(!c.withBraket){
 				answer.disqualif = true;
@@ -458,6 +511,13 @@ public class Question {
 			}
 		}
 	}
+	/**
+	 * fonction de validation d'une condition brute (ex EQ2) dans le cas d'une condition multiple
+	 * @param option
+	 * @param answer
+	 * @param andC
+	 * @return qRet
+	 */
 	
 	public QuestionReturn gestionConditionAndOr(QuestionReturn option, Reponse answer, AndCondition andC) {
 
@@ -733,7 +793,12 @@ public class Question {
 		}
 		return qRet;
 	}
-
+    /**
+     * fonction en cours de développement , objectif pouvoir dire si tel case est coché dans la colonne 1, je veux que la colonne 2 soit non null
+     * @param option
+     * @param c
+     * @return qRet
+     */
 	private QuestionReturn gestionConditionNotEmpty(QuestionReturn option, Condition c) {
 		QuestionReturn qRet = option;
 		if (c.conditionSens == 0) {
@@ -1033,13 +1098,20 @@ public class Question {
 		return qRet;
 	}
 
+	/**
+	 * fonction de traitement de la condition brute si il s'agit d'une date
+	 * @param option
+	 * @param c
+	 * @param answer
+	 * @return qRet
+	 */
 	private QuestionReturn gestionTypeConditionDate(QuestionReturn option, Condition c, Reponse answer) {
 		QuestionReturn qRet = new QuestionReturn();
 		qRet = option;
 		for (int h = 0; h < c.type.length; h++) {
 			if (c.type[h] == 0) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) >= c.sup && answer.reponseNumeric != naValue
+					if (answer.reponseDate.get(Calendar.YEAR) > c.sup && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1071,19 +1143,20 @@ public class Question {
 							}
 						} else {
 							qRet.validate = false;
-							answer.disqualif = true;
-							if(c.isAer){
-								answer.isAerDisq=true;
+							if(!c.withBraket){
+								answer.disqualif = true;
+								if(c.isAer){
+									answer.isAerDisq=true;
+								}
 							}
-
 						}
-					}
+					} 
 				}
 
 			}
 			if (c.type[h] == 1) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) <= c.inf && answer.reponseNumeric != naValue
+					if (answer.reponseDate.get(Calendar.YEAR) < c.inf && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1115,9 +1188,11 @@ public class Question {
 							}
 						} else {
 							qRet.validate = false;
-							answer.disqualif = true;
-							if(c.isAer){
-								answer.isAerDisq=true;
+							if(!c.withBraket){
+								answer.disqualif = true;
+								if(c.isAer){
+									answer.isAerDisq=true;
+								}
 							}
 
 						}
@@ -1135,16 +1210,18 @@ public class Question {
 			}
 			if (c.type[h] == 2) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) != c.eq && answer.reponseNumeric != naValue
+					if (answer.reponseDate.get(Calendar.YEAR)== c.eq && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip) {
 						qRet.validate = false;
-						answer.disqualif = true;
-						if(c.isAer){
-							answer.isAerDisq=true;
+						if(!c.withBraket){
+							answer.disqualif = true;
+							if(c.isAer){
+								answer.isAerDisq=true;
+							}
 						}
 
 
-					} else if (answer.reponseDate.get(Calendar.YEAR) == c.eq && answer.reponseNumeric != naValue
+					} else if (answer.reponseDate.get(Calendar.YEAR) != c.eq && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1180,14 +1257,19 @@ public class Question {
 			}
 			if (c.type[h] == 3) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) == c.neq && answer.reponseNumeric != naValue
+					if (answer.reponseDate.get(Calendar.YEAR) != c.neq && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip) {
 
 						qRet.validate = false;
-						answer.disqualif = true;
+						if(!c.withBraket){
+							answer.disqualif = true;
+							if(c.isAer){
+								answer.isAerDisq=true;
+							}
+						}
 
 
-					} else if (answer.reponseDate.get(Calendar.YEAR) != c.neq && answer.reponseNumeric != naValue
+					} else if (answer.reponseDate.get(Calendar.YEAR) == c.neq && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1261,23 +1343,39 @@ public class Question {
 
 		return qRet;
 	}
-
-	public QuestionReturn tryCondition(Condition c, Reponse answer, QuestionReturn option) {
+	/**
+	 * fonction de traitement des conditions, retourne qRet.validate a true ou false selon la validation
+	 * @param c
+	 * @param answer
+	 * @param option
+	 * @return qRet
+	 */
+	public QuestionReturn tryCondition(Condition c, Reponse answer, QuestionReturn option,boolean onBraketTreatment) {
 		QuestionReturn qRet = new QuestionReturn();
 		qRet = option;
-		if (c.questionValue) {
+		if (c.questionValue && !onBraketTreatment) {
 			if (c.countryTag.isEmpty()) {
-				qRet.conditions.add(new MultipleCondition(c.questionSkip, answer.reponseNumeric, answer.reponseTexte));
-			} else {
-				qRet.conditions.add(new MultipleCondition(c.questionSkip, answer.reponseNumeric, answer.reponseTexte,
-						c.countryTag));
+				if(answer.isPartOfLoop()){
+					qRet.conditions.add(new MultipleCondition(c.questionSkip,answer.reponseTexte, answer.reponseNumeric,answer.questionTag.split("\\.")[1] ));
+					
+				}else {
+					qRet.conditions.add(new MultipleCondition(c.questionSkip, answer.reponseNumeric, answer.reponseTexte));
+				}
+			} else if(option.etudename.contains(c.countryTag)) {
+				if(answer.isPartOfLoop()){
+					qRet.conditions.add(new MultipleCondition(c.questionSkip, answer.reponseNumeric, answer.reponseTexte,
+							c.countryTag,answer.questionTag.split(".")[1]));
+				}else {
+					qRet.conditions.add(new MultipleCondition(c.questionSkip, answer.reponseNumeric, answer.reponseTexte,
+							c.countryTag));
+				}	
+				
 			}
 		} else {
 			if (c.notEmptyCondition) {
-
 				qRet = gestionConditionNotEmpty(qRet, c);
 			} else {
-				if (c.isDate) {
+				if (answer.isDate) {
 					if (c.tag != null) {
 						if (!c.countryTag.isEmpty()) {
 							if (answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)) {
@@ -1315,14 +1413,35 @@ public class Question {
 		return qRet;
 	}
 
+	/**
+	 * fonction de traitements des questions de façon linéaire par rapport au master.
+	 * 
+	 * IN : QuestionReturn option , classe contenant toute les options déjà récupérés sur l'études, comme par exemple les conditions multiples
+	 * OUT : QuestionReturn qRet , contient les informations d'options si elles sont encore nécéssaire plus les informations détectée dans la question
+	 * */
 	public QuestionReturn questionTreatement(QuestionReturn option) {
 		QuestionReturn qRet = new QuestionReturn();
-
 		boolean alreadyAssign = false;
 		qRet.etudename = option.etudename;
 		boolean alreadyDoubleSkip = false;
+		if(name.equals("S10") ||name.contains("S15") ||name.contains("S9")){// || name.contains("S8")){
+			int toto=0;
+			toto++;
+		}
+		boolean isSkiped = false;
 		if (!reponses.isEmpty()) {
-			if (option.gotSkipTo) { // futur par am
+			if(!option.skipTo.isEmpty()){
+				for(int i = 0 ; i <option.skipTo.size();i++){
+					if(option.skipTo.get(i).questionName.equals(this.name)){
+						option.questionSkip = option.skipTo.get(i).questionTo;
+						option.skipTo.remove(i);
+						option.gotSkipTo=true;
+						break;
+					}
+				}
+			}
+			// traitement des SkipTo
+			if (option.gotSkipTo) { 
 				if (option.doubleSkip) {
 					alreadyDoubleSkip = true;
 				}
@@ -1331,8 +1450,9 @@ public class Question {
 					option.setQuestionNumber();
 					option.doubleSkip = false;
 					alreadyDoubleSkip = false;
+					isSkiped=true;
 				}
-				if (!option.questionSkip.equals(this.name) && !option.doubleSkip) {
+				if (!option.doubleSkip) {
 					for (int i = 0; i < reponses.size(); i++) {
 						if (reponses.get(i).partOfLoop) {
 							for (int j = 0; j < option.loopPart.size(); j++) {
@@ -1345,13 +1465,17 @@ public class Question {
 							reponses.get(i).shouldBeEmpty = true;
 						}
 					}
-					qRet = option;
-					alreadyAssign = true;
-				} else {
+						qRet = option;
+						alreadyAssign = true;
+					
+				}
+				if(option.questionSkip.equals(this.name)){
+					isSkiped=true;
 					option.gotSkipTo = false;
 					option.questionSkip = "";
 				}
 			}
+			//traitement des conditions multiples avec then
 			if (option.conditions.size() > 0) {
 				for (int i = 0; i < option.conditions.size(); i++) {
 					boolean passage = false;
@@ -1364,7 +1488,7 @@ public class Question {
 												.equals(option.conditions.get(i).partOfLoop)) {
 									if (option.conditions.get(i).secondCondition != null) {
 										qRet = tryCondition(option.conditions.get(i).secondCondition, reponses.get(j),
-												qRet);
+												qRet,false);
 										passage = true;
 									}
 								}
@@ -1372,7 +1496,7 @@ public class Question {
 								if (reponses.get(j).questionName.equals(option.conditions.get(i).questionName)) {
 									if (option.conditions.get(i).secondCondition != null) {
 										qRet = tryCondition(option.conditions.get(i).secondCondition, reponses.get(j),
-												qRet);
+												qRet,false);
 										passage = true;
 									}
 								}
@@ -1385,7 +1509,7 @@ public class Question {
 					}
 				}
 			}
-
+			//traitement des andCondition simple
 			if (option.andConditions.size() > 0) {
 				for (int i = 0; i < option.andConditions.size(); i++) {
 					boolean del = false;
@@ -1470,7 +1594,6 @@ public class Question {
 									} else if (reponses.get(j).questionTag.contains(".")) {
 										if (reponses.get(j).questionTag.split("\\.")[1]
 												.equals(option.andConditions.get(i).loopPart)
-												&& !reponses.get(j).questionTag.contains("other")
 												&& !reponses.get(j).questionTag.contains("NA")) {
 											qRet = gestionConditionAndOr(qRet, reponses.get(j),
 													option.andConditions.get(i));
@@ -1488,69 +1611,81 @@ public class Question {
 				}
 
 			}
-		
+		   
 			qRet.isAnswer = true;
 			int countSpecific = 0;
 			int insertSpecific = 0;
+			// décompte des conditions avec parenthèse dans la question
 			for (int i = 0; i < conditions.size(); i++) {
 				if (conditions.get(i).withBraket) {
 					countSpecific++;
 				}
 			}
-			for (int i = 0; i < reponses.size(); i++) {
-				for (int j = 0; j < conditions.size(); j++) {
-					if (!reponses.get(i).questionTag.contains("other") && !reponses.get(i).questionTag.contains("NA")) {
-						if (conditions.get(j) != null) {
-							if (conditions.get(j).withBraket && conditions.get(j).subCondition.size() >= 1
-									&& countSpecific > insertSpecific) {
-								conditions.get(j).subCondition.get(0).link = this.name;
-								qRet.specificC.add(new SpecificList(conditions.get(j).subCondition,conditions.get(j).isAer));
-								if (!conditions.get(j).countryTag.isEmpty()) {
-									qRet.specificC
-											.get(qRet.specificC.size() - 1).countryTag = conditions.get(j).countryTag
-													.replaceAll(" ", "");
-								}
-								insertSpecific++;
-							} else if (!conditions.get(j).withBraket) {
-								if(conditions.get(j).isCheckedCondition){
-									if(reponses.get(i).isPartOfLoop()){
-										qRet = gestionNbrChecked(qRet, conditions.get(j), reponses, reponses.get(i).questionTag.split("\\.")[1]);
-										qRet.validate=true;
-									}else {
-										qRet = gestionNbrChecked(qRet, conditions.get(j), reponses, "");
-										qRet.validate=true;
+			if(!isSkiped){
+				for (int i = 0; i < reponses.size(); i++) {
+					for (int j = 0; j < conditions.size(); j++) {
+						if (!reponses.get(i).questionTag.contains("NA")) {
+							if (conditions.get(j) != null) {
+								if (conditions.get(j).withBraket && conditions.get(j).subCondition.size() >= 1
+										&& countSpecific > insertSpecific) {
+									//si il s'agit d'une condition avec parenthèse, on l'ajoute a qRet et on la traitera a la fin de l'étude
+									if(!conditions.get(j).subCondition.get(0).isValue){
+										conditions.get(j).subCondition.get(0).link = this.name;
 									}
-									
-								}else {
-									qRet = tryCondition(conditions.get(j), reponses.get(i), qRet);
+									qRet.specificC.add(new SpecificList(conditions.get(j).subCondition,conditions.get(j).isAer));
+									if (!conditions.get(j).countryTag.isEmpty()) {
+										qRet.specificC
+												.get(qRet.specificC.size() - 1).countryTag = conditions.get(j).countryTag
+														.replaceAll(" ", "");
+									}
+									if(conditions.get(j).subCondition.get(0).c.questionValue){
+ 										conditions.get(j).subCondition.get(0).c.questionSkip = this.name;
+									}
+									insertSpecific++;
+								} else if (!conditions.get(j).withBraket) {
+									// traitement des conditions simples
+									if(conditions.get(j).isCheckedCondition){
+										if(reponses.get(i).isPartOfLoop()){
+											
+											qRet = gestionNbrChecked(qRet, conditions.get(j), reponses, reponses.get(i).questionTag.split("\\.")[1]);
+											qRet.validate=true;
+										}else {
+											qRet = gestionNbrChecked(qRet, conditions.get(j), reponses, "");
+											qRet.validate=true;
+										}
+										
+									}else {
+										qRet = tryCondition(conditions.get(j), reponses.get(i), qRet,false);
+									}
 								}
 							}
 						}
-
 					}
 				}
-			}
-			if (qRet.isConstSum && !qRet.isLoop) {
-				for (int h = 0; h < conditions.size(); h++) {
-					for (int j = 0; j != conditions.get(h).type.length; j++) {
-						if (conditions.get(h).type[j] == 7) {
-							if (qRet.sum != conditions.get(h).constSumRes) {
-								for (int k = 0; k != reponses.size(); k++) {
-									if (qRet.isLoop == false) {
-										if (!reponses.get(k).questionTag.contains("NA")) {
-											reponses.get(k).disqualif = true;
-											if(conditions.get(h).isAer){
-												reponses.get(k).isAerDisq=true;
+				//traitement des const sum
+				if (qRet.isConstSum && !qRet.isLoop) {
+					for (int h = 0; h < conditions.size(); h++) {
+						for (int j = 0; j != conditions.get(h).type.length; j++) {
+							if (conditions.get(h).type[j] == 7) {
+								if (qRet.sum != conditions.get(h).constSumRes) {
+									for (int k = 0; k != reponses.size(); k++) {
+										if (qRet.isLoop == false) {
+											if (!reponses.get(k).questionTag.contains("NA")) {
+												reponses.get(k).disqualif = true;
+												if(conditions.get(h).isAer){
+													reponses.get(k).isAerDisq=true;
+												}
 											}
 										}
 									}
+									qRet.validate = false;
 								}
-								qRet.validate = false;
 							}
 						}
 					}
 				}
 			}
+			//recopie des informations d'options si nécessaire 
 			if (alreadyDoubleSkip && !alreadyAssign) {
 				qRet.doubleSkip = true;
 				qRet.beginSkip = option.beginSkip;
@@ -1580,7 +1715,27 @@ public class Question {
 			}
 			qRet = option;
 		}
-
+		if(option.skipTo.size()>0){
+			if(!qRet.skipTo.isEmpty()){
+				for(int i= 0 ; i < option.skipTo.size();i++){
+					boolean add = true;
+					for(int j = 0 ; j < qRet.skipTo.size();j++){
+						if(qRet.skipTo.get(j).equals(option.skipTo.get(i))){
+							add = false;
+						}
+					}
+					if(add){
+						qRet.skipTo.add(option.skipTo.get(i));
+					}
+				}
+			} else {
+				qRet.skipTo.addAll(option.skipTo);
+			}
+		}
+	    if(name.equals("S7c") ||name.equals("S8")){
+			//System.out.println();
+		}
+		// ajout des réponses nécessaires pour les conditions avec parenthèse
 		for (int i = 0; i < qRet.specificC.size(); i++) {
 			for (int h = 0; h < qRet.specificC.get(i).conditions.size(); h++) {
 				for (int j = 0; j < reponses.size(); j++) {
@@ -1603,13 +1758,39 @@ public class Question {
 									qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
 								}
 							}else {
-								qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
+								if(qRet.specificC.get(i).conditions.get(h).c.questionValue){
+									if(reponses.get(j).isPartOfLoop()){
+										qRet.specificC.get(i).conditions.get(h).c.valueCondition.add(reponses.get(j));
+										
+									}else {
+										qRet.specificC.get(i).conditions.get(h).c.valueCondition.add(reponses.get(j));
+									}
+								} else {
+									qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
+								}
 							}
+						} else if (!reponses.get(j).isEmpty && qRet.specificC.get(i).conditions.get(h).link.equals(reponses.get(j).getQuestionName())){
+							qRet.specificC.get(i).conditions.get(h).answers.add(reponses.get(j));
 						}
 					}
 				}
 			}
 		}
+		
+		for(int i = 0 ; i < qRet.specificC.size();i++){
+			for(int j = 0 ; j < qRet.specificC.get(i).conditions.size();j++){
+				if(!qRet.specificC.get(i).conditions.get(j).isLink){
+					if(qRet.specificC.get(i).conditions.get(j).c.questionValue){
+						for(int h = 0 ; h < reponses.size();h++){
+ 							if(reponses.get(h).questionName.equals(qRet.specificC.get(i).conditions.get(j).c.questionSkip)){
+											}
+						}
+					}
+				}
+			}
+		}
+		
+		
 		return qRet;
 	}
 

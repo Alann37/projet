@@ -214,21 +214,79 @@ public class ImportTxt {
 	public static List<String> getQuestionList(File file) throws IOException {
 		List<String> lRet = new ArrayList<String>();
 		boolean onFill=false;;
-		
+		List<FreeFormatGuide> freeFormat = new ArrayList<FreeFormatGuide>();
+		boolean fillFreeFormat =false;
+		String freeFormatName="";
+		int j = 0;
+		int ind = -2;
 		for(String line : Files.readAllLines(file.toPath())){
 			if(line.contains("Question List")){
 				onFill=true;
 			}
+			
 			if(onFill && !line.isEmpty()){
-				if(line.contains("(") && !line.contains("Text") && !line.contains("Terminate / Link")  && !line.contains("(CBC ")){
+				if(line.contains("Free Format")){
+					String temp = line.split("\\(")[0];
+					temp = temp.replaceAll("\t", "");
+					temp = temp.replaceAll(" ", "");
+					freeFormat.add(new FreeFormatGuide(temp));
+					
+				}
+				if(line.contains("(") && !line.split("\\(")[1].contains("Text") && !line.split("\\(")[1].contains("Terminate / Link")  && !line.split("\\(")[1].contains("CBC ")){
 					line = line.split("\\(")[0] ;
 					line = line.replaceAll(" ", "");
+					line = line.replaceAll("\t","");
 					lRet.add(line);
 				}
 			}
 			if(line.contains("Data Field")){
 				onFill = false;
-				break;
+			
+			}
+			if(!onFill){
+				if(line.contains("Question Name")){
+					for(int i = 0 ; i < freeFormat.size();i++){
+						String temp = line.split(":")[1];
+						temp = temp.replaceAll(" ", "");
+						if(temp.equals(freeFormat.get(i).questionName)){
+							freeFormatName = freeFormat.get(i).questionName;
+							fillFreeFormat=true;
+							ind = i;
+							break;
+						}
+					}
+				}
+			}
+			if(j==1){
+				j=0;
+				freeFormat.add(new FreeFormatGuide(freeFormatName,line.split(":")[1]));
+			}
+			if(fillFreeFormat){
+				if(line.contains("[Variable")){
+					j=1;
+				}
+			}
+			
+		}
+		for(int i = 0 ; i < freeFormat.size();i++){
+			if(freeFormat.get(i).variableName==null){
+				freeFormat.remove(i);
+				i--;
+			}
+		}
+		for(int i = freeFormat.size()-1 ; i >=0;i--){
+			for(j = 0 ; j < lRet.size(); j ++){
+				if(lRet.get(j).equals(freeFormat.get(i).questionName)){
+					lRet.add(j+1, freeFormat.get(i).variableName);
+					if((i-1)>=0){
+						if(!lRet.get(j).equals(freeFormat.get(i-1).questionName)){
+							lRet.remove(j);
+						}
+					} else {
+						lRet.remove(j);
+					}
+					break;
+				}
 			}
 		}
 		//System.out.println(lRet);

@@ -20,7 +20,7 @@ public class Condition {
 	boolean bEq;
 	boolean isAer;
 	List<SpecificCondition> subCondition;
-	
+	List<Reponse> valueCondition;
 	double checked;
 	double min;
 	double max;
@@ -45,6 +45,8 @@ public class Condition {
 	
 	
 	public Condition(String condition){
+		
+		valueCondition = new ArrayList<Reponse>();
 		if(condition.contains("AER")){
 			isAer=true;
 			condition = condition.replaceAll("AER", "");
@@ -120,6 +122,7 @@ public class Condition {
 	}
 	
 	public Condition(String condition, boolean braket){
+		valueCondition = new ArrayList<Reponse>();
 		if(condition.contains("AER")){
 			isAer=true;
 			condition = condition.replaceAll("AER", "");
@@ -272,7 +275,7 @@ public class Condition {
 										if(inBr==0){
 											subCondition.add(new SpecificCondition(link, inBr, true,i+1));
 										}else {
-											subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
+										 	subCondition.add(new SpecificCondition(link, inBr, true,beginBraket));
 										}
 									}
 										
@@ -313,8 +316,7 @@ public class Condition {
 							}
 						}
 						beginBraket=-1;
-					} 
-					
+					} 	
 				}
 				if((i+1)==subCondition.size()){
 					if(endBraket>=0){
@@ -324,7 +326,7 @@ public class Condition {
 							}
 						}
 					}else {
-						for(int j = 0 ; j < subCondition.size(); j ++){
+						for(int j = 0 ; j < subCondition.size(); j ++){	
 							if(0== subCondition.get(j).endBraket){
 								subCondition.get(j).endBraket=subCondition.size()-1;
 							}
@@ -332,32 +334,77 @@ public class Condition {
 					}
 				}
 			}
-			
 			for(int i = 0 ; i < subCondition.size();i++){
 				System.out.println("Braket Place : " + subCondition.get(i).braketPlace + " link " + subCondition.get(i).link+ " beginBraket "+subCondition.get(i).beginBraket + " endBraket "+subCondition.get(i).endBraket);
 			}
 			System.out.println("<<<<< END CONDITION >>>>>");
 		}
 	}
+	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox 9 nb Item Check 10 item uncheck
+	public void setCondition(String s){
+		if(type[0]==0){
+			traitementValueCondition("SUP"+s);
+		}else if (type[0]==1){
+			traitementValueCondition("INF"+s);
+		}else if (type[0]==2){
+			traitementValueCondition("EQ"+s);
+		}else if (type[0]==3){
+			traitementValueCondition("NEQ"+s);
+		}
+	}
+	
+	
+	private void traitementValueCondition(String s) {
+		if(s.contains("SUP")){
+			s = s.replaceAll("[^\\d.]", "");
+			sup = Double.parseDouble(s);
+		}else if(s.contains("INF")){
+			s = s.replaceAll("[^\\d.]", "");
+			inf = Double.parseDouble(s);		
+		}else if(s.contains("EQ") && !s.contains("NEQ")){
+			s = s.replaceAll("[^\\d.]", "");
+			s = s.replaceAll("==","");
+			eq = Double.valueOf(s);
+		}else if(s.contains("NEQ")){
+			s = s.replaceAll("[^\\d.]", "");
+			s = s.replaceAll("=/=","");
+			neq = Double.valueOf(s);
+			
+		}
+	}
 	
 	public void traitement(String condition,int indice){
 		String newCondition = "";
+		if(condition.startsWith(" ")){
+			condition = condition.replaceFirst(" ", "");
+		}
 		boolean init=false;
 		bEq=false;
 		isDate=false;
 		questionValue = false;
 		isCheckBox=false;
 		countryTag = "";
-		if(condition.contains("date")){
-			isDate= true;
-			condition = condition.replaceAll("date","");
-		}
+	
 		if(condition.contains(":")){
 			countryTag=condition.split(":")[0];
 			condition = condition.substring(countryTag.length()+1);
 			countryTag=countryTag.replaceAll(" ","");
 		}
-		if(condition.contains("_")){
+		if(condition.contains("VALUE")){
+			questionValue=true;	
+			questionSkip = condition.replaceAll("VALUE","");
+			if(questionSkip.contains(" ")){
+				if(questionSkip.split(" ").length>=2){
+					if(this.withBraket){
+						questionSkip = questionSkip.split(" ")[1];
+					} else {
+						questionSkip = questionSkip.split(" ")[0];
+					}
+				}
+			}
+			type[indice]=-1;
+
+		}else if(condition.contains("_")){
 			if(condition.split("_").length==2){
 				tag = "_"+condition.split("_")[1];
 				condition = condition.replaceAll(tag,"");
@@ -365,6 +412,7 @@ public class Condition {
 			if(condition.split("_").length==3){
 				tag = "_"+condition.split("_")[1];
 				tag+="_"+condition.split("_")[2];
+				tag = tag.split(" ")[0];
 				condition = condition.replaceAll(tag,"");
 				tag = tag.replaceAll(" ", "");
 				}
@@ -373,11 +421,12 @@ public class Condition {
 			tag = null;
 		}
 		newCondition = ""; 
-		if(condition.contains("VALUE")){
-			questionValue=true;	
-			questionSkip = condition.replaceAll("VALUE","");
-			type[indice]=-1;
-			init = true;
+	
+		if(!questionValue){
+			if(condition.contains("date")){
+				isDate= true;
+				condition = condition.replaceAll("date","");
+			}
 		}
 		if(condition.contains("SKIP") && !init ){
 			init=true;
@@ -392,7 +441,7 @@ public class Condition {
 				questionSkip = condition.split("SKIP")[1];
 			}
 			skip = true;
-			if(preGoTo.contains("SUP")){
+			if(preGoTo.contains("SUP")&& !isDate){
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				sup = Double.parseDouble(newCondition);
 				type[indice]=0;				
@@ -400,9 +449,9 @@ public class Condition {
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				inf = Double.parseDouble(newCondition);
 				type[indice]=1;
-			}else if (preGoTo.contains("CHECKED") && !preGoTo.contains("UNCHECKED")){
+			}else if (preGoTo.contains("NBCHECKED") && !preGoTo.contains("UNCHECKED") && !isDate){
 				isCheckedCondition=true;
-				newCondition = preGoTo.replaceAll("CHECKED","");
+				newCondition = preGoTo.replaceAll("NBCHECKED","");
 				if(newCondition.contains("+")){
 					newCondition = newCondition.replaceAll("+", "");
 					infSup=false;
@@ -417,7 +466,7 @@ public class Condition {
 				type[indice] = 9;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				checked=Double.parseDouble(newCondition);
-			}else if (preGoTo.contains("UNCHECKED")){
+			}else if (preGoTo.contains("UNCHECKED") && !isDate){
 				type[indice]=10;
 				isCheckedCondition=true;
 				preGoTo = preGoTo.replaceAll("UNCHECKED","");
@@ -430,7 +479,7 @@ public class Condition {
 						uncheck[i] = Integer.valueOf(possibility[i]);		
 					}
 				}
-			}else if(preGoTo.contains("EQ") && !preGoTo.contains("NEQ")){
+			}else if(preGoTo.contains("EQ") && !preGoTo.contains("NEQ")&& !isDate){
 				type[indice] = 2;
 				newCondition = preGoTo.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
@@ -451,7 +500,7 @@ public class Condition {
 						checkbox[i] = Integer.valueOf(possibility[i]);		
 					}
 				}
-			}else if (preGoTo.contains("#")){
+			}else if (preGoTo.contains("#")&& !isDate){
 			 type[indice]=8;
 			 newCondition = preGoTo.replaceAll("#","");
 			 newCondition= newCondition.replaceAll(" ","");
@@ -472,7 +521,7 @@ public class Condition {
 					 checkbox[0] = Integer.valueOf(newCondition);	
 				 }
 			 }
-			}else if(preGoTo.contains("MIN") && !condition.contains("date")){
+			}else if(preGoTo.contains("MIN") && !condition.contains("date") && !isDate){
 				type[indice] = 5;
 				newCondition = preGoTo.replaceAll("MIN","");
 				newCondition= newCondition.replaceAll("MAX","");
@@ -486,22 +535,28 @@ public class Condition {
 		if(!init){
 			if(condition.contains("SUP")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
-				sup = Double.parseDouble(newCondition);
+				if(!questionValue){
+					sup = Double.parseDouble(newCondition);
+				}
 				type[indice]=0;
 			}else if(condition.contains("INF")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
-				inf = Double.parseDouble(newCondition);
+				if(!questionValue){
+					inf = Double.parseDouble(newCondition);
+				}
 				type[indice]=1;
 			}else if(condition.contains("EQ") && !condition.contains("NEQ")){
 				type[indice] = 2;
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				newCondition = newCondition.replaceAll("==","");
-				eq = Double.valueOf(newCondition);
-			} else if (condition.contains("CHECKED") && !condition.contains("UNCHECKED")){
+				if(!questionValue){
+					eq = Double.valueOf(newCondition);
+				}
+			} else if (condition.contains("NBCHECKED") && !condition.contains("UNCHECKED")){
 				isCheckedCondition=true;
 				type[indice] = 9;
-				newCondition = condition.replaceAll("CHECKED", "");
-				if(newCondition.contains("+")){
+				newCondition = condition.replaceAll("NBCHECKED", "");
+				if(newCondition.contains("+")){	
 					newCondition = newCondition.replaceAll("\\+", "");
 					infSup=false;
 				}else if (newCondition.contains("=")){
@@ -515,62 +570,73 @@ public class Condition {
 			}else if(condition.contains(",")&& condition.contains("UNCHECKED")){
 				type[indice] = 10;
 				isCheckedCondition=true;
-				condition = condition.replaceAll("UNCHECKED","");
-				String [] possibility = condition.split(",");
-				uncheck = new int[possibility.length];
-				for(int i = 0 ; i < possibility.length; i++){
-					possibility[i] = possibility[i].replaceAll(" ", "");
-					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					if(!possibility[i].isEmpty()){
-						uncheck[i] = Integer.valueOf(possibility[i]);		
+				if(!questionValue){
+					condition = condition.replaceAll("UNCHECKED","");
+					String [] possibility = condition.split(",");
+					uncheck = new int[possibility.length];
+					for(int i = 0 ; i < possibility.length; i++){
+						possibility[i] = possibility[i].replaceAll(" ", "");
+						possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+						if(!possibility[i].isEmpty()){
+							uncheck[i] = Integer.valueOf(possibility[i]);		
+						}
 					}
 				}
 			}else if(condition.contains("NEQ")){
 				type[indice] = 3;
-				newCondition = condition.replaceAll("[^\\d.]", "");
-				newCondition = newCondition.replaceAll("=/=","");
-				neq = Double.valueOf(newCondition);
+				if(!questionValue){
+					newCondition = condition.replaceAll("[^\\d.]", "");
+					newCondition = newCondition.replaceAll("=/=","");
+					neq = Double.valueOf(newCondition);
+				}
 			}else if (condition.contains("#")){
 				 type[indice]=8;
-				 newCondition = condition.replaceAll("#","");
-				 newCondition= newCondition.replaceAll(" ","");
-				 if(newCondition.contains(",")){
-					 String [] possibility = newCondition.split(",");
-						checkbox = new int[possibility.length];
-						for(int i = 0 ; i < possibility.length; i++){
-							possibility[i] = possibility[i].replaceAll(" ", "");
-							possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-							if(!possibility[i].isEmpty()){
-								checkbox[i] = Integer.valueOf(possibility[i]);		
+				 if(!questionValue){
+					 newCondition = condition.replaceAll("#","");
+					 newCondition= newCondition.replaceAll(" ","");
+					 if(newCondition.contains(",")){
+						 String [] possibility = newCondition.split(",");
+							checkbox = new int[possibility.length];
+							for(int i = 0 ; i < possibility.length; i++){
+								possibility[i] = possibility[i].replaceAll(" ", "");
+								possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+								if(!possibility[i].isEmpty()){
+									checkbox[i] = Integer.valueOf(possibility[i]);		
+								}
 							}
-						}
-				 } else {
-					 newCondition = newCondition.replaceAll("[^\\d.]", "");
-					 if(!newCondition.isEmpty()) {
-						 checkbox = new int[1];
-						 checkbox[0] = Integer.valueOf(newCondition);	
-					 }
- 				 }
+					 } else {
+						 newCondition = newCondition.replaceAll("[^\\d.]", "");
+						 if(!newCondition.isEmpty()) {
+							 checkbox = new int[1];
+							 checkbox[0] = Integer.valueOf(newCondition);	
+						 }
+	 				 }
+				 
+				 }
 				} else if(condition.contains(",") && !condition.contains("#")){
 				type[indice] = 4;
-				String [] possibility = condition.split(",");
-				checkbox = new int[possibility.length];
-				for(int i = 0 ; i < possibility.length; i++){
-					possibility[i] = possibility[i].replaceAll(" ", "");
-					possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
-					if(!possibility[i].isEmpty()){
-						checkbox[i] = Integer.valueOf(possibility[i]);		
+				if(!questionValue){
+					String [] possibility = condition.split(",");
+					checkbox = new int[possibility.length];
+					for(int i = 0 ; i < possibility.length; i++){
+						possibility[i] = possibility[i].replaceAll(" ", "");
+						possibility[i] = possibility[i].replaceAll("[^\\d.]", "");
+						if(!possibility[i].isEmpty()){
+							checkbox[i] = Integer.valueOf(possibility[i]);		
+						}
 					}
 				}
 			}else if(condition.contains("MIN") && !condition.contains("date")){
 				type[indice] = 5;
-				newCondition = condition.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
-				newCondition = newCondition.replaceAll(" ","");
-				min = Double.parseDouble(newCondition.split("-")[0]);
-				newCondition = newCondition.split("-")[1];
-				newCondition = newCondition.replaceAll("[^\\d.]", "");
-				max = Double.parseDouble(newCondition);
+				if(!questionValue){
+					newCondition = condition.replaceAll("MIN","");
+					newCondition= newCondition.replaceAll("MAX","");
+					newCondition = newCondition.replaceAll(" ","");
+					min = Double.parseDouble(newCondition.split("-")[0]);
+					newCondition = newCondition.split("-")[1];
+					newCondition = newCondition.replaceAll("[^\\d.]", "");
+					max = Double.parseDouble(newCondition);
+				}
 			}else if(condition.contains("SUM")){
 				type[indice]=7;
 				newCondition = condition.replaceAll("[^\\d.]", "");

@@ -36,6 +36,9 @@ public class Configuration {
 		InputStream reader = new FileInputStream(config);
 		XSSFWorkbook books = new XSSFWorkbook(reader);
 		XSSFSheet sh = books.getSheetAt(0);
+		if(sh.getRow(0).getCell(confPos)==null){
+			sh.getRow(0).createCell(confPos);
+		}
 		sh.getRow(0).getCell(confPos).setCellValue(newConf);
 		OutputStream writer = new FileOutputStream(config);
 		books.write(writer);
