@@ -1,9 +1,13 @@
-package importExcel;
+package traitement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
+
+import javax.swing.SingleSelectionModel;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -16,7 +20,7 @@ public class Reponse {
 	boolean partOfLoop;
 	String questionTag;
 	String questionName;
-	Calendar reponseDate;
+	Date reponseDate;
 	boolean disqualif;
 	boolean shouldBeEmpty;
 	boolean isAerDisq;
@@ -100,10 +104,10 @@ public class Reponse {
 	public void setQuestionName(String questionName) {
 		this.questionName = questionName;
 	}
-	public Calendar getReponseDate() {
+	public Date getReponseDate() {
 		return reponseDate;
 	}
-	public void setReponseDate(Calendar reponseDate) {
+	public void setReponseDate(Date reponseDate) {
 		this.reponseDate = reponseDate;
 	}
 	public boolean isDisqualif() {
@@ -129,10 +133,12 @@ public class Reponse {
 		disqualif = false;
 		questionTag= questionLabel;
 		reponseDate= null;
+
 		isSetOnQuestion=false;
 		isValueDisqu=false;
 		shouldBeEmpty= false;
 		isDate = false;
+
 		if(answer != null){
 			reponseTexte=answer;
 			reponseType = type;
@@ -141,19 +147,20 @@ public class Reponse {
 				answer = answer.replaceAll("[^\\d.]", "");
 				reponseNumeric = Double.parseDouble(answer) ;
 				if (questionTag.contains("date") ){
-					reponseDate= Calendar.getInstance();
-					Date da = HSSFDateUtil.getJavaDate(reponseNumeric);
-					reponseDate.setTime(da);
+					reponseDate = HSSFDateUtil.getJavaDate(reponseNumeric);
+				
 				}
 			} else {
 				reponseTexte = answer;
+			
 				reponseNumeric=-1;
 				if (questionTag.contains("date") && !answer.contains("undef") && !answer.isEmpty() && answer.length()>4 ){
-					reponseDate= Calendar.getInstance();
+					
 					isDate = true;
 					DateFormat d = new SimpleDateFormat("dd/mm/yy");
-					Date da = d.parse(reponseTexte);
-					reponseDate.setTime(da);
+
+					 reponseDate = d.parse(reponseTexte);
+					 reponseDate.setMonth(Integer.valueOf(answer.split("\\/")[1])-1);
 				}
 			}
 			if(questionLabel.contains("_")){
@@ -176,52 +183,7 @@ public class Reponse {
 			isEmpty=true;
 		}   
 	}
-	public Reponse(XSSFCell cell,XSSFCell question) throws ParseException{
-		disqualif = false;
-		cellPosition = question.getColumnIndex();
-		questionTag= question.getStringCellValue();
-		reponseDate= null;
-		shouldBeEmpty= false;
-		if(cell!=null){
-			if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){
-				reponseNumeric = cell.getNumericCellValue();
-				reponseTexte = "";
-				if (questionTag.contains("date") ){
-					reponseDate= Calendar.getInstance();
-					Date da = HSSFDateUtil.getJavaDate(reponseNumeric);
-					reponseDate.setTime(da);
-				}
-			} 
-			if(cell.getCellType() == XSSFCell.CELL_TYPE_STRING){
-				reponseTexte = cell.getStringCellValue();
-				reponseNumeric=-1;
-				if (questionTag.contains("date") && !cell.getStringCellValue().contains("undef") && !cell.getStringCellValue().isEmpty() && cell.getStringCellValue().length()>4 ){
-					reponseDate= Calendar.getInstance();
-					DateFormat d = new SimpleDateFormat("dd/mm/yy");
-					Date da = d.parse(reponseTexte);
-					reponseDate.setTime(da);
-				}
-			} 
-			if(question.getStringCellValue().contains("_")){
-		    	partOfQuestion=true;
-		    }
-		    if(question.getStringCellValue().contains(".")){
-		    	partOfLoop=true;
-		    }
-		    isEmpty =false;
-		} else {
-			reponseTexte="";
-			reponseNumeric = -1;
-			reponseDate = null;
-			if(question.getStringCellValue().contains("_")){
-		    	partOfQuestion=true;
-		    }
-		    if(question.getStringCellValue().contains(".")){
-		    	partOfLoop=true;
-		    }
-			isEmpty=true;
-		}    
-	}
+	
 
 	@Override
 	public String toString() {

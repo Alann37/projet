@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -440,14 +440,12 @@ public class QuestionReturn {
 									}
 								}
 								pillier.loop.get(h).satisfied=satis;
-								
 								pillier.treated=true;
 								pillier.inLoop=true;
 								if(lastPrevious.loop.get(h).empty ||lastNext.loop.get(h).empty){
 									pillier.loop.get(h).empty=true;
 								}
 							}
-							
 						} else {
 							boolean satis = true;
 							if(pillier.link.contains("OR")){

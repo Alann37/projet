@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 public class AndCondition {
 	boolean firstPart;

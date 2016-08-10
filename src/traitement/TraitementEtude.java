@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +55,7 @@ public class TraitementEtude extends Thread {
 	public void run(){
 		System.out.println("début de "+etudeName);
 		ConnectURL connectionWithDB = new ConnectURL();
+		//	System.out.println("test validation guide " + validationGuide);
 		try {
 			etudes = connectionWithDB.importDatabase(base, language,serveur);
 		} catch (IOException e2) {
@@ -64,8 +65,9 @@ public class TraitementEtude extends Thread {
 		System.out.println("xfin import bdd pour "+ etudeName);
 		onTreatment=true;
 		
-		
-		checkEtude();
+		if(validationGuide!=null){
+			checkEtude();
+		}
 		System.out.println("isTreated " + etudeName);
 		do{
 			File f2 = null;
@@ -154,10 +156,20 @@ public class TraitementEtude extends Thread {
 				for(int j = 0 ; j < temp.getReponses().size();j++){
 					Reponse rTemp = temp.getReponses().get(j);
 					if(rTemp.questionName!=null){
+						
 						for(int h = 0 ; h < questions.size() ; h ++){
 							if(questions.get(h).name.equals(rTemp.questionName)){
 								questions.get(h).reponses.add(rTemp);
 								//h=questions.size();
+							}
+							if(rTemp.isPartOfLoop()){
+								if(questions.get(h).name.equals(rTemp.questionTag.split("\\.")[0])){
+									questions.get(h).reponses.add(rTemp);
+								}
+							} else {
+								if(questions.get(h).name.equals(rTemp.questionTag)){
+									questions.get(h).reponses.add(rTemp);
+								}
 							}
 							questions.get(h).setNa();
 						}
@@ -193,6 +205,7 @@ public class TraitementEtude extends Thread {
 				this.etudes.set(i, temp);
 			}
 		}		
+		System.out.println("Check etude over for " + etudeName);
 	}
 	public String getLanguage() {
 		return language;

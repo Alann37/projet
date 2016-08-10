@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,18 +52,25 @@ public class TraitementEntrer {
 	public void setQuestionName(List<Question> questions){
 		for(int i = 0 ; i < reponses.size(); i ++){
 			String temp = reponses.get(i).getQuestionTag();
+			
 			if(temp.contains(".")){
 				temp = temp.split("\\.")[0];
 			}
-			if(temp.contains("_")){
+			if(temp.contains("_") && !temp.contains("date")){
 				temp = temp.split("_")[0];
 			}
 			for(int j = 0 ; j< questions.size();j++){
+			
 				String s = questions.get(j).name;
-				s = s.replaceAll("\\s+", "");
 				
-				if(temp.equals(s) && !reponses.get(i).isSetOnQuestion ){
+				s = s.replaceAll("\\s+", "");
+				s=s.replaceAll(" ", "");
+				if(reponses.get(i).questionTag.equals(s)){
 					reponses.get(i).questionName=questions.get(j).name;
+					reponses.get(i).isSetOnQuestion=true;
+				}else if(temp.equals(s) && !reponses.get(i).isSetOnQuestion ){
+					reponses.get(i).questionName=s;
+					questions.get(j).setName(s);
 					//System.out.println("test questiontag " + reponses.get(i).questionTag + " et question name "+reponses.get(i).questionName);
 					reponses.get(i).isSetOnQuestion=true;
 				}

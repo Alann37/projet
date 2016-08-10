@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -675,34 +675,7 @@ public class Question {
 					}
 				}
 			}
-			if (c.type[h] == 6) {
-				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) > c.max || answer.reponseDate.get(Calendar.YEAR) < c.min
-							&& !answer.shouldBeEmpty && !answer.isEmpty) {
-						gestionDisqualifAndOr(answer, qRet, andC);
-					}
-					if (answer.reponseDate.get(Calendar.YEAR) <= c.max || answer.reponseDate.get(Calendar.YEAR) >= c.min
-							&& !answer.shouldBeEmpty && !answer.isEmpty) {
-						if (!c.associateCondition.isEmpty()) {
-							if (c.andorOr) {
-								qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition, andC, true));
-							} else {
-								qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition, andC, false));
-							}
-						}
-					}
-				}
-				if (!answer.disqualif &&!c.withBraket) {
-					if (!andC.andOr) {
-						andC.firstAnswer.disqualif = false;
-						if (andC.previous != null) {
-							if (!andC.previous.andOr) {
-								andC.previous.firstAnswer.disqualif = false;
-							}
-						}
-					}
-				}
-			}
+		
 			if (c.type[h] == 7) {
 				qRet.isConstSum = true;
 				if (answer.questionTag.contains(".")) {
@@ -855,9 +828,6 @@ public class Question {
 
 	public QuestionReturn gestionTypeCondition(QuestionReturn option, Condition c, Reponse answer) {
 		QuestionReturn qRet = new QuestionReturn();
-		if(c.withBraket){
-			//System.outprintln("gestionType with braket");
-		}
 		qRet = option;
 		for (int h = 0; h < c.type.length; h++) {
 			if (c.type[h] == 0) {
@@ -872,7 +842,6 @@ public class Question {
 						qRet.andConditions.add(new AndCondition(answer, true, c.associateCondition, false));
 					}
 				}
-
 			}
 			if (c.type[h] == 1) {
 				if (answer.reponseNumeric <= (double) c.inf && answer.reponseNumeric != naValue && !answer.shouldBeEmpty
@@ -1107,13 +1076,17 @@ public class Question {
 	 */
 	private QuestionReturn gestionTypeConditionDate(QuestionReturn option, Condition c, Reponse answer) {
 		QuestionReturn qRet = new QuestionReturn();
-		qRet = option;
+		qRet = option;	
+		if(name.contains("P6")){
+			int toto=0;
+			toto++;
+		}
 		for (int h = 0; h < c.type.length; h++) {
 			if (c.type[h] == 0) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) > c.sup && answer.reponseNumeric != naValue
+					if (answer.reponseDate.after(c.dateCondition)   && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
-						if (c.skip && !c.doubleSkip) {
+						if (c.skip && !c.doubleSkip) {	
 							qRet.gotSkipTo = true;
 							qRet.questionSkip = c.questionSkip;
 							qRet.validate = true;
@@ -1156,7 +1129,7 @@ public class Question {
 			}
 			if (c.type[h] == 1) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) < c.inf && answer.reponseNumeric != naValue
+					if (answer.reponseDate.before(c.dateCondition)  && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1197,7 +1170,7 @@ public class Question {
 
 						}
 					}
-					if (answer.reponseDate.get(Calendar.YEAR) > c.inf && answer.reponseNumeric != naValue
+					if (answer.reponseDate.compareTo(c.dateCondition)>0 && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty && c.multiple) {
 						if (answer.questionTag.contains(".")) {
 							qRet.conditions
@@ -1210,7 +1183,7 @@ public class Question {
 			}
 			if (c.type[h] == 2) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR)== c.eq && answer.reponseNumeric != naValue
+					if (answer.reponseDate.equals(c.dateCondition) && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip) {
 						qRet.validate = false;
 						if(!c.withBraket){
@@ -1221,7 +1194,7 @@ public class Question {
 						}
 
 
-					} else if (answer.reponseDate.get(Calendar.YEAR) != c.eq && answer.reponseNumeric != naValue
+					} else if (answer.reponseDate.compareTo(c.dateCondition)==0 && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1257,7 +1230,7 @@ public class Question {
 			}
 			if (c.type[h] == 3) {
 				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) != c.neq && answer.reponseNumeric != naValue
+					if (!answer.reponseDate.equals(c.dateCondition)  && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty && !c.multiple && !c.skip && !c.doubleSkip) {
 
 						qRet.validate = false;
@@ -1269,7 +1242,7 @@ public class Question {
 						}
 
 
-					} else if (answer.reponseDate.get(Calendar.YEAR) == c.neq && answer.reponseNumeric != naValue
+					} else if (answer.reponseDate.compareTo(c.dateCondition)!=0 && answer.reponseNumeric != naValue
 							&& !answer.shouldBeEmpty && !answer.isEmpty) {
 						if (c.skip && !c.doubleSkip) {
 							qRet.gotSkipTo = true;
@@ -1298,47 +1271,9 @@ public class Question {
 					}
 				}
 			}
-			if (c.type[h] == 5) {
-				if (answer.reponseDate != null) {
-					if (answer.reponseDate.get(Calendar.YEAR) > c.max || answer.reponseDate.get(Calendar.YEAR) < c.min
-							&& !answer.shouldBeEmpty && !answer.isEmpty) {
-						if (c.skip && !c.doubleSkip) {
-							qRet.gotSkipTo = true;
-							qRet.questionSkip = c.questionSkip;
-							qRet.questionSkip = qRet.questionSkip.replaceAll(" ", "");
-							qRet.validate = true;
-							qRet.setQuestionNumber();
-							if (answer.partOfLoop) {
-								qRet.loopPart.add(
-										new SkipCondition(answer.questionName, answer.questionTag.split("\\.")[1]));
-							}
-						} else if (c.skip && c.doubleSkip) {
-							qRet.doubleSkip = true;
-							qRet.beginSkip = c.questionSkip;
-							qRet.endSkip = c.questionSkipTo;
-							qRet.validate = true;
-							qRet.gotSkipTo = true;
-							if (answer.partOfLoop) {
-								qRet.loopPart.add(new SkipCondition(c.questionSkip, c.questionSkipTo,
-										answer.questionTag.split("\\.")[1]));
+			
 
-							}
-						} else if (c.multiple) {
-							if (answer.questionTag.contains(".")) {
-								qRet.conditions
-										.add(new MultipleCondition(c.questionSkip, answer.questionTag.split("\\.")[1]));
-							} else {
-								qRet.conditions.add(new MultipleCondition(c.questionSkip));
-							}
-						} else {
-							qRet.validate = false;
-							answer.disqualif = true;
-						}
-					}
-
-				}
-
-			}
+			
 		}
 
 		return qRet;
@@ -1375,7 +1310,7 @@ public class Question {
 			if (c.notEmptyCondition) {
 				qRet = gestionConditionNotEmpty(qRet, c);
 			} else {
-				if (answer.isDate) {
+				if (c.isDate) {
 					if (c.tag != null) {
 						if (!c.countryTag.isEmpty()) {
 							if (answer.questionTag.contains(c.tag) && qRet.etudename.contains(c.countryTag)) {
@@ -1424,10 +1359,6 @@ public class Question {
 		boolean alreadyAssign = false;
 		qRet.etudename = option.etudename;
 		boolean alreadyDoubleSkip = false;
-		if(name.equals("S10") ||name.contains("S15") ||name.contains("S9")){// || name.contains("S8")){
-			int toto=0;
-			toto++;
-		}
 		boolean isSkiped = false;
 		if (!reponses.isEmpty()) {
 			if(!option.skipTo.isEmpty()){

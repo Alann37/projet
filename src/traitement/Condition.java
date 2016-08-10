@@ -1,7 +1,14 @@
-package importExcel;
+package traitement;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 
 public class Condition {
 	
@@ -29,6 +36,7 @@ public class Condition {
 	double eq;
 	double neq;
 	double constSumRes;
+	Date dateCondition;
 	
 	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox 9 nb Item Check 10 item uncheck
 	int[] type;
@@ -532,7 +540,7 @@ public class Condition {
 				max = Double.parseDouble(newCondition);
 			}
 		} 
-		if(!init){
+		if(!init && !isDate){
 			if(condition.contains("SUP")){
 				newCondition = condition.replaceAll("[^\\d.]", "");
 				if(!questionValue){
@@ -644,6 +652,68 @@ public class Condition {
 			}
 			
 		} 
+		if(isDate){
+	
+			
+			if(condition.contains("SUP")){
+				condition  = condition.replaceAll("SUP","");
+				type[indice] =0 ;
+				DateFormat d = new SimpleDateFormat("dd/mm/yy");
+				
+		
+				try {
+					dateCondition = d.parse(condition);
+					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}else if(condition.contains("INF")){
+				condition  = condition.replaceAll("INF","");
+				type[indice] = 1;
+				DateFormat d = new SimpleDateFormat("dd/mm/yy");
+				
+		
+				try {
+					dateCondition = d.parse(condition);
+					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}else if(condition.contains("EQ") && !condition.contains("NEQ")){
+				condition  = condition.replaceAll("EQ","");
+				type[indice] = 2;
+				
+				DateFormat d = new SimpleDateFormat("dd/mm/yy");
+				
+		
+				try {
+					dateCondition = d.parse(condition);
+					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if(condition.contains("NEQ")){
+				condition  = condition.replaceAll("NEQ","");
+				type[indice] = 3;
+				DateFormat d = new SimpleDateFormat("dd/mm/yy");
+				
+	
+				try {
+					dateCondition = d.parse(condition);
+					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 	}
 }
 	

@@ -6,8 +6,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import Configuration.Configuration;
-import importExcel.Reponse;
-import importExcel.TraitementEntrer;
+import traitement.Reponse;
+import traitement.TraitementEntrer;
 
 public class ConnectURL {
 	public ConnectURL(){
@@ -50,6 +50,7 @@ public class ConnectURL {
 	            	stmt = con.createStatement();
 	            	rs = stmt.executeQuery(query);
 	          		for(int j = 1; j <= rs.getMetaData().getColumnCount();j++){
+	          		
 	          			if(firstPassage){
 	          				lRet.add(rs.getMetaData().getColumnLabel(j));
 	          				firstPassage= false;
@@ -100,7 +101,6 @@ public class ConnectURL {
 	        		   if(rs.getString(i)==null){
 	        			 //  System.out.println("passage pour la colonne "+rs.getMetaData().getColumnLabel(i) + " type = " + rs.getMetaData().getColumnType(i));
 	        		   }else {
-	        			   
 	        			   int columnCount = ((passage*201) + i)-(1+passage+decalage);
 	        			   //System.out.println("valeur de i = "+ i + "valeur de column = " + columnCount + " et columnLabel = " + rs.getMetaData().getColumnLabel(i));
 

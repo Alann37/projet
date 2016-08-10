@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -206,7 +206,6 @@ public class ReadExcel {
 		XSSFCell cell;
 		List<TraitementEntrer> listeEntrer = new ArrayList<TraitementEntrer>();
 		Iterator rows = sh.rowIterator();
-		
 	    XSSFRow row;
 		while(rows.hasNext()){
 		   row = (XSSFRow)rows.next();
@@ -215,7 +214,7 @@ public class ReadExcel {
 		   if(row.getRowNum()>0){
 			   while(cells.hasNext()){
 				   cell=(XSSFCell) cells.next();
-				   listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex()))); 
+			//	   listeEntrer.get(row.getRowNum()-1).getReponses().add(new Reponse(cell,sh.getRow(0).getCell(cell.getColumnIndex()))); 
 			   }
 		    
 		   	}
@@ -295,8 +294,8 @@ public class ReadExcel {
 		//System.out.println("test acquire for " + file.getName()  + " " +sem.tryAcquire());
 
 				
-			try {
-				sem.acquire();
+			//	try {
+				//sem.acquire();
 				System.out.println("sem acquire for "+ file.getName());
 				List<TraitementEntrer> list = study.getEtudes();
 			//	Go_Chrono();
@@ -362,14 +361,14 @@ public class ReadExcel {
 					}
 					shPage=0;
 					disqu= false;
-				
+					double sysNum = list.get(i-1).getReponses().get(0).reponseNumeric;
 					for(int j = 0 ; j < list.get(i-1).getReponses().size();j++){
 						
 						if(j>=16384){
 							shPage++;							
 						} 
 							if(!list.get(i-1).getReponses().get(j).isEmpty){
-								
+									
 								//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
 										int columnIndex = list.get(i-1).getReponses().get(j).columnPosition;
 										if(columnIndex>=16384){
@@ -419,11 +418,17 @@ public class ReadExcel {
 							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleDisqu);
 						}
 					}
+					if(shs.size()>1){
+						for(int j = 1 ; j < shs.size();j++){
+							shs.get(j).getRow(rowNum).createCell(0).setCellValue(sysNum);
+							shs.get(j).getRow(rowNum).getCell(0).setCellValue(sysNum);
+						}
+					}
 					disqu = false;
 					aerDisqu=false;
 					list.remove(i-1);
 					i--;
-				}
+				}/*
 				if(books.getNumberOfSheets()>1){
 					int rowFirstPage =books.getSheetAt(0).getLastRowNum();
 					for(int i = 1; i < books.getNumberOfSheets();i++){
@@ -441,7 +446,7 @@ public class ReadExcel {
 							}
 						}
 					}
-				}
+				}*/
 				int fileNumber =0;
 				boolean isWrite = false;
 				
@@ -460,19 +465,19 @@ public class ReadExcel {
 					}
 				}while(!isWrite);
 				
-				FileOutputStream writer = new FileOutputStream(file);
+				FileOutputStream writer = new FileOutputStream(f2);
 
 				books.write(writer);
 				books.close();
 				System.out.println("Sem release " + file.getPath());
-				sem.release();
+				//sem.release();
 				return true;
-			} catch (InterruptedException e) {
+			/*} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("passage catch ");
 				return false;
-			} 
+			} */
 	}
 	
 	

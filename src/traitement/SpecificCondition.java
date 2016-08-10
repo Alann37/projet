@@ -1,4 +1,4 @@
-package importExcel;
+package traitement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class SpecificCondition {
 	String link;
 	List<ValidationBoucle> loop;
 	List<Reponse> answers;
-	public SpecificCondition (String condition, int i ,boolean b,int begin){
+	public SpecificCondition (String condition, int i ,boolean b,int begin	){
 		empty=false;
 		satisfied=false;
 		beginBraket=begin;
@@ -43,12 +43,12 @@ public class SpecificCondition {
 				}
 				if(link !=null){
 					if(link.contains("_")){
-						if(link.split("_").length==2){
+						if(link.split("_").length==2 && !link.contains("date")){
 							
 							String tag = "_" + link.split("_")[1];
 							condition +=tag;
 							link = link.replaceAll(tag, "");
-						}else if (link.split("_").length==3){
+						}else if (link.split("_").length==3 &&!link.contains("date")){
 							String tag = "_" + link.split("_")[1]+"_"+link.split("_")[2];
 							condition += tag;
 							link = link.replaceAll(tag, "");
@@ -72,7 +72,7 @@ public class SpecificCondition {
 			c=null;
 		}
 	}
-	@Override
+	@Override	
 	public String toString() {
 		return "SpecificCondition [c=" + c + ", braketPlace=" + braketPlace + ", isLink=" + isLink + ", link=" + link
 				+ "]";

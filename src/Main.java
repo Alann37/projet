@@ -19,11 +19,10 @@ import Graphic.MainView;
 import baseLibelle.ExportLibeleBase;
 import baseLibelle.ImportTxt;
 import baseLibelle.StudyQuotas;
-import importExcel.Filter;
-import importExcel.ReadExcel;
-
-import importExcel.TraitementEtude;
 import importMSQLServer.InformationBDD;
+import traitement.Filter;
+import traitement.ReadExcel;
+import traitement.TraitementEtude;
 
 
 public class Main {
@@ -121,6 +120,7 @@ public class Main {
 				Error er = new Error(e.getMessage()); er.printError();
 			}
 			String temp =printStudys[i].getName();
+			temp = temp.replace("Print", "");
 		/*	temp=temp.replaceAll("Print","");
 			temp=temp.replaceAll(".txt","");
 			temp= temp.replaceAll("[^\\d.]", "");*/
@@ -226,7 +226,7 @@ public class Main {
     	//exportQuotas();*/
 				
 			//exportQuotas();
-			createMaster();
+	//	createMaster();
 			
     	//ReadExcel.callExcelMacro();
 			Stop_Chrono();
