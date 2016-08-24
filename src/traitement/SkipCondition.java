@@ -1,5 +1,11 @@
 package traitement;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe permettant la gestion des skipto
+ *
+ */
 public class SkipCondition {
 	String loopNumber;
 	String questionName;

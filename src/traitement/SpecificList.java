@@ -2,7 +2,14 @@ package traitement;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * 
+ * @author dbinet
+ *
+ *contient l'ensemble des conditions simple d'une condition multiple
+ *
+ */
 public class SpecificList {
 	List<SpecificCondition> conditions;
 	String countryTag;

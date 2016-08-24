@@ -16,7 +16,11 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import Configuration.Configuration;
-
+/**
+ * 
+ * @author dbinet
+ * classe permettant de modifier le fichier config via une interface graphique, classe non utilisé
+ */
 public class OptionView extends JDialog {
 	private JPanel buttonPane;
 	public JTextField tfConfig1;

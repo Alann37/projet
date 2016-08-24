@@ -1,8 +1,17 @@
 package traitement;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * 
+ * 
+ * @author dbinet
+ *
+ *classe représentant une condition simple d'une condition multiple
+ *
+ */
 public class SpecificCondition {
 	Condition c;
 	int beginBraket;
@@ -18,7 +27,7 @@ public class SpecificCondition {
 	String link;
 	List<ValidationBoucle> loop;
 	List<Reponse> answers;
-	public SpecificCondition (String condition, int i ,boolean b,int begin	){
+	public SpecificCondition (String condition, int i ,boolean b,int begin	) throws IOException{
 		empty=false;
 		satisfied=false;
 		beginBraket=begin;
@@ -57,7 +66,6 @@ public class SpecificCondition {
 					}
 				}
 			}
-			
 			if(link!=null){
 				link = link.replaceAll(" ", "");
 			}

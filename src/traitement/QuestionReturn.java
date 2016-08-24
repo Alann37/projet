@@ -1,11 +1,19 @@
-package traitement;
+package traitement;	
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hwpf.model.types.SEPAbstractType;
 
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe servant a passer les informations lors du déroulement de l'étude 
+ *(stocker les conditions multiple/les skipTo)
+ *
+ */
 public class QuestionReturn {
 	boolean validate;
 	boolean gotSkipTo;
@@ -41,7 +49,6 @@ public class QuestionReturn {
 		questionTagSum =  new ArrayList<String>();
 		andConditions = new ArrayList<AndCondition>();
 		specificC = new ArrayList<SpecificList>();
-		
 		loopNumber="";
 	}
 	public QuestionReturn (boolean val, boolean gotSkip, String q,int questionNum,String etudename){
@@ -102,26 +109,27 @@ public class QuestionReturn {
 		return questionSkip;
 	}
 	
-	public void setSpecific(){
-	
+	public int setSpecific() throws IOException{
 		//Sytem.out.println("debut setspecific");
+		int iRet = 0;
 		QuestionReturn qRet = new QuestionReturn(true, this.etudename);		
 		Question qu = new Question("");
 		List<SpecificCondition> cs = new ArrayList<SpecificCondition>();
 		List<SpecificCondition> temp = new ArrayList<SpecificCondition>();
 		for(int i = 0 ; i < specificC.size();i++){
 			if(specificC.get(i).countryTag.isEmpty()){
-				validationConditionSpecific(qRet,i);
+				iRet+=validationConditionSpecific(qRet,i);
 			}else{
 				if(this.etudename.contains(specificC.get(i).countryTag)){
-					validationConditionSpecific(qRet,i);
+					iRet+=validationConditionSpecific(qRet,i);
 				}
 			}
 		}
-		//Sytem.out.println("fin setSpecific");
+		return iRet;
 	}
 	
-	private void validationConditionSpecific(QuestionReturn qRet, int i){
+	private int validationConditionSpecific(QuestionReturn qRet, int i) throws IOException{
+		int iRet=0;
 		List<String> listLoop = new ArrayList<String>();
 		String loopPart="";
 		//Mise en place de toute les itérations de la boucle
@@ -138,10 +146,8 @@ public class QuestionReturn {
 						listLoop.add(specificC.get(i).conditions.get(j).answers.get(h).questionTag.split("\\.")[1]);
 					}
 				}
-				
 			}
 		}
-		
 		for(int j = 0 ;j  < listLoop.size();j++){
 			for(int h = j+1; h < listLoop.size();h++){
 				if(Integer.valueOf(listLoop.get(j))>Integer.valueOf(listLoop.get(h))){
@@ -153,13 +159,13 @@ public class QuestionReturn {
 		}
 		// traitement des premieres conditions simple
 		for(int j = 0 ; j < specificC.get(i).conditions.size();j++){
-			
 			loopPart ="";
 			if(!specificC.get(i).conditions.get(j).isLink){
-				
+				boolean passage = false;
 				Question qu = new Question("");
 				for(int h = 0 ; h < specificC.get(i).conditions.get(j).answers.size();h++){
 					boolean treat = true;
+					passage = true;
 					qRet.validate=true;
 					if(specificC.get(i).conditions.get(j).isValue){
 						if(!specificC.get(i).conditions.get(j).answers.get(h).isPartOfLoop()){
@@ -209,9 +215,12 @@ public class QuestionReturn {
 					} else {
 						specificC.get(i).conditions.get(j).satisfied=qRet.validate;
 					}
-					
 				}
 				specificC.get(i).conditions.get(j).treated=true;
+				if(!passage){
+					specificC.get(i).conditions.get(j).empty=true;
+					specificC.get(i).conditions.get(j).satisfied=true;					
+				}
 				if(specificC.get(i).conditions.get(j).loop.size()<listLoop.size()){
 					for(int l = 0; l < listLoop.size(); l++){
 						boolean add=true;
@@ -226,7 +235,6 @@ public class QuestionReturn {
 						}
 					}
 				}
-				
 			}
 		}
 		//boucle pour remettre les loop number dans le bon ordre
@@ -327,30 +335,30 @@ public class QuestionReturn {
 									} else {
 										if(temp.get(1).loop.get(k).satisfied ||temp.get(2).loop.get(k).satisfied){
 											satis = true;
-											
-										
 										}
 									}
-									
 								}else {
 									if(temp.get(0).inLoop){
 										if(temp.get(0).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart) &&temp.get(1).loop.get(k).loopPart.equals(temp.get(2).loop.get(k).loopPart)){
 											if(temp.get(1).loop.get(k).satisfied &&temp.get(2).loop.get(k).satisfied){
 												satis = true;
-											}
-											
+											}		
 										}
 									}  else {
 										if(temp.get(1).loop.get(k).satisfied &&temp.get(2).loop.get(k).satisfied){
 												satis = true;
 										}
 									}
-								
-									
 								}
 								temp.get(0).loop.get(k).satisfied = satis ;//(new ValidationBoucle(satis,temp.get(1).loop.get(k).loopPart));
-								if(temp.get(1).loop.get(k).empty || temp.get(2).loop.get(k).empty){
-									temp.get(0).loop.get(k).empty=true;									
+								if(temp.get(0).link.contains("AND")){
+									if(temp.get(1).loop.get(k).empty || temp.get(2).loop.get(k).empty){
+										temp.get(0).loop.get(k).empty=true;									
+									}
+								} else {
+									if(temp.get(1).loop.get(k).empty && temp.get(2).loop.get(k).empty){
+										temp.get(0).loop.get(k).empty=true;									
+									}
 								}
 							}
 						} else {
@@ -368,7 +376,6 @@ public class QuestionReturn {
 			}
 		}
 		}while(nbrTreat < specificC.get(i).conditions.size());
-	
 		SpecificCondition link = null;
 		int endBraket=-2;
 		for(int j=0 ; j < specificC.get(i).conditions.size();j++){
@@ -395,7 +402,6 @@ public class QuestionReturn {
 										if(!link.loop.get(h).empty && !specificC.get(i).conditions.get(j).loop.get(h).empty){
 											specificC.get(i).conditions.get(j).loop.get(h).satisfied=false;
 										}
-										 
 									}
 								} else {
 									if(!link.loop.get(h).satisfied &&!specificC.get(i).conditions.get(j).loop.get(h).satisfied){
@@ -469,7 +475,6 @@ public class QuestionReturn {
 				lastNext = specificC.get(i).conditions.get(j);
 			}
 		}
-		
 		if(lastPrevious!= null && lastNext!= null && pillier!= null){
 				if(lastPrevious.inLoop){
 					pillier.inLoop=true;
@@ -484,7 +489,6 @@ public class QuestionReturn {
 								satis = false;
 							}
 						}
-						
 						pillier.loop.get(h).satisfied=satis;
 						if(lastPrevious.loop.get(h).empty ||lastNext.loop.get(h).empty){
 							pillier.loop.get(h).empty=true;
@@ -506,7 +510,6 @@ public class QuestionReturn {
 					pillier.treated=true;
 				}
 		}
-	
 		for(int j = 0 ;j  < specificC.get(i).conditions.size();j++){
 			if(specificC.get(i).conditions.get(j).loop.size()>0){
 				for(int h = 0 ; h < specificC.get(i).conditions.get(j).loop.size();h++){
@@ -533,12 +536,23 @@ public class QuestionReturn {
 				}
 			}
 		}
-			
+		if(pillier.inLoop){
+			for(int j = 0 ; j < pillier.loop.size();j++){
+				if(!pillier.loop.get(j).satisfied){
+					iRet++;
+				}
+			}
+		}else {
+			if (!pillier.satisfied){
+				iRet++;
+			}
+		}
 		for(int j = 0 ; j < specificC.get(i).conditions.size();j++){
 			if(pillier != null){
 				for(int h = 0; h < specificC.get(i).conditions.get(j).answers.size();h++){
 					if(!pillier.inLoop){
 						if(!pillier.satisfied){
+						
 							specificC.get(i).conditions.get(j).answers.get(h).disqualif = true;
 							if(specificC.get(i).isAer ){
 								specificC.get(i).conditions.get(j).answers.get(h).isAerDisq=true;
@@ -546,12 +560,15 @@ public class QuestionReturn {
 						}
 					} else {
 						for(int p = 0 ; p < listLoop.size();p++){
-							if( !pillier.loop.get(p).empty&&specificC.get(i).conditions.get(j).answers.get(h).questionTag.split("\\.")[1].contains(pillier.loop.get(p).loopPart)){
+							if( !pillier.loop.get(p).empty&&specificC.get(i).conditions.get(j).answers.get(h).questionTag.split("\\.")[1].equals(pillier.loop.get(p).loopPart)){
 								if(!pillier.loop.get(p).satisfied){
 									specificC.get(i).conditions.get(j).answers.get(h).disqualif = true;
 									if(specificC.get(i).isAer){
 										specificC.get(i).conditions.get(j).answers.get(h).isAerDisq= true;
 									}
+									break;
+								} else {
+									break;
 								}
 							}
 						}
@@ -583,15 +600,13 @@ public class QuestionReturn {
 				specificC.get(i).conditions.get(j).satisfied=false;
 				specificC.get(i).conditions.get(j).treated=false;
 			}
-			//System.out.println("condition sur : " + specificC.get(i).conditions.get(j).link +" braketPlace = " + specificC.get(i).conditions.get(j).braketPlace+  " treated = " + specificC.get(i).conditions.get(j).treated + " satisfied = "+ specificC.get(i).conditions.get(j).satisfied) ;
 		}
 		pillier.satisfied=false;
 		pillier.treated=false;
 		temp.clear();
+		return iRet;
 		//System.out.println();
 	}
-	
-	
 	
 	public void setQuestionSkip(String questionSkip) {
 		this.questionSkip = questionSkip;

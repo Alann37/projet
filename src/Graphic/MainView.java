@@ -1,5 +1,7 @@
 package Graphic;
-
+/**
+ * classe permettant un affichage simple, non utilisé car lancement automatique de l'application
+ */
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,13 +27,13 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.store.Path;
 import ErrorLog.Error;
 import Configuration.Configuration;
-import baseLibelle.ExportLibeleBase;
-import baseLibelle.ImportTxt;
-import baseLibelle.SawtoothList;
 import importMSQLServer.InformationBDD;
 import traitement.Filter;
 import traitement.ReadExcel;
 import traitement.TraitementEtude;
+import traitementPrintStudy.ExportLibeleBase;
+import traitementPrintStudy.ImportTxt;
+import traitementPrintStudy.SawtoothList;
 import importMSQLServer.ConnectURL;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;

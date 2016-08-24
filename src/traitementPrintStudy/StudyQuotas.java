@@ -1,8 +1,14 @@
-package baseLibelle;
+package traitementPrintStudy;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe contenant toute les informations relatives aux quotas d'une étude
+ *
+ */
 public class StudyQuotas {
 	List<InfoQuota> quotas;
 	String language;

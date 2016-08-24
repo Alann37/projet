@@ -1,6 +1,8 @@
 package traitement;
 
 import java.io.File;
+
+
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -12,6 +14,15 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import Configuration.Configuration;
 
 import importMSQLServer.ConnectURL;
+
+/**
+ * 
+ * 
+ * @author dbinet
+ *
+ *classe représentant l'étude, c'est dans cette classe que les appels de validation seront fait
+ *
+ */
 public class TraitementEtude extends Thread {
 	private String etudeName;
 	private List<Question> questions;
@@ -55,7 +66,7 @@ public class TraitementEtude extends Thread {
 	public void run(){
 		System.out.println("début de "+etudeName);
 		ConnectURL connectionWithDB = new ConnectURL();
-		//	System.out.println("test validation guide " + validationGuide);
+
 		try {
 			etudes = connectionWithDB.importDatabase(base, language,serveur);
 		} catch (IOException e2) {
@@ -66,10 +77,16 @@ public class TraitementEtude extends Thread {
 		onTreatment=true;
 		
 		if(validationGuide!=null){
-			checkEtude();
+			try { // lancement du traitement de l'étude 
+				checkEtude();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		System.out.println("isTreated " + etudeName);
 		do{
+			// création du fichier pour l'export
 			File f2 = null;
 			try {
 				String sPath = "";
@@ -143,31 +160,32 @@ public class TraitementEtude extends Thread {
 	public void cleanAnswer(){
 
 	}
-	public void checkEtude(){
-
+	public void checkEtude() throws IOException{
+		int nbrAer=0;
 		for(int i = 0 ; i < etudes.size(); i ++){
 			if(i%200==0){
 				System.out.println("passage pour i = " + i +"/"+etudes.size()+ " et études : "+ etudeName);
 			}
 			TraitementEntrer temp = etudes.get(i);
-			
+			// insertions des réponses du répondant dans les questions pour le traitement
 			if(questions.size()>0){
 				temp.setQuestionName(questions);
 				for(int j = 0 ; j < temp.getReponses().size();j++){
 					Reponse rTemp = temp.getReponses().get(j);
 					if(rTemp.questionName!=null){
-						
 						for(int h = 0 ; h < questions.size() ; h ++){
+							boolean treat = false;
 							if(questions.get(h).name.equals(rTemp.questionName)){
 								questions.get(h).reponses.add(rTemp);
+								treat=true;
 								//h=questions.size();
 							}
 							if(rTemp.isPartOfLoop()){
-								if(questions.get(h).name.equals(rTemp.questionTag.split("\\.")[0])){
+								if(questions.get(h).name.equals(rTemp.questionTag.split("\\.")[0])&& !treat ){
 									questions.get(h).reponses.add(rTemp);
 								}
 							} else {
-								if(questions.get(h).name.equals(rTemp.questionTag)){
+								if(questions.get(h).name.equals(rTemp.questionTag) && !treat){
 									questions.get(h).reponses.add(rTemp);
 								}
 							}
@@ -175,7 +193,7 @@ public class TraitementEtude extends Thread {
 						}
 					}
 				}
-				
+				// traitement des questions ( traitement des conditions )
 				QuestionReturn skipTo= new QuestionReturn(true,false,"",-1,etudeName) ;
 				for(int t = 0 ; t < questions.size(); t++){
 					skipTo.validate=true;
@@ -186,13 +204,18 @@ public class TraitementEtude extends Thread {
 						}
 						skipTo = returnQuest;
 				} 
+				//clear des réponses pour le prochain répondant
 				for(int o = 0 ; o <questions.size() ; o ++){
 					questions.get(o).reponses.clear();
 				}
-
- 				skipTo.setSpecific();
-				for(int m = 0 ; m < skipTo.specificC.size();m++){
-					for(int n = 0 ; n < 	skipTo.specificC.get(m).conditions.size();n++){
+				int previousAer = nbrAer;
+				//traitement des conditions multiple
+				nbrAer+=skipTo.setSpecific();
+				
+				//clear des conditions multiples pour le prochain répondant
+				for(int m = 0 ; m < skipTo.specificC.size();m++){	
+					
+					for(int n = 0 ; n < skipTo.specificC.get(m).conditions.size();n++){
 						skipTo.specificC.get(m).conditions.get(n).answers.clear();
 						skipTo.specificC.get(m).conditions.get(n).loop.clear();
 						if(!skipTo.specificC.get(m).conditions.get(n).isLink){
@@ -206,6 +229,7 @@ public class TraitementEtude extends Thread {
 			}
 		}		
 		System.out.println("Check etude over for " + etudeName);
+		System.out.println("nbr aer = " + nbrAer);
 	}
 	public String getLanguage() {
 		return language;

@@ -1,5 +1,7 @@
 package Graphic;
-
+/**
+ * classe non utiliser a l'heure actuel, il s'agit d'un compteur pour montrer la progression du traitement
+ */
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 

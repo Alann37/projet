@@ -2,44 +2,33 @@ package traitement;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe représentant un répondant
+ *
+ */
 public class TraitementEntrer {
 	private List<Reponse> reponses;
 	private boolean disqualif;
-
 	public TraitementEntrer(){
 		disqualif = false;
-
-		reponses = new ArrayList<Reponse>();
-
-		
+		reponses = new ArrayList<Reponse>();	
 	}
-
 	public List<Reponse> getReponses() {
 		return reponses;
 	}
-
 	public void setReponses(List<Reponse> reponses) {
 		this.reponses = reponses;
 	}
-
-
-	
-
-
-
-
 	public boolean isDisqualif() {
 		return disqualif;
 	}
-
 	public void setDisqualif(boolean disqualif) {
 		this.disqualif = disqualif;
 	}
-
-
-
-	@Override
+	@Override	
 	public String toString() {
 		String sRet = "";
 		for(int i = 0 ; i < reponses.size(); i ++){
@@ -48,7 +37,9 @@ public class TraitementEntrer {
 		}
 		return sRet;
 	}
-	
+	/*
+	 *  fonction de mise en place des réponses dans les différentes questions détectée
+	 * */
 	public void setQuestionName(List<Question> questions){
 		for(int i = 0 ; i < reponses.size(); i ++){
 			String temp = reponses.get(i).getQuestionTag();
@@ -60,9 +51,7 @@ public class TraitementEntrer {
 				temp = temp.split("_")[0];
 			}
 			for(int j = 0 ; j< questions.size();j++){
-			
 				String s = questions.get(j).name;
-				
 				s = s.replaceAll("\\s+", "");
 				s=s.replaceAll(" ", "");
 				if(reponses.get(i).questionTag.equals(s)){

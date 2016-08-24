@@ -1,8 +1,14 @@
-package baseLibelle;
+package traitementPrintStudy;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe servant à la création des Quotas via les prints studys
+ *
+ */
 public class InfoQuota {
 	public List<PartOfQuota> getPosibility() {
 		return posibility;

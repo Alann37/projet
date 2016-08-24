@@ -35,11 +35,18 @@ import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 
 import Configuration.Configuration;
-import baseLibelle.InfoQuota;
-import baseLibelle.StudyQuotas;
+import ErrorLog.Error;
 import importMSQLServer.ConnectURL;
 import importMSQLServer.InformationBDD;
-
+import traitementPrintStudy.InfoQuota;
+import traitementPrintStudy.StudyQuotas;
+/**
+ * 
+ * @author dbinet
+ *
+ *classe permettant de faire l'export excel
+ *
+ */
 public class ReadExcel {
 	
 	static long chrono;
@@ -54,7 +61,7 @@ public class ReadExcel {
 		System.out.println("Temps ecoule = " + temps + " ms") ; 
 		return temps;
 		} 
-
+/* semaphore pas utilisé car en cas de problemes d'écriture, ne se libérait pas */
 	static Semaphore sem = new Semaphore(1,true);
 	public static void exportQuota(List<StudyQuotas> listQuotas,File file) throws IOException{
 		XSSFWorkbook books = new XSSFWorkbook();
@@ -118,7 +125,6 @@ public class ReadExcel {
 		File file = new File("debug.xlsx");
 		XSSFWorkbook books = new XSSFWorkbook();
 		XSSFSheet sh = books.createSheet();
-		
 	    XSSFRow row= sh.createRow(0);
 	    XSSFCell cell= row.createCell(0);
 	    cell.setCellValue(error);
@@ -128,8 +134,6 @@ public class ReadExcel {
 		coreProps.setCreator("A+A");
 		books.write(writer);
 		books.close();
-		
-			   
 		
 	}
 	public static void callExcelMacro() throws InvalidFormatException, IOException {
@@ -150,7 +154,7 @@ public class ReadExcel {
 
 		} catch (Exception e) {
 			
-			ReadExcel.errorLog(e.getMessage());
+			Error.printError(e.getMessage());
 			
 		} finally {
 
@@ -186,13 +190,11 @@ public class ReadExcel {
 				}
 				doc.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Error.printError(e.getMessage());
 			}
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Error.printError(e.getMessage());
 		}
 		
 		//exportControlToExcel(questions, file.toString().replace(".docx", ""));
@@ -307,10 +309,12 @@ public class ReadExcel {
 					books = new XSSFWorkbook(file);
 				}
 				List<XSSFSheet> shs= new ArrayList<XSSFSheet>();
+				List<XSSFSheet> shsAer= new ArrayList<XSSFSheet>();
 				for(int i =0 ; i < books.getNumberOfSheets();i++){
 					shs.add(books.getSheetAt(i));
 				
 				}
+				
 				int shPage=0;
 				//XSSFSheet shDisqu= books.createSheet();
 				//shDisqu.createRow(0);
@@ -351,7 +355,7 @@ public class ReadExcel {
 				styleAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
 				
 				File f2 = file;
-			
+				List<TraitementEntrer> aerList = new ArrayList<TraitementEntrer>();
 				for(int i = 1 ; i <((list.size())+1);i++){
 					int rowNum = shs.get(0).getLastRowNum()+1;
 					
@@ -362,58 +366,53 @@ public class ReadExcel {
 					shPage=0;
 					disqu= false;
 					double sysNum = list.get(i-1).getReponses().get(0).reponseNumeric;
+					TraitementEntrer temp = list.get(i-1);
 					for(int j = 0 ; j < list.get(i-1).getReponses().size();j++){
 						
 						if(j>=16384){
 							shPage++;							
 						} 
-							if(!list.get(i-1).getReponses().get(j).isEmpty){
-									
-								//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
-										int columnIndex = list.get(i-1).getReponses().get(j).columnPosition;
-										if(columnIndex>=16384){
-											columnIndex++;
-											columnIndex %=16384;
-											if(columnIndex==0){
-												columnIndex++;
-											}
-											
-										}
-										shs.get(shPage).getRow(rowNum).createCell(columnIndex);
-										if(list.get(i-1).getReponses().get(j).reponseType==1){
-											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
-										} else {
-											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
-										}
-										if(list.get(i-1).getReponses().get(j).disqualif){
-											disqu = true;
-											if(list.get(i-1).getReponses().get(j).isAerDisq){
-												aerDisqu=true;
-												shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleAer);
-											}else {
-												shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleDisqu);
-											}
-										}
-										if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
-
-											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleSkip);
-										}
-										if(list.get(i-1).getReponses().get(j).isValueDisqu){
-											shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleValueDiqu);
-										}
-										list.get(i-1).getReponses().remove(j);
-										j--;
-							
-				 					}
+						if(!list.get(i-1).getReponses().get(j).isEmpty){
 								
-							
-							
-							
+							//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
+							int columnIndex = list.get(i-1).getReponses().get(j).columnPosition;
+							if(columnIndex>=16384){
+								columnIndex++;
+								columnIndex %=16384;
+								if(columnIndex==0){
+									columnIndex++;
+								}
+								
+							}
+							shs.get(shPage).getRow(rowNum).createCell(columnIndex);
+							if(list.get(i-1).getReponses().get(j).reponseType==1){
+								shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseNumeric);
+							} else {
+								shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellValue(list.get(i-1).getReponses().get(j).reponseTexte);
+							}
+							if(list.get(i-1).getReponses().get(j).disqualif){
+								disqu = true;
+								if(list.get(i-1).getReponses().get(j).isAerDisq){
+									aerDisqu=true;
+									shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleAer);
+								}else {
+									shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleDisqu);
+								}
+							}
+							if(list.get(i-1).getReponses().get(j).shouldBeEmpty){
+
+								shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleSkip);
+							}
+							if(list.get(i-1).getReponses().get(j).isValueDisqu){
+								shs.get(shPage).getRow(rowNum).getCell(columnIndex).setCellStyle(styleValueDiqu);
+							}
 						
+	 					}
 					}
 					if(disqu){
 						if(aerDisqu){
 							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleAer);
+							aerList.add(temp);
 						}else {
 							shs.get(shPage).getRow(rowNum).getCell(0).setCellStyle(styleDisqu);
 						}
@@ -427,7 +426,7 @@ public class ReadExcel {
 					disqu = false;
 					aerDisqu=false;
 					list.remove(i-1);
-					i--;
+					i--;	
 				}/*
 				if(books.getNumberOfSheets()>1){
 					int rowFirstPage =books.getSheetAt(0).getLastRowNum();
@@ -447,7 +446,107 @@ public class ReadExcel {
 						}
 					}
 				}*/
-				int fileNumber =0;
+				
+				if(!aerList.isEmpty()){
+					
+					XSSFWorkbook booksAer;
+					if(!study.getBase().isEmpty() && !study.getLanguage().isEmpty() && !study.getServeur().isEmpty()){
+						booksAer= ReadExcel.testExcel(con.getColumnLabel(study.getBase(), study.getLanguage(),study.getServeur()));
+					} else {
+						booksAer = new XSSFWorkbook(file);
+					}
+					for(int i =0 ; i < booksAer.getNumberOfSheets();i++){
+						shsAer.add(booksAer.getSheetAt(i));
+					
+					}
+					CellStyle styleDisquAer = booksAer.createCellStyle();
+					CellStyle styleSkipAer = booksAer.createCellStyle();
+					CellStyle styleAerAer = booksAer.createCellStyle();
+					CellStyle styleValueDiquAer = booksAer.createCellStyle();
+					
+					styleDisquAer.cloneStyleFrom(shsAer.get(0).getRow(0).getCell(0).getCellStyle());
+					styleDisquAer.setFillBackgroundColor(IndexedColors.RED.getIndex());
+					styleDisquAer.setFillForegroundColor(IndexedColors.RED.getIndex());
+					styleDisquAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+					styleValueDiquAer.cloneStyleFrom(shsAer.get(0).getRow(0).getCell(0).getCellStyle());
+					styleValueDiquAer.setFillBackgroundColor(IndexedColors.ORANGE.getIndex());
+					styleValueDiquAer.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+					styleValueDiquAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
+					
+					styleSkipAer.cloneStyleFrom(shsAer.get(0).getRow(0).getCell(0).getCellStyle());
+					styleSkipAer.setFillBackgroundColor(IndexedColors.PINK.getIndex());
+					styleSkipAer.setFillForegroundColor(IndexedColors.PINK.getIndex());
+					styleSkipAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
+					
+					styleAerAer.cloneStyleFrom(shsAer.get(0).getRow(0).getCell(0).getCellStyle());
+					styleAerAer.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
+					styleAerAer.setFillForegroundColor(IndexedColors.BLUE_GREY.getIndex());
+					styleAerAer.setFillPattern(CellStyle.SOLID_FOREGROUND);
+					
+					for(int i = 1 ; i < aerList.size()+1;i++){
+						for(int j= 0 ; j<shsAer.size();j++){
+							shsAer.get(j).createRow(i);
+						}
+						shPage=0;
+						
+						double sysNum = aerList.get(i-1).getReponses().get(0).reponseNumeric;
+						for(int j = 0 ; j < aerList.get(i-1).getReponses().size();j++){
+							if(j>=16384){
+								shPage++;							
+							} 
+							if(!aerList.get(i-1).getReponses().get(j).isEmpty){
+								//	System.out.println("passage p  = " + p + " et question tag = " + list.get(i-1).getReponses().get(j).questionTag);
+								int columnIndex = aerList.get(i-1).getReponses().get(j).columnPosition;
+								if(columnIndex>=16384){
+									columnIndex++;
+									columnIndex %=16384;
+									if(columnIndex==0){
+										columnIndex++;
+									}
+								}
+								shsAer.get(shPage).getRow(i).createCell(columnIndex);
+								if(aerList.get(i-1).getReponses().get(j).reponseType==1){
+									shsAer.get(shPage).getRow(i).getCell(columnIndex).setCellValue(aerList.get(i-1).getReponses().get(j).reponseNumeric);
+								} else {
+									shsAer.get(shPage).getRow(i).getCell(columnIndex).setCellValue(aerList.get(i-1).getReponses().get(j).reponseTexte);
+								}
+								
+								if(aerList.get(i-1).getReponses().get(j).isAerDisq){
+									aerDisqu=true;
+									shsAer.get(shPage).getRow(i).getCell(columnIndex).setCellStyle(styleAerAer);
+								}								
+								if(aerList.get(i-1).getReponses().get(j).isValueDisqu){
+									shsAer.get(shPage).getRow(i).getCell(columnIndex).setCellStyle(styleValueDiquAer);
+								}
+								aerList.get(i-1).getReponses().remove(j);
+								j--;
+					
+		 					}
+						}
+					
+						if(aerDisqu){
+							shsAer.get(shPage).getRow(i).getCell(0).setCellStyle(styleAerAer);
+							
+						}
+						
+						if(shsAer.size()>1){
+							for(int j = 1 ; j < shsAer.size();j++){
+								shsAer.get(j).getRow(i).createCell(0).setCellValue(sysNum);
+								shsAer.get(j).getRow(i).getCell(0).setCellValue(sysNum);
+							}
+						}
+					}
+					String temp = Configuration.getConf(7) + 	file.getName();
+					temp = temp.replaceAll("base qualif", "base aer");
+					File f3 = new File(temp);
+					FileOutputStream writer = new FileOutputStream(f3);
+
+					booksAer.write(writer);
+					booksAer.close();
+					System.out.println("passage Aer Book");
+				}
+				int fileNumber =	0;
 				boolean isWrite = false;
 				
 				String temp = file.getAbsolutePath();
@@ -465,7 +564,7 @@ public class ReadExcel {
 					}
 				}while(!isWrite);
 				
-				FileOutputStream writer = new FileOutputStream(f2);
+				FileOutputStream writer = new FileOutputStream(file);
 
 				books.write(writer);
 				books.close();
@@ -476,7 +575,7 @@ public class ReadExcel {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("passage catch ");
-				return false;
+				return false;	
 			} */
 	}
 	

@@ -1,5 +1,10 @@
-package baseLibelle;
-
+package traitementPrintStudy;
+/**
+ * 
+ * @author dbinet
+ *
+ *classe servant au traitement des free format lors de la création des validationguide dans ImportTxt
+ */
 public class FreeFormatGuide {
 	String questionName;
 	String variableName;

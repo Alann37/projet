@@ -1,5 +1,11 @@
 package traitement;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe contenant les informations d'une conditons multiple 
+ *
+ */
 public class ValidationBoucle {
 	boolean satisfied;
 	String loopPart;

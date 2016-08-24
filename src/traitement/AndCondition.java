@@ -1,5 +1,14 @@
 package traitement;
 
+import java.io.IOException;
+
+/**
+ * 
+ * @author dbinet
+ *
+ *classe servant a faire des and condition (classe plus utilisé pour le traitement a l'heure actuel)
+ *
+ */
 public class AndCondition {
 	boolean firstPart;
 	Condition secondPart;
@@ -8,7 +17,7 @@ public class AndCondition {
 	String loopPart;
 	AndCondition previous;
 	boolean andOr; // true si AND , false si OR
-	public AndCondition(Reponse a,boolean val , String secondPart,boolean b){
+	public AndCondition(Reponse a,boolean val , String secondPart,boolean b) throws IOException{
 		firstPart=val;
 		loopPart ="";
 		firstAnswer=a;
@@ -19,7 +28,6 @@ public class AndCondition {
 		if(secondPart.contains(" ")){
 			qName = secondPart.split(" ")[0];
 			secondPart = secondPart.replaceAll(qName,"");
-			
 		}
 		if(firstAnswer.questionTag.contains(".")){
 			loopPart = firstAnswer.questionTag.split("\\.")[1];
@@ -36,13 +44,11 @@ public class AndCondition {
 			loopPart = firstAnswer.questionTag.split("\\.")[1];
 		}
 		qName = secondPart.link;
-
-
 		this.secondPart = secondPart.c;
 		previous=null;
 		andOr = b;
 	}
-	public AndCondition(Reponse a,boolean val , String secondPart,AndCondition p,boolean b){
+	public AndCondition(Reponse a,boolean val , String secondPart,AndCondition p,boolean b) throws IOException{
 		firstPart=val;
 		previous=p;
 		loopPart ="";

@@ -1,5 +1,7 @@
 package Configuration;
-
+/**
+ * Classe permettant l'import/export des informations du fichier config.xls
+ */
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

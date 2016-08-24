@@ -1,7 +1,13 @@
 package traitement;
 import java.io.File;
 import java.io.FilenameFilter;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe permettant de récuperer un groupement de fichier finissant par la meme extension
+ *
+ */
 public class Filter {
 
     public File[] finder( String dirName,String extension){

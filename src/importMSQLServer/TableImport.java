@@ -1,5 +1,10 @@
 package importMSQLServer;
-
+/**
+ * 
+ * @author dbinet
+ * classe servant à récupérer les différentes tables de la base et 
+ * a extraire leurs numéros pour permettre un tri cohérent des données
+ */
 public class TableImport {
 	String name;
 	int number;

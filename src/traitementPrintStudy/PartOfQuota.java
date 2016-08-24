@@ -1,5 +1,11 @@
-package baseLibelle;
-
+package traitementPrintStudy;
+/**
+ * 
+ * @author dbinet
+ *
+ *classe contenant les informations relatives a un quota
+ *
+ */
 public class PartOfQuota {
 	int limite;
 	int value;

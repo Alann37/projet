@@ -1,8 +1,16 @@
-package baseLibelle;
+package traitementPrintStudy;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * 
+ * 
+ * @author dbinet
+ *
+ *classe servant a la récupération des information contenu dans les liste ( servait pour la création des bases libéllée mais non utilisée maintenant)
+ *
+ *
+ */
 public class SawtoothList {
 	String listName;
 	List<String> listItem;

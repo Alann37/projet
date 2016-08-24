@@ -11,7 +11,14 @@ import javax.swing.SingleSelectionModel;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe contenant une réponse de l'étude
+ *
+ *
+ */
 public class Reponse {
 	String reponseTexte ;
 	double reponseNumeric;
@@ -133,23 +140,20 @@ public class Reponse {
 		disqualif = false;
 		questionTag= questionLabel;
 		reponseDate= null;
-
 		isSetOnQuestion=false;
 		isValueDisqu=false;
 		shouldBeEmpty= false;
 		isDate = false;
-
 		if(answer != null){
 			reponseTexte=answer;
 			reponseType = type;
 			if(type == 1) {// cas int
-				
 				answer = answer.replaceAll("[^\\d.]", "");
 				reponseNumeric = Double.parseDouble(answer) ;
-				if (questionTag.contains("date") ){
+				/*if (questionTag.contains("date") ){
 					reponseDate = HSSFDateUtil.getJavaDate(reponseNumeric);
 				
-				}
+				}*/
 			} else {
 				reponseTexte = answer;
 			
@@ -157,10 +161,10 @@ public class Reponse {
 				if (questionTag.contains("date") && !answer.contains("undef") && !answer.isEmpty() && answer.length()>4 ){
 					
 					isDate = true;
-					DateFormat d = new SimpleDateFormat("dd/mm/yy");
+					/*DateFormat d = new SimpleDateFormat("dd/mm/yy");
 
 					 reponseDate = d.parse(reponseTexte);
-					 reponseDate.setMonth(Integer.valueOf(answer.split("\\/")[1])-1);
+					 reponseDate.setMonth(Integer.valueOf(answer.split("\\/")[1])-1);*/
 				}
 			}
 			if(questionLabel.contains("_")){

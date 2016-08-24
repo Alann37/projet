@@ -1,10 +1,20 @@
 package traitement;
 
+import java.io.IOException;
+
+/**
+ * 
+ * @author dbinet
+ *
+ * classe permettant de créer des conditions multiple (n'est plus utiliser a l'heure actuel)
+ * servait a faire les tag de type then
+ *
+ */
 public class MultipleCondition {
 	String questionName;
 	Condition secondCondition;
 	String partOfLoop;
-	public MultipleCondition(String secondPart){
+	public MultipleCondition(String secondPart) throws IOException{
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
@@ -38,7 +48,7 @@ public class MultipleCondition {
 			secondCondition = new Condition("MIN"+secondPart.split("MIN")[1]);
 		}
 	}
-	public MultipleCondition(String secondPart,String loopPart){
+	public MultipleCondition(String secondPart,String loopPart) throws IOException{
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];
 			questionName = questionName.replaceAll(" ","");
@@ -73,7 +83,7 @@ public class MultipleCondition {
 		}
 		partOfLoop=loopPart;
 	}
-	public MultipleCondition(String secondPart,double i,String s){
+	public MultipleCondition(String secondPart,double i,String s) throws IOException{
 		
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];
@@ -128,7 +138,7 @@ public class MultipleCondition {
 			secondCondition = new Condition("MIN"+secondPart.split("MIN")[1]);
 		}
 	}
-	public MultipleCondition(String secondPart,double i,String s,String country){
+	public MultipleCondition(String secondPart,double i,String s,String country) throws IOException{
 		
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];
@@ -182,7 +192,7 @@ public class MultipleCondition {
 		secondCondition.countryTag=country;
 	}
 
-public MultipleCondition(String secondPart,double i,String s,String country,String loopPart){
+public MultipleCondition(String secondPart,double i,String s,String country,String loopPart) throws IOException{
 		partOfLoop=loopPart;
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];
@@ -236,7 +246,7 @@ public MultipleCondition(String secondPart,double i,String s,String country,Stri
 		secondCondition.countryTag=country;
 	}
 	
-	public MultipleCondition(String secondPart,String s,double i,String loopPart){
+	public MultipleCondition(String secondPart,String s,double i,String loopPart) throws IOException{
 		partOfLoop=loopPart;
 		if(secondPart.contains("SUP")){
 			questionName= secondPart.split("SUP")[0];

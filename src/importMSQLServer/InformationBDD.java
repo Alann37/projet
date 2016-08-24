@@ -2,6 +2,12 @@ package importMSQLServer;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * 
+ * @author dbinet
+ *
+ * Classe contenant les informations de ImportDatabase pour chaque étude
+ */
 
 public class InformationBDD {
 	private String base;

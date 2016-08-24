@@ -1,4 +1,4 @@
-package baseLibelle;
+package traitementPrintStudy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +27,26 @@ import Configuration.Configuration;
 		   row = (XSSFRow)rows.next();
 		   listeEntrer.add(new TraitementEntrer());
 		   Iterator cells = row.cellIterator();*/
+
+/**
+ * 
+ * @author dbinet
+ *
+ *classe permettant l'export de base en libeler (fonction non utilisée)
+ *contient aussi la création des guides de validation
+ *
+ */
 public class ExportLibeleBase {
+	
+	/**
+	 * 
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 * 
+	 * fonction servant a mettre les base en libellée
+	 * 
+	 */
 	public static void exportBaseWithLibelle(List<SawtoothList> list,File file) throws IOException{
 		InputStream reader = new FileInputStream(file);
 		XSSFWorkbook books = new XSSFWorkbook(reader);
@@ -118,7 +137,16 @@ public class ExportLibeleBase {
 		books.write(writer);
 		books.close();
 	}
-	
+
+	/**
+	 * 
+	 * @param list
+	 * @param name
+	 * @throws IOException
+	 * 
+	 * classe créant le fichier word du validation guide a partir de la list passer en parametre
+	 * 
+	 */
 
 	public static void setMasterWithPrintStudy(List<String> list,String name) throws IOException{
 		File master = new File("Word Validation Guide.docx");
@@ -146,7 +174,6 @@ public class ExportLibeleBase {
 					doc.createParagraph();
 					temp2 = doc.getLastParagraph();
 					temp2.createRun();
-					
 					changeText(temp2,"errorW if : ",true);
 					if(temp2!=null){
 						doc.setParagraph(temp2,count);
@@ -179,6 +206,16 @@ public class ExportLibeleBase {
 		}
 		
 	}
+	
+	/**
+	 * 
+	 * @param p
+	 * @param newText
+	 * @param b
+	 * 
+	 * fonction servant a mettre du texte dans le fichier word
+	 * 
+	 */
 	public static void changeText(XWPFParagraph p, String newText,boolean b) {
 		   List<XWPFRun> runs = p.getRuns();
 		  

@@ -1,5 +1,6 @@
 package traitement;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,14 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 
+import ErrorLog.Error;
+/**
+ * 
+ * @author dbinet
+ *
+ *classe contenant une condition pour une question
+ *
+ */
 public class Condition {
 	
 	boolean skip;
@@ -37,7 +46,7 @@ public class Condition {
 	double neq;
 	double constSumRes;
 	Date dateCondition;
-	
+	String dateType;
 	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox 9 nb Item Check 10 item uncheck
 	int[] type;
 	int[] checkbox;
@@ -52,8 +61,8 @@ public class Condition {
 	
 	
 	
-	public Condition(String condition){
-		
+	public Condition(String condition) throws IOException{
+		dateType="";
 		valueCondition = new ArrayList<Reponse>();
 		if(condition.contains("AER")){
 			isAer=true;
@@ -129,7 +138,7 @@ public class Condition {
 		}
 	}
 	
-	public Condition(String condition, boolean braket){
+	public Condition(String condition, boolean braket) throws IOException{
 		valueCondition = new ArrayList<Reponse>();
 		if(condition.contains("AER")){
 			isAer=true;
@@ -143,11 +152,10 @@ public class Condition {
 		withBraket=braket;
 		countryTag="";
 		isCheckedCondition=false;
-		if(condition.contains("(")){
+		if(condition.contains("(")){ //gestion de création de condition multiple
 			braket(condition);
 		}else {
 			isNa=false;
-			
 			multiple = false;
 			notEmptyCondition=false;
 			associateCondition="";
@@ -177,7 +185,6 @@ public class Condition {
 					associateCondition=condition.replaceAll(temp+"AND", "");
 					condition = temp;	
 				}
-				
 			}
 			if(condition.contains("NA")){
 				condition= condition.replaceAll(" ","");
@@ -214,7 +221,7 @@ public class Condition {
 		}
 	}
 	 
-	private void  braket(String condition){
+	private void  braket(String condition) throws IOException{
 		
 		if(condition.contains(":")){
 			countryTag=condition.split(":")[0];
@@ -348,7 +355,11 @@ public class Condition {
 			System.out.println("<<<<< END CONDITION >>>>>");
 		}
 	}
-	// 0 superieur 1 inferieur 2 egaliter 3 difference 4 radioButton 5 minmax 6 date 7 constantSum 8 checkbox 9 nb Item Check 10 item uncheck
+	// 0 supérieur 1 inférieur 2 égalité 3 difference 
+	/**
+	 * fonction servant a retraiter une value Condition
+	 * @param s
+	 */
 	public void setCondition(String s){
 		if(type[0]==0){
 			traitementValueCondition("SUP"+s);
@@ -377,11 +388,15 @@ public class Condition {
 			s = s.replaceAll("[^\\d.]", "");
 			s = s.replaceAll("=/=","");
 			neq = Double.valueOf(s);
-			
 		}
 	}
-	
-	public void traitement(String condition,int indice){
+	/**
+	 * fonction servant à créer une condition simple
+	 * @param condition
+	 * @param indice
+	 * @throws IOException 
+	 */
+	public void traitement(String condition,int indice) throws IOException{
 		String newCondition = "";
 		if(condition.startsWith(" ")){
 			condition = condition.replaceFirst(" ", "");
@@ -413,6 +428,9 @@ public class Condition {
 			type[indice]=-1;
 
 		}else if(condition.contains("_")){
+			/*
+			 	rajout du tag si besoin ( _rX_cX ) 
+			 */
 			if(condition.split("_").length==2){
 				tag = "_"+condition.split("_")[1];
 				condition = condition.replaceAll(tag,"");
@@ -433,6 +451,12 @@ public class Condition {
 		if(!questionValue){
 			if(condition.contains("date")){
 				isDate= true;
+				if(condition.contains("US")){
+					dateType="us";
+					condition = condition.split("date")[1].replaceAll("US	", "");
+				} else {
+					dateType="fr";
+				}
 				condition = condition.replaceAll("date","");
 			}
 		}
@@ -532,7 +556,7 @@ public class Condition {
 			}else if(preGoTo.contains("MIN") && !condition.contains("date") && !isDate){
 				type[indice] = 5;
 				newCondition = preGoTo.replaceAll("MIN","");
-				newCondition= newCondition.replaceAll("MAX","");
+				newCondition = newCondition.replaceAll("MAX","");
 				newCondition = newCondition.replaceAll(" ","");
 				min = Double.parseDouble(newCondition.split("-")[0]);
 				newCondition = newCondition.split("-")[1];
@@ -665,8 +689,7 @@ public class Condition {
 					dateCondition = d.parse(condition);
 					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error.printError(e.getMessage());
 				}
 				
 				
@@ -680,8 +703,7 @@ public class Condition {
 					dateCondition = d.parse(condition);
 					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error.printError(e.getMessage());
 				}
 				
 			}else if(condition.contains("EQ") && !condition.contains("NEQ")){
@@ -693,10 +715,9 @@ public class Condition {
 		
 				try {
 					dateCondition = d.parse(condition);
-					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
+					dateCondition.	setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error.printError(e.getMessage());
 				}
 			}else if(condition.contains("NEQ")){
 				condition  = condition.replaceAll("NEQ","");
@@ -708,8 +729,7 @@ public class Condition {
 					dateCondition = d.parse(condition);
 					dateCondition.setMonth(Integer.valueOf(condition.split("\\/")[1])-1);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Error.printError(e.getMessage());
 				}
 			}
 			

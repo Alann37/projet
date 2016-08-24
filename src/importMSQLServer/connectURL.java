@@ -6,14 +6,31 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import Configuration.Configuration;
+import ErrorLog.Error;
 import traitement.Reponse;
 import traitement.TraitementEntrer;
-
+/**
+ * 
+ * @author dbinet
+ *
+ *classe faisant le liens avec la base de donnée 
+ *permet la récuperation des informations
+ *
+ *API utilisée : JDBC
+ */
 public class ConnectURL {
 	public ConnectURL(){
 		decalage = 0;
 	}
 	private int decalage;
+	/**
+	 *fonction de récuperation des entête de colonne pour le fichier excel.
+	 * @param database
+	 * @param langue
+	 * @param serveur
+	 * @return
+	 * @throws IOException
+	 */
 	public List<String> getColumnLabel(String database,String langue,String serveur) throws IOException{
 		List<String> lRet = new ArrayList<String>();
 		String connectionUrl = "jdbc:sqlserver://"+serveur+";"
@@ -25,6 +42,7 @@ public class ConnectURL {
 		List<TableImport> tablesImport = new ArrayList<TableImport>();
 		ResultSet rs = null;
 		 try {
+			 //connection a la base
 			con = DriverManager.getConnection(connectionUrl,user,passwd);
 			 DatabaseMetaData dbm = con.getMetaData();
 	         ResultSet tables = dbm.getTables(null, null,langue+"_data%",null);
@@ -65,12 +83,14 @@ public class ConnectURL {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			ErrorLog.Error m = new ErrorLog.Error (e.getMessage());
+			m.printError();
 		}          
 		
 		return lRet;
 	}
 	
-	private List<TraitementEntrer> doQuery(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list,int passage) throws ParseException{
+	private List<TraitementEntrer> doQuery(Statement stmt, ResultSet rs,Connection con,String query,List<TraitementEntrer> list,int passage) throws ParseException, IOException{
 		boolean firstPassage= false;
 		if(list.size()==0){
 			firstPassage = true;
@@ -117,7 +137,8 @@ public class ConnectURL {
 			  
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ErrorLog.Error m = new ErrorLog.Error (e.getMessage());
+			m.printError();
 		}
           
          return list;
@@ -155,21 +176,21 @@ public class ConnectURL {
             	}
             }
             String query = "";
-            
-            for(int i = 0 ; i < tablesImport.size(); i++){
+	            for(int i = 0 ; i < tablesImport.size(); i++){
             	query = "SELECT * FROM "+ tablesImport.get(i).name;
             	listTraitement=doQuery(stmt, rs, con, query,listTraitement,i);
             }
            
          }
          catch (Exception e) {
-            e.printStackTrace();
+        	 ErrorLog.Error m = new ErrorLog.Error (e.getMessage());
+ 			m.printError();
          }
         
          finally {
-            if (rs != null) try { rs.close(); } catch(Exception e) {}
-            if (stmt != null) try { stmt.close(); } catch(Exception e) {}
-            if (con != null) try { con.close(); } catch(Exception e) {}
+            if (rs != null) try { rs.close(); } catch(Exception e) {Error.printError(e.getMessage());}
+            if (stmt != null) try { stmt.close(); } catch(Exception e) {Error.printError(e.getMessage());}
+            if (con != null) try { con.close(); } catch(Exception e) {Error.printError(e.getMessage());}
            
          }
        /* for(int i = 0 ; i < listTraitement.get(1).getReponses().size();i++){
